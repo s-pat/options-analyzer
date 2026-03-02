@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package market;
+
+option go_package = "github.com/sohanpatel/options-analyzer/api/proto";
+
+service MarketService {
+  rpc StreamOptionUpdates(SymbolRequest) returns (stream OptionUpdate);
+}
+
+message SymbolRequest {
+  string symbol = 1;
+}
+
+message OptionUpdate {
+  string symbol = 1;
+  string contract_symbol = 2;
+  double strike = 3;
+  string option_type = 4;
+  double bid = 5;
+  double ask = 6;
+  double mid = 7;
+  double delta = 8;
+  double implied_volatility = 9;
+  double score = 10;
+  int64 timestamp = 11;
+}

@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  # ── Go REST + gRPC backend ────────────────────────────────────────────────
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: "8080"
+      GRPC_PORT: "9090"
+      GIN_MODE: "release"
+      # Accepts requests from the Next.js container (server-side proxy)
+      ALLOWED_ORIGINS: "http://localhost:3000"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ── Next.js frontend ──────────────────────────────────────────────────────
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      # Server-side: proxy /api/v1/* → api container
+      API_BACKEND_URL: "http://api:8080"
+      # Browser-side: use same-origin relative path (proxied by Next.js)
+      NEXT_PUBLIC_API_URL: "/api/v1"
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
