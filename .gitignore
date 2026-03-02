@@ -9,9 +9,12 @@ out/
 dist/
 build/
 
-# Go binaries
+# Go binaries and artifacts
 apps/api/bin/
 apps/api/server
+*.test
+*.out
+vendor/
 
 # Environment — NEVER commit real .env files
 .env
