@@ -226,19 +226,19 @@ export function BacktestResults({ result }: BacktestResultsProps) {
             Entry $ and Exit $ shown per share; P&L $ / contract = difference × 100.
           </p>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="p-0 overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="text-xs">
                 <TableHead>Entry Date</TableHead>
-                <TableHead>Exit Date</TableHead>
+                <TableHead className="hidden sm:table-cell">Exit Date</TableHead>
                 <TableHead>Strike</TableHead>
-                <TableHead>Entry $ <span className="text-muted-foreground/60">(per share)</span></TableHead>
-                <TableHead>Exit $ <span className="text-muted-foreground/60">(per share)</span></TableHead>
+                <TableHead>Entry $</TableHead>
+                <TableHead>Exit $</TableHead>
                 <TableHead>P&L %</TableHead>
-                <TableHead>P&L $ / contract</TableHead>
-                <TableHead>Days Held</TableHead>
-                <TableHead>Exit Reason</TableHead>
+                <TableHead>P&L $</TableHead>
+                <TableHead className="hidden md:table-cell">Days</TableHead>
+                <TableHead className="hidden sm:table-cell">Exit</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -247,7 +247,7 @@ export function BacktestResults({ result }: BacktestResultsProps) {
                 return (
                   <TableRow key={i} className="text-sm">
                     <TableCell>{t.entryDate}</TableCell>
-                    <TableCell>{t.exitDate}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{t.exitDate}</TableCell>
                     <TableCell>${t.strike}</TableCell>
                     <TableCell>${t.entryPrice.toFixed(2)}</TableCell>
                     <TableCell>${t.exitPrice.toFixed(2)}</TableCell>
@@ -257,8 +257,8 @@ export function BacktestResults({ result }: BacktestResultsProps) {
                     <TableCell className={t.winner ? 'text-green-500 font-medium' : 'text-red-500 font-medium'}>
                       {dollarPnl >= 0 ? '+' : '−'}${Math.abs(dollarPnl).toFixed(0)}
                     </TableCell>
-                    <TableCell>{t.daysHeld}d</TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">{t.daysHeld}d</TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <Badge variant={t.winner ? 'default' : 'destructive'} className="text-[10px]">
                         {exitReasonLabel[t.exitReason] ?? t.exitReason}
                       </Badge>
@@ -402,7 +402,8 @@ export function BacktestResults({ result }: BacktestResultsProps) {
             />
           </div>
 
-          {/* Per-trade breakdown table — columns are grouped to avoid horizontal scroll */}
+          {/* Per-trade breakdown table */}
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="text-xs">
@@ -491,6 +492,8 @@ export function BacktestResults({ result }: BacktestResultsProps) {
               })}
             </TableBody>
           </Table>
+
+          </div>
 
           <p className="text-xs text-muted-foreground">
             Note: This simulation uses the same entry/exit prices as the backtest above.

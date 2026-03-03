@@ -68,9 +68,9 @@ export default function ScreenerPage() {
     }
   };
 
-  const SortHeader = ({ label, k }: { label: string; k: SortKey }) => (
+  const SortHeader = ({ label, k, className }: { label: string; k: SortKey; className?: string }) => (
     <TableHead
-      className="cursor-pointer select-none"
+      className={`cursor-pointer select-none ${className ?? ''}`}
       onClick={() => toggleSort(k)}
     >
       <div className="flex items-center gap-1">
@@ -99,18 +99,18 @@ export default function ScreenerPage() {
 
         {!isLoading && (
           <Card>
-            <CardContent className="p-0">
+            <CardContent className="p-0 overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow className="text-xs">
                     <SortHeader label="Symbol" k="symbol" />
-                    <TableHead>Name</TableHead>
-                    <TableHead>Sector</TableHead>
+                    <TableHead className="hidden sm:table-cell">Name</TableHead>
+                    <TableHead className="hidden sm:table-cell">Sector</TableHead>
                     <SortHeader label="Price" k="price" />
                     <SortHeader label="% Chg" k="changePercent" />
                     <SortHeader label="IV Rank" k="ivRank" />
-                    <SortHeader label="IV %" k="iv" />
-                    <SortHeader label="HV 30" k="hv30" />
+                    <SortHeader label="IV %" k="iv" className="hidden md:table-cell" />
+                    <SortHeader label="HV 30" k="hv30" className="hidden sm:table-cell" />
                     <SortHeader label="RSI" k="rsi" />
                   </TableRow>
                 </TableHeader>
@@ -122,8 +122,8 @@ export default function ScreenerPage() {
                       onClick={() => router.push(`/options?symbol=${s.symbol}`)}
                     >
                       <TableCell className="font-semibold">{s.symbol}</TableCell>
-                      <TableCell className="text-muted-foreground max-w-[160px] truncate">{s.name}</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell text-muted-foreground max-w-[160px] truncate">{s.name}</TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <Badge variant="outline" className="text-[10px]">{s.sector}</Badge>
                       </TableCell>
                       <TableCell>${s.price?.toFixed(2)}</TableCell>
@@ -131,8 +131,8 @@ export default function ScreenerPage() {
                         {s.changePercent >= 0 ? '+' : ''}{s.changePercent?.toFixed(2)}%
                       </TableCell>
                       <TableCell><IVBadge rank={s.ivRank} /></TableCell>
-                      <TableCell>{s.iv?.toFixed(1)}%</TableCell>
-                      <TableCell>{s.hv30?.toFixed(1)}%</TableCell>
+                      <TableCell className="hidden md:table-cell">{s.iv?.toFixed(1)}%</TableCell>
+                      <TableCell className="hidden sm:table-cell">{s.hv30?.toFixed(1)}%</TableCell>
                       <TableCell>{s.rsi?.toFixed(0)}</TableCell>
                     </TableRow>
                   ))}
