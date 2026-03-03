@@ -64,54 +64,56 @@ function ExpiryGroup({
         <Badge variant="outline" className="text-xs">{dte} DTE</Badge>
         <Badge variant="outline" className={cn('text-xs', cfg.color)}>{cfg.label}</Badge>
       </div>
-      <Table>
-        <TableHeader>
-          <TableRow className="text-xs">
-            <TableHead>Strike</TableHead>
-            <TableHead>Bid</TableHead>
-            <TableHead>Ask</TableHead>
-            <TableHead>Cost</TableHead>
-            <TableHead>IV</TableHead>
-            <TableHead>Delta</TableHead>
-            <TableHead>OI</TableHead>
-            <TableHead className="hidden sm:table-cell">Vol</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {opts
-            .sort((a, b) => a.strike - b.strike)
-            .map((opt) => {
-              const isATM = Math.abs(opt.strike - stockPrice) / stockPrice < 0.02;
-              return (
-                <TableRow
-                  key={opt.contractSymbol}
-                  className={cn(
-                    'text-sm cursor-pointer hover:bg-muted/60',
-                    isATM && 'bg-primary/5 font-medium',
-                    selectedContract === opt.contractSymbol && 'ring-1 ring-inset ring-primary bg-primary/10',
-                  )}
-                  onClick={() => onSelect?.(opt)}
-                >
-                  <TableCell>
-                    ${opt.strike.toFixed(0)}
-                    {isATM && <Badge variant="outline" className="ml-1 text-[10px] py-0">ATM</Badge>}
-                  </TableCell>
-                  <TableCell>${opt.bid.toFixed(2)}</TableCell>
-                  <TableCell>${opt.ask.toFixed(2)}</TableCell>
-                  <TableCell className="font-medium">
-                    ${opt.contractCost?.toFixed(0) ?? (opt.ask * 100).toFixed(0)}
-                  </TableCell>
-                  <TableCell>{(opt.impliedVolatility * 100).toFixed(0)}%</TableCell>
-                  <TableCell className={deltaColor(opt.delta)}>
-                    {opt.delta.toFixed(2)}
-                  </TableCell>
-                  <TableCell>{opt.openInterest.toLocaleString()}</TableCell>
-                  <TableCell className="hidden sm:table-cell">{opt.volume.toLocaleString()}</TableCell>
-                </TableRow>
-              );
-            })}
-        </TableBody>
-      </Table>
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="text-xs">
+              <TableHead>Strike</TableHead>
+              <TableHead>Bid</TableHead>
+              <TableHead>Ask</TableHead>
+              <TableHead>Cost</TableHead>
+              <TableHead className="hidden md:table-cell">IV</TableHead>
+              <TableHead className="hidden sm:table-cell">Delta</TableHead>
+              <TableHead className="hidden sm:table-cell">OI</TableHead>
+              <TableHead className="hidden sm:table-cell">Vol</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {opts
+              .sort((a, b) => a.strike - b.strike)
+              .map((opt) => {
+                const isATM = Math.abs(opt.strike - stockPrice) / stockPrice < 0.02;
+                return (
+                  <TableRow
+                    key={opt.contractSymbol}
+                    className={cn(
+                      'text-sm cursor-pointer hover:bg-muted/60',
+                      isATM && 'bg-primary/5 font-medium',
+                      selectedContract === opt.contractSymbol && 'ring-1 ring-inset ring-primary bg-primary/10',
+                    )}
+                    onClick={() => onSelect?.(opt)}
+                  >
+                    <TableCell>
+                      ${opt.strike.toFixed(0)}
+                      {isATM && <Badge variant="outline" className="ml-1 text-[10px] py-0">ATM</Badge>}
+                    </TableCell>
+                    <TableCell>${opt.bid.toFixed(2)}</TableCell>
+                    <TableCell>${opt.ask.toFixed(2)}</TableCell>
+                    <TableCell className="font-medium">
+                      ${opt.contractCost?.toFixed(0) ?? (opt.ask * 100).toFixed(0)}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">{(opt.impliedVolatility * 100).toFixed(0)}%</TableCell>
+                    <TableCell className={cn('hidden sm:table-cell', deltaColor(opt.delta))}>
+                      {opt.delta.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">{opt.openInterest.toLocaleString()}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{opt.volume.toLocaleString()}</TableCell>
+                  </TableRow>
+                );
+              })}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

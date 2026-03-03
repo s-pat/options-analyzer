@@ -15,11 +15,11 @@ const navItems = [
   { href: '/strategies', label: 'Strategies', icon: Target },
 ];
 
-export function Sidebar() {
+export function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-60 shrink-0 border-r border-border bg-sidebar flex flex-col h-screen sticky top-0">
+    <aside className="w-64 shrink-0 border-r border-border bg-sidebar flex flex-col h-full md:h-screen md:sticky md:top-0">
       {/* Logo */}
       <div className="flex items-center gap-2 px-6 py-5 border-b border-border">
         <Activity className="h-6 w-6 text-primary" />
@@ -32,8 +32,9 @@ export function Sidebar() {
           <Link
             key={href}
             href={href}
+            onClick={onClose}
             className={cn(
-              'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+              'flex items-center gap-3 px-3 py-3 rounded-md text-sm font-medium transition-colors',
               pathname === href
                 ? 'bg-primary text-primary-foreground'
                 : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',

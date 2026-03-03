@@ -67,7 +67,7 @@ export function FilterPanel({ filter, onChange }: FilterPanelProps) {
               <button
                 key={opt.value}
                 onClick={() => onChange({ ...filter, maxCapital: opt.value })}
-                className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
+                className={`px-3 py-2 rounded text-xs font-medium border transition-colors ${
                   filter.maxCapital === opt.value
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'border-border text-muted-foreground hover:border-foreground/40'
@@ -117,7 +117,7 @@ export function FilterPanel({ filter, onChange }: FilterPanelProps) {
                   onClick={() =>
                     onChange({ ...filter, onlyCall: opt.onlyCall, onlyPut: opt.onlyPut })
                   }
-                  className={`px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
+                  className={`px-3 py-2 rounded text-xs font-medium border transition-colors ${
                     active
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'border-border text-muted-foreground hover:border-foreground/40'
