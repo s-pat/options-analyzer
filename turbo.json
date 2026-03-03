@@ -1,9 +1,17 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "API_BACKEND_URL",
+    "NEXT_PUBLIC_API_URL"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": [
+        "API_BACKEND_URL",
+        "NEXT_PUBLIC_API_URL"
+      ]
     },
     "dev": {
       "cache": false,
