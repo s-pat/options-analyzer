@@ -10,10 +10,24 @@ function confirmationHtml(name: string): string {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="supported-color-schemes" content="dark" />
   <title>You're on the OptionsLab waitlist</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { background-color: #111111 !important; }
+    .email-wrapper { background-color: #111111 !important; }
+    .email-card { background-color: #1e1e1e !important; }
+    .email-inner { background-color: rgba(255,255,255,0.04) !important; }
+    /* Gmail dark mode overrides */
+    [data-ogsc] body { background-color: #111111 !important; }
+    [data-ogsc] .email-wrapper { background-color: #111111 !important; }
+    [data-ogsc] .email-card { background-color: #1e1e1e !important; }
+    [data-ogsc] .email-inner { background-color: #1a1a1a !important; }
+  </style>
 </head>
 <body style="margin:0;padding:0;background-color:#111111;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#111111;padding:40px 16px;">
+  <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" style="background-color:#111111;padding:40px 16px;">
     <tr>
       <td align="center">
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
@@ -44,7 +58,7 @@ function confirmationHtml(name: string): string {
 
           <!-- Card -->
           <tr>
-            <td style="background-color:#1e1e1e;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px 36px;">
+            <td class="email-card" style="background-color:#1e1e1e;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px 36px;">
 
               <p style="margin:0 0 8px;font-size:22px;font-weight:600;color:#f5f5f5;line-height:1.3;">
                 You're on the list, ${firstName}.
@@ -65,7 +79,7 @@ function confirmationHtml(name: string): string {
               </p>
 
               <!-- What's OptionsLab section -->
-              <div style="background-color:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:20px 24px;margin-bottom:0;">
+              <div class="email-inner" style="background-color:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:20px 24px;margin-bottom:0;">
                 <p style="margin:0 0 12px;font-size:12px;font-weight:600;color:#888888;letter-spacing:0.06em;text-transform:uppercase;">What's OptionsLab?</p>
                 <table cellpadding="0" cellspacing="0" width="100%">
                   <tr>
