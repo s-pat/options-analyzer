@@ -4,7 +4,8 @@ import { Header } from '@/components/layout/Header';
 import { TodayOpportunities } from '@/components/today/TodayOpportunities';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTodayOpportunities } from '@/hooks/useMarketData';
-import { Loader2, TrendingUp, AlertCircle } from 'lucide-react';
+import { TrendingUp, AlertCircle } from 'lucide-react';
+import { StockLoader } from '@/components/ui/StockLoader';
 
 export default function TodayPage() {
   const { data, isLoading, error } = useTodayOpportunities();
@@ -41,10 +42,12 @@ export default function TodayPage() {
         {/* Content */}
         {isLoading ? (
           <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16 gap-3 text-muted-foreground">
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <p className="text-sm">Scanning {30}+ stocks for opportunities…</p>
-              <p className="text-xs">This may take 15–30 seconds on first load</p>
+            <CardContent className="flex flex-col items-center justify-center py-24 gap-3 text-muted-foreground">
+              <StockLoader
+                size="md"
+                message="Scanning 30+ stocks for opportunities…"
+                subtitle="This may take 15–30 seconds on first load"
+              />
             </CardContent>
           </Card>
         ) : error ? (

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRecommendations } from '@/hooks/useMarketData';
+import { StockLoader } from '@/components/ui/StockLoader';
 
 function ScoreBadge({ score }: { score: number }) {
   const color = score >= 75 ? 'default' : score >= 60 ? 'secondary' : 'outline';
@@ -21,7 +22,16 @@ function ScoreBadge({ score }: { score: number }) {
 export function TopOptions() {
   const { data, isLoading, error } = useRecommendations(20);
 
-  if (isLoading) return <div className="text-muted-foreground text-sm">Loading recommendations…</div>;
+  if (isLoading) return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Top Options Opportunities</CardTitle>
+      </CardHeader>
+      <CardContent className="flex justify-center py-12">
+        <StockLoader size="md" message="Scanning for top opportunities…" />
+      </CardContent>
+    </Card>
+  );
   if (error) return <div className="text-destructive text-sm">Failed to load recommendations</div>;
 
   const recs = data?.recommendations ?? [];

@@ -30,7 +30,6 @@ func main() {
 	port := getEnv("PORT", "8080")
 	grpcPort := getEnv("GRPC_PORT", "9090")
 	ginMode := getEnv("GIN_MODE", "debug")
-
 	// Parse ALLOWED_ORIGINS (comma-separated list)
 	originsEnv := getEnv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001")
 	var allowedOrigins []string

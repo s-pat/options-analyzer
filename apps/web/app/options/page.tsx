@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useStock, useStockHistory, useFilteredChain, useOptionAnalysis } from '@/hooks/useMarketData';
 import type { OptionContract, OptionsFilter } from '@/lib/types';
 import { AlertCircle } from 'lucide-react';
+import { StockLoader } from '@/components/ui/StockLoader';
 
 const DEFAULT_FILTER: OptionsFilter = {
   maxCapital: 0,
@@ -45,7 +46,11 @@ function OptionsPageInner() {
       <div className="flex-1 p-6 space-y-6">
         {/* Stock summary */}
         {stockLoading ? (
-          <p className="text-muted-foreground text-sm">Loading stock data…</p>
+          <Card>
+            <CardContent className="flex justify-center py-8">
+              <StockLoader size="sm" message="Fetching stock data…" />
+            </CardContent>
+          </Card>
         ) : stock ? (
           <Card>
             <CardContent className="pt-4">
@@ -93,7 +98,9 @@ function OptionsPageInner() {
           </CardHeader>
           <CardContent>
             {histLoading ? (
-              <p className="text-muted-foreground text-sm">Loading chart…</p>
+              <div className="h-64 flex items-center justify-center">
+                <StockLoader size="md" message="Loading price history…" />
+              </div>
             ) : (
               <StockChart
                 history={histData?.history ?? []}
@@ -127,7 +134,9 @@ function OptionsPageInner() {
               </CardHeader>
               <CardContent>
                 {chainLoading ? (
-                  <p className="text-muted-foreground text-sm">Loading options chain…</p>
+                  <div className="flex justify-center py-16">
+                    <StockLoader size="md" message="Loading options chain…" />
+                  </div>
                 ) : chain && (chain.calls.length > 0 || chain.puts.length > 0) ? (
                   <OptionsChain
                     chain={chain}
@@ -156,8 +165,8 @@ function OptionsPageInner() {
                 <TabsContent value="analysis" className="mt-3">
                   {analysisLoading ? (
                     <Card>
-                      <CardContent className="pt-6 text-center text-sm text-muted-foreground animate-pulse">
-                        Analyzing option…
+                      <CardContent className="flex justify-center py-10">
+                        <StockLoader size="md" message="Analyzing option…" />
                       </CardContent>
                     </Card>
                   ) : analysis ? (
@@ -191,7 +200,7 @@ function OptionsPageInner() {
 
 export default function OptionsPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-muted-foreground">Loading…</div>}>
+    <Suspense fallback={<div className="p-6"><StockLoader size="sm" message="Loading page…" /></div>}>
       <OptionsPageInner />
     </Suspense>
   );
