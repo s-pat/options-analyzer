@@ -8,9 +8,13 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "lint": "turbo lint"
+    "lint": "turbo lint",
+    "e2e": "playwright test --config=e2e/playwright.config.ts",
+    "e2e:ui": "playwright test --config=e2e/playwright.config.ts --ui",
+    "e2e:report": "playwright show-report e2e/report"
   },
   "devDependencies": {
+    "@playwright/test": "1.58.2",
     "turbo": "^2.3.3"
   },
   "packageManager": "npm@10.9.2",
