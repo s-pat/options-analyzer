@@ -1,6 +1,5 @@
 import useSWR from 'swr';
 import {
-  getAIPicks,
   getMarketOverview,
   getStocks,
   getStock,
@@ -71,10 +70,6 @@ export function useRecommendations(limit = 20) {
     () => getRecommendations(limit),
     { refreshInterval: REFRESH_INTERVAL },
   );
-}
-
-export function useAIPicks() {
-  return useSWR('ai/picks', getAIPicks, { refreshInterval: 5 * 60_000 });
 }
 
 export function useOptionAnalysis(
