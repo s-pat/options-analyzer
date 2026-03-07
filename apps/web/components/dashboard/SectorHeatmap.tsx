@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMarketOverview } from '@/hooks/useMarketData';
 import { cn } from '@/lib/utils';
+import { StockLoader } from '@/components/ui/StockLoader';
 
 function heatColor(pct: number): string {
   if (pct >= 2) return 'bg-green-700 text-white';
@@ -18,7 +19,16 @@ function heatColor(pct: number): string {
 export function SectorHeatmap() {
   const { data, isLoading, error } = useMarketOverview();
 
-  if (isLoading) return <div className="text-muted-foreground text-sm">Loading sectors…</div>;
+  if (isLoading) return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Sector Performance</CardTitle>
+      </CardHeader>
+      <CardContent className="flex justify-center py-12">
+        <StockLoader size="md" message="Loading sector performance…" />
+      </CardContent>
+    </Card>
+  );
   if (error) return <div className="text-destructive text-sm">Failed to load sectors</div>;
 
   const sectors = data?.sectors ?? [];

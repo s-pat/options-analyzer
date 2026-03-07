@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { BarChart3, TrendingUp, Search, FlaskConical, Activity, Zap, BookOpen, Target } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { BarChart3, TrendingUp, Search, FlaskConical, Activity, Zap, BookOpen, Target, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -17,6 +17,12 @@ const navItems = [
 
 export function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/gate');
+  }
 
   return (
     <aside className="w-64 shrink-0 border-r border-border bg-sidebar flex flex-col h-full md:h-screen md:sticky md:top-0">
@@ -47,9 +53,18 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
       </nav>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-border">
-        <p className="text-xs text-muted-foreground">Data: Yahoo Finance</p>
-        <p className="text-xs text-muted-foreground">30s auto-refresh</p>
+      <div className="px-6 py-4 border-t border-border space-y-3">
+        <div>
+          <p className="text-xs text-muted-foreground">Data: Yahoo Finance</p>
+          <p className="text-xs text-muted-foreground">30s auto-refresh</p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          Leave preview
+        </button>
       </div>
     </aside>
   );

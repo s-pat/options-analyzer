@@ -13,6 +13,7 @@ services:
       GIN_MODE: "release"
       # Accepts requests from the Next.js container (server-side proxy)
       ALLOWED_ORIGINS: "http://localhost:3000"
+      ML_SERVICE_URL: "http://ml:8000"
     ports:
       - "8080:8080"
     healthcheck:
@@ -21,6 +22,23 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+
+  # ── Python ML microservice (FinBERT sentiment re-ranking) ─────────────────
+  ml:
+    build: ./apps/ml
+    restart: unless-stopped
+    environment:
+      PORT: "8000"
+      API_BASE_URL: "http://api:8080"
+      TZ: "America/New_York"
+    volumes:
+      - ml_model_cache:/root/.cache/huggingface
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/health"]
+      interval: 60s
+      timeout: 30s
+      retries: 5
+      start_period: 180s   # FinBERT download + load on first run
 
   # ── Next.js frontend ──────────────────────────────────────────────────────
   web:
@@ -38,3 +56,6 @@ services:
     depends_on:
       api:
         condition: service_healthy
+
+volumes:
+  ml_model_cache:

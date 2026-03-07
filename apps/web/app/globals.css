@@ -124,3 +124,47 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ── Stock loader animations ──────────────────────────────────────────────── */
+@keyframes stock-line {
+  0%   { stroke-dashoffset: 160; opacity: 0; }
+  8%   { opacity: 1; }
+  55%  { stroke-dashoffset: 0; opacity: 1; }
+  78%  { stroke-dashoffset: 0; opacity: 1; }
+  92%  { stroke-dashoffset: 0; opacity: 0; }
+  100% { stroke-dashoffset: 160; opacity: 0; }
+}
+
+@keyframes stock-fill {
+  0%, 10% { opacity: 0; }
+  55%, 78% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+
+@keyframes stock-dot {
+  0%, 52%  { opacity: 0; transform: scale(0.4); }
+  62%      { opacity: 1; transform: scale(1); }
+  78%      { opacity: 1; transform: scale(1); }
+  88%      { opacity: 0.3; }
+  94%, 100%{ opacity: 0; transform: scale(0.4); }
+}
+
+@keyframes stock-dot-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.35); }
+}
+
+@keyframes stock-msg-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes progress-10s {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

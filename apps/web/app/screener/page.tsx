@@ -16,6 +16,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { useStocks } from '@/hooks/useMarketData';
 import { ArrowUpDown } from 'lucide-react';
+import { StockLoader } from '@/components/ui/StockLoader';
 import { cn } from '@/lib/utils';
 import type { Stock } from '@/lib/types';
 
@@ -94,10 +95,15 @@ export default function ScreenerPage() {
           <span className="text-sm text-muted-foreground">{sorted.length} stocks</span>
         </div>
 
-        {isLoading && <p className="text-muted-foreground text-sm">Loading stocks…</p>}
         {error && <p className="text-destructive text-sm">Failed to load stocks</p>}
 
-        {!isLoading && (
+        {isLoading ? (
+          <Card>
+            <CardContent className="flex justify-center py-24">
+              <StockLoader size="md" message="Loading S&P 500 data…" />
+            </CardContent>
+          </Card>
+        ) : (
           <Card>
             <CardContent className="p-0 overflow-x-auto">
               <Table>
