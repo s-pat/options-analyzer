@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo, useMemo } from 'react';
 import Link from 'next/link';
-import { useStocks } from '@/hooks/useMarketData';
+import useSWR from 'swr';
+import { getStocks } from '@/lib/api';
 import type { Stock } from '@/lib/types';
 import {
   Activity,
@@ -184,7 +185,7 @@ function Navbar() {
   );
 }
 
-function HeroChart() {
+const HeroChart = memo(function HeroChart() {
   return (
     <div className="relative w-full rounded-2xl overflow-hidden border border-white/[0.08] bg-[#0a0a11] shadow-2xl">
       {/* Header */}
@@ -264,7 +265,7 @@ function HeroChart() {
       </div>
     </div>
   );
-}
+});
 
 // ── Live data helpers ────────────────────────────────────────────────────────
 
@@ -307,7 +308,7 @@ function stocksToTicker(stocks: Stock[]): TickerItem[] {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function TickerMarquee({ items }: { items: TickerItem[] }) {
+const TickerMarquee = memo(function TickerMarquee({ items }: { items: TickerItem[] }) {
   const data = items.length > 0 ? items : TICKERS;
   const doubled = [...data, ...data];
   return (
@@ -316,7 +317,7 @@ function TickerMarquee({ items }: { items: TickerItem[] }) {
       <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#060608] to-transparent z-10 pointer-events-none" />
       <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#060608] to-transparent z-10 pointer-events-none" />
       <div
-        className="flex gap-3 w-max"
+        className="flex gap-3 w-max will-change-transform"
         style={{ animation: 'ticker-scroll 40s linear infinite' }}
       >
         {doubled.map((t, i) => (
@@ -341,7 +342,7 @@ function TickerMarquee({ items }: { items: TickerItem[] }) {
       </div>
     </div>
   );
-}
+});
 
 function FeatureCard({ feature }: { feature: typeof FEATURES[number] }) {
   const c = COLORS[feature.color];
@@ -372,12 +373,23 @@ export default function LandingPage() {
   const [loading, setLoading]     = useState(false);
   const [formError, setFormError] = useState('');
 
-  // Live market data — same source as the dashboard
-  const { data: stocksData, isLoading: stocksLoading } = useStocks();
+  // Live market data — cached for 60s, no auto-refresh on landing page to reduce API load
+  const { data: stocksData, isLoading: stocksLoading } = useSWR('stocks', getStocks, {
+    dedupingInterval: 60_000,     // share cache across all components using 'stocks' key
+    refreshInterval: 0,           // no polling on the landing page (it's just a preview)
+    revalidateOnFocus: false,     // don't refetch when user tabs back
+    revalidateOnReconnect: false, // don't refetch on network reconnect
+  });
   const stocks = stocksData?.stocks ?? [];
   const total  = stocksData?.total ?? 503;
 
-  const tickerItems = stocks.length > 0 ? stocksToTicker(stocks) : TICKERS;
+  // Stable reference — only recompute when actual ticker symbols/prices change
+  const tickerKey = stocks.map((s) => `${s.symbol}${s.price}`).join(',');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const tickerItems = useMemo(
+    () => (stocks.length > 0 ? stocksToTicker(stocks) : TICKERS),
+    [tickerKey],
+  );
 
   // Top 5 by IV rank — highest IV = most actionable options setups
   const previewRows = stocks.length > 0
