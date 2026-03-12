@@ -54,7 +54,7 @@ test.describe('Gate & auth (requires feature/beta-gate)', () => {
 
     await page.context().clearCookies();
     await page.goto('/');
-    await expect(page).toHaveURL(/gate/);
+    await expect(page).toHaveURL(/landing/);
   });
 });
 

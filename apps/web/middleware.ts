@@ -4,7 +4,7 @@ import { jwtVerify } from 'jose';
 const COOKIE_NAME = 'beta_token';
 
 // Routes that are always accessible without the beta token
-const ALLOWED_PREFIXES = ['/gate', '/api/auth', '/api/waitlist', '/api/v1'];
+const ALLOWED_PREFIXES = ['/landing', '/gate', '/api/auth', '/api/waitlist', '/api/v1'];
 
 function isAllowed(pathname: string): boolean {
   return ALLOWED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
@@ -31,8 +31,8 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Delete stale cookie and redirect to gate
-  const response = NextResponse.redirect(new URL('/gate', req.url));
+  // Delete stale cookie and redirect to landing
+  const response = NextResponse.redirect(new URL('/landing', req.url));
   response.cookies.set(COOKIE_NAME, '', { maxAge: 0, path: '/' });
   return response;
 }

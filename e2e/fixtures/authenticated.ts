@@ -11,11 +11,14 @@ export const test = base.extend<{ page: ReturnType<typeof base['extend']> }>({
   page: async ({ page }, use) => {
     await page.goto('/');
 
-    if (page.url().includes('/gate')) {
+    // Unauthenticated users now redirect to /landing (public marketing page)
+    // before /gate. Navigate directly to /gate to authenticate.
+    if (page.url().includes('/landing') || page.url().includes('/gate')) {
+      await page.goto('/gate');
       const password = process.env.E2E_PREVIEW_PASSWORD ?? 'e2e-test-password';
       await page.locator('input[type="password"]').fill(password);
       await page.locator('button[type="submit"]').click();
-      await page.waitForURL('/');
+      await page.waitForURL('/', { timeout: 20_000 });
     }
 
     await use(page as any);
