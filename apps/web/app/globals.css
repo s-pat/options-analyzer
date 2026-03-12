@@ -183,3 +183,15 @@
   0%, 100% { opacity: 0.6; }
   50%       { opacity: 1; }
 }
+
+/* SVG hero dot — CSS replacement for SMIL (more reliable in Chrome) */
+@keyframes hero-dot-pulse {
+  0%, 100% { transform: scale(1);    opacity: 1;   }
+  50%       { transform: scale(1.7); opacity: 0.4; }
+}
+
+.hero-dot {
+  animation: hero-dot-pulse 2s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}

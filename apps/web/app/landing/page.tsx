@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, memo, useMemo } from 'react';
+import { useState, useEffect, useRef, memo, useMemo } from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
 import { getStocks } from '@/lib/api';
@@ -228,11 +228,8 @@ const HeroChart = memo(function HeroChart() {
           ))}
           <path d={AREA} fill="url(#areaG)" />
           <path d={LINE} fill="none" stroke="url(#lineG)" strokeWidth="2" strokeLinecap="round" />
-          {/* Pulsing end dot */}
-          <circle cx="360" cy="0" r="3" fill="#22C55E">
-            <animate attributeName="r"       values="3;5;3" dur="2s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite" />
-          </circle>
+          {/* Pulsing end dot — CSS animation (SMIL is unreliable in some Chrome builds) */}
+          <circle cx="360" cy="0" r="4" fill="#22C55E" className="hero-dot" />
         </svg>
       </div>
 
@@ -311,14 +308,24 @@ function stocksToTicker(stocks: Stock[]): TickerItem[] {
 const TickerMarquee = memo(function TickerMarquee({ items }: { items: TickerItem[] }) {
   const data = items.length > 0 ? items : TICKERS;
   const doubled = [...data, ...data];
+
+  // Apply the animation once via ref so React never touches it on re-renders,
+  // preventing Chrome from restarting the scroll when live data replaces static tickers.
+  const trackRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (trackRef.current) {
+      trackRef.current.style.animation = 'ticker-scroll 40s linear infinite';
+    }
+  }, []); // intentionally empty — set once on mount and never again
+
   return (
     <div className="relative overflow-hidden border-y border-white/[0.06] bg-white/[0.015] py-3">
       {/* Fade edges */}
       <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#060608] to-transparent z-10 pointer-events-none" />
       <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#060608] to-transparent z-10 pointer-events-none" />
       <div
+        ref={trackRef}
         className="flex gap-3 w-max will-change-transform"
-        style={{ animation: 'ticker-scroll 40s linear infinite' }}
       >
         {doubled.map((t, i) => (
           <div
