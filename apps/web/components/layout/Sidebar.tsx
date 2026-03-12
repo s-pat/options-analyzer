@@ -74,8 +74,8 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="relative px-5 py-4 border-t border-white/[0.07] space-y-3">
+      {/* Footer — pb accounts for iPhone home indicator when sidebar overlays bottom nav */}
+      <div className="relative px-5 pt-4 pb-safe border-t border-white/[0.07] space-y-3" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 1rem))' }}>
         <div>
           <p className="text-[11px] text-white/25 font-medium">Data: Yahoo Finance</p>
           <p className="text-[11px] text-white/20">30s auto-refresh</p>
