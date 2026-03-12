@@ -614,14 +614,30 @@ function GlossaryQuiz() {
   return (
     <section>
       <SectionTitle icon={Lightbulb}>Quick Knowledge Check</SectionTitle>
-      <p className="text-xs text-muted-foreground mb-4">Hover over each question to reveal the answer.</p>
+      <p className="text-xs text-white/30 mb-4">Hover each card to reveal the answer.</p>
       <div className="grid sm:grid-cols-2 gap-3">
-        {items.map((item) => (
-          <div key={item.q} className="group rounded-lg border border-border p-3 cursor-default select-none">
-            <p className="text-sm font-medium mb-2 text-foreground/90">{item.q}</p>
-            <p className="text-xs text-muted-foreground group-hover:text-green-400 transition-colors">
-              👆 Hover to reveal: <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold">{item.a}</span>
-            </p>
+        {items.map((item, i) => (
+          <div
+            key={item.q}
+            className="flip-card rounded-xl h-[88px]"
+          >
+            <div className="flip-card-inner rounded-xl">
+              {/* Front */}
+              <div className="flip-card-front rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 flex flex-col justify-center">
+                <div className="flex items-start gap-2">
+                  <span className="text-[10px] font-bold text-white/25 mt-0.5 shrink-0">Q{i + 1}</span>
+                  <p className="text-sm font-medium text-white/80 leading-snug">{item.q}</p>
+                </div>
+                <p className="text-[10px] text-white/25 mt-2 ml-5">hover to reveal →</p>
+              </div>
+              {/* Back */}
+              <div className="flip-card-back rounded-xl border border-green-500/[0.25] bg-green-500/[0.06] p-4 flex flex-col justify-center">
+                <div className="flex items-start gap-2">
+                  <span className="text-[10px] font-bold text-green-400/50 mt-0.5 shrink-0">A{i + 1}</span>
+                  <p className="text-sm font-semibold text-green-400 leading-snug">{item.a}</p>
+                </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -639,19 +655,22 @@ export default function LearnPage() {
       <Header title="Learn Options" />
       <div className="flex-1 p-6 max-w-4xl mx-auto w-full">
         {/* Hero */}
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-6 mb-8">
-          <div className="flex items-start gap-4">
-            <BookOpen className="h-8 w-8 text-primary shrink-0 mt-1" />
+        <div className="relative rounded-2xl border border-blue-500/[0.2] bg-blue-500/[0.04] p-6 mb-8 overflow-hidden animate-slide-up">
+          <div className="absolute -top-16 -right-16 w-56 h-56 bg-blue-500/[0.08] rounded-full blur-3xl pointer-events-none" />
+          <div className="relative flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/[0.15] border border-blue-500/[0.2] flex items-center justify-center shrink-0">
+              <BookOpen className="h-6 w-6 text-blue-400" />
+            </div>
             <div>
-              <h1 className="text-2xl font-bold mb-2">Options Trading — From Zero</h1>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <h1 className="text-2xl font-bold mb-2 text-white/90">Options Trading — From Zero</h1>
+              <p className="text-sm text-white/40 leading-relaxed">
                 This guide explains options from the very basics. No prior finance knowledge
                 required. By the end you will understand what calls and puts are, how they are
                 priced, what the Greeks mean, and how to manage risk as a beginner.
               </p>
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-1.5 mt-3">
                 {['What is an Option', 'Key Vocabulary', 'The Greeks', 'Pricing', 'Expiry Types', 'Payoff Diagrams', 'IV', 'Risk Management'].map((t) => (
-                  <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>
+                  <span key={t} className="text-[10px] px-2 py-0.5 rounded-md border border-blue-500/[0.2] bg-blue-500/[0.08] text-blue-300/70">{t}</span>
                 ))}
               </div>
             </div>

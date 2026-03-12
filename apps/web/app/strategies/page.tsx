@@ -657,31 +657,42 @@ function ComparisonTable() {
     { name: 'Long Straddle',    outlook: 'Any ↕',        legs: 2, loss: '2× Premium', gain: 'Unlimited', complexity: 'Intermediate' },
   ];
 
+  const outlookColor = (o: string) =>
+    o.includes('↑') ? 'text-green-400' : o.includes('↓') ? 'text-red-400' : o.includes('↕') ? 'text-purple-400' : 'text-white/50';
+
+  const complexityColor = (c: string) =>
+    c === 'Beginner' ? 'text-green-400' : c === 'Intermediate' ? 'text-yellow-400' : 'text-red-400';
+
   return (
     <section className="my-8">
       <SectionTitle icon={BarChart3}>Strategy Comparison at a Glance</SectionTitle>
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs border-collapse">
-          <thead>
-            <tr className="border-b border-border">
-              {['Strategy', 'Outlook', 'Legs', 'Max Loss', 'Max Gain', 'Complexity'].map((h) => (
-                <th key={h} className="text-left py-2 px-3 text-muted-foreground font-medium">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {strategies.map((s, i) => (
-              <tr key={s.name} className={`border-b border-border/50 ${i % 2 === 0 ? 'bg-muted/5' : ''}`}>
-                <td className="py-2 px-3 font-medium">{s.name}</td>
-                <td className="py-2 px-3 text-muted-foreground">{s.outlook}</td>
-                <td className="py-2 px-3 text-center">{s.legs}</td>
-                <td className="py-2 px-3 text-red-400">{s.loss}</td>
-                <td className="py-2 px-3 text-green-400">{s.gain}</td>
-                <td className="py-2 px-3 text-muted-foreground">{s.complexity}</td>
+      <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs border-collapse">
+            <thead>
+              <tr className="border-b border-white/[0.06]">
+                {['Strategy', 'Outlook', 'Legs', 'Max Loss', 'Max Gain', 'Complexity'].map((h) => (
+                  <th key={h} className="text-left py-3 px-4 text-white/30 font-medium uppercase tracking-wide text-[10px]">{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {strategies.map((s, i) => (
+                <tr
+                  key={s.name}
+                  className={`border-b border-white/[0.04] transition-colors duration-150 hover:bg-white/[0.03] ${i === strategies.length - 1 ? 'border-none' : ''}`}
+                >
+                  <td className="py-2.5 px-4 font-semibold text-white/80">{s.name}</td>
+                  <td className={`py-2.5 px-4 font-medium ${outlookColor(s.outlook)}`}>{s.outlook}</td>
+                  <td className="py-2.5 px-4 text-center text-white/50 font-mono">{s.legs}</td>
+                  <td className="py-2.5 px-4 text-red-400/80">{s.loss}</td>
+                  <td className="py-2.5 px-4 text-green-400/80">{s.gain}</td>
+                  <td className={`py-2.5 px-4 font-medium text-[11px] ${complexityColor(s.complexity)}`}>{s.complexity}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );
@@ -697,20 +708,23 @@ export default function StrategiesPage() {
       <Header title="Options Strategies" />
       <div className="flex-1 p-6 max-w-5xl mx-auto w-full">
         {/* Hero */}
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-6 mb-8">
-          <div className="flex items-start gap-4">
-            <Zap className="h-8 w-8 text-primary shrink-0 mt-1" />
+        <div className="relative rounded-2xl border border-blue-500/[0.2] bg-blue-500/[0.04] p-6 mb-8 overflow-hidden animate-slide-up">
+          <div className="absolute -top-16 -left-16 w-56 h-56 bg-blue-500/[0.07] rounded-full blur-3xl pointer-events-none" />
+          <div className="relative flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/[0.15] border border-blue-500/[0.2] flex items-center justify-center shrink-0">
+              <Zap className="h-6 w-6 text-blue-400" />
+            </div>
             <div>
-              <h1 className="text-2xl font-bold mb-2">Options Trading Strategies</h1>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <h1 className="text-2xl font-bold mb-2 text-white/90">Options Trading Strategies</h1>
+              <p className="text-sm text-white/40 leading-relaxed">
                 Practical guide to the most important long-options strategies. Each strategy
                 includes a payoff diagram, entry/exit criteria, real-world examples, and
-                honest pros and cons. This app focuses on <strong>buying</strong> (long) options —
+                honest pros and cons. This app focuses on <strong className="text-white/60">buying</strong> (long) options —
                 strategies with defined risk and no margin requirements.
               </p>
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-1.5 mt-3">
                 {['Long Call', 'Long Put', 'Covered Call', 'Bull Call Spread', 'Bear Put Spread', 'Protective Put', 'Long Straddle'].map((t) => (
-                  <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>
+                  <span key={t} className="text-[10px] px-2 py-0.5 rounded-md border border-blue-500/[0.2] bg-blue-500/[0.08] text-blue-300/70">{t}</span>
                 ))}
               </div>
             </div>
