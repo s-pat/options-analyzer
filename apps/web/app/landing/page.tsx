@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useStocks } from '@/hooks/useMarketData';
+import type { Stock } from '@/lib/types';
 import {
   Activity,
   BarChart2,
@@ -264,8 +266,50 @@ function HeroChart() {
   );
 }
 
-function TickerMarquee() {
-  const doubled = [...TICKERS, ...TICKERS];
+// ── Live data helpers ────────────────────────────────────────────────────────
+
+function fmtVol(v: number): string {
+  if (v >= 1e9) return `${(v / 1e9).toFixed(1)}B`;
+  if (v >= 1e6) return `${(v / 1e6).toFixed(1)}M`;
+  if (v >= 1e3) return `${(v / 1e3).toFixed(0)}K`;
+  return String(v);
+}
+
+function ordinal(n: number): string {
+  const v = Math.round(n);
+  const s = ['th', 'st', 'nd', 'rd'];
+  const x = v % 100;
+  return v + (s[(x - 20) % 10] || s[x] || s[0]);
+}
+
+function getSignal(s: Stock): 'Bullish' | 'Bearish' | 'Neutral' {
+  if (s.rsi > 60 && s.changePercent > 0) return 'Bullish';
+  if (s.rsi < 40 && s.changePercent < 0) return 'Bearish';
+  if (s.changePercent > 1.5) return 'Bullish';
+  if (s.changePercent < -1.5) return 'Bearish';
+  return 'Neutral';
+}
+
+type TickerItem = { symbol: string; price: string; pct: string; up: boolean };
+
+function stocksToTicker(stocks: Stock[]): TickerItem[] {
+  return stocks
+    .slice()
+    .sort((a, b) => b.volume - a.volume)
+    .slice(0, 20)
+    .map((s) => ({
+      symbol: s.symbol,
+      price: s.price.toFixed(2),
+      pct: `${s.changePercent >= 0 ? '+' : ''}${s.changePercent.toFixed(2)}%`,
+      up: s.changePercent >= 0,
+    }));
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function TickerMarquee({ items }: { items: TickerItem[] }) {
+  const data = items.length > 0 ? items : TICKERS;
+  const doubled = [...data, ...data];
   return (
     <div className="relative overflow-hidden border-y border-white/[0.06] bg-white/[0.015] py-3">
       {/* Fade edges */}
@@ -322,11 +366,23 @@ function FeatureCard({ feature }: { feature: typeof FEATURES[number] }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
-  const [name, setName]         = useState('');
-  const [email, setEmail]       = useState('');
+  const [name, setName]           = useState('');
+  const [email, setEmail]         = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading]   = useState(false);
+  const [loading, setLoading]     = useState(false);
   const [formError, setFormError] = useState('');
+
+  // Live market data — same source as the dashboard
+  const { data: stocksData, isLoading: stocksLoading } = useStocks();
+  const stocks = stocksData?.stocks ?? [];
+  const total  = stocksData?.total ?? 503;
+
+  const tickerItems = stocks.length > 0 ? stocksToTicker(stocks) : TICKERS;
+
+  // Top 5 by IV rank — highest IV = most actionable options setups
+  const previewRows = stocks.length > 0
+    ? [...stocks].sort((a, b) => b.ivRank - a.ivRank).slice(0, 5)
+    : null;
 
   async function handleWaitlist(e: React.FormEvent) {
     e.preventDefault();
@@ -426,7 +482,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-white/35">
                   <Shield className="h-3 w-3" />
-                  <span>Real-time data · No latency · Institutional grade</span>
+                  <span>Real-time data · Low latency · Institutional grade</span>
                 </div>
               </div>
             </div>
@@ -495,7 +551,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Ticker marquee ──────────────────────────────────────────────── */}
-      <TickerMarquee />
+      <TickerMarquee items={tickerItems} />
 
       {/* ── Features ────────────────────────────────────────────────────── */}
       <section id="features" className="relative py-24 px-5 sm:px-8">
@@ -607,7 +663,7 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Mini market table */}
+            {/* Mini market table — live data sorted by IV rank */}
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
@@ -618,44 +674,57 @@ export default function LandingPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { sym: 'SPY',  price: '587.42', chg: '+0.21%', up: true,  iv: '72nd', vol: '124.2M', signal: 'Bullish' },
-                    { sym: 'AAPL', price: '224.18', chg: '+1.56%', up: true,  iv: '58th', vol: '68.4M',  signal: 'Neutral' },
-                    { sym: 'NVDA', price: '952.11', chg: '+1.97%', up: true,  iv: '85th', vol: '198.7M', signal: 'Bullish' },
-                    { sym: 'TSLA', price: '281.33', chg: '-1.48%', up: false, iv: '91st', vol: '213.1M', signal: 'Bearish' },
-                    { sym: 'QQQ',  price: '498.76', chg: '+0.43%', up: true,  iv: '62nd', vol: '87.3M',  signal: 'Neutral' },
-                  ].map((row) => (
-                    <tr key={row.sym} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
-                      <td className="px-5 py-3.5 font-mono font-bold text-white/80">{row.sym}</td>
-                      <td className="px-5 py-3.5 font-mono text-white/70">${row.price}</td>
-                      <td className={`px-5 py-3.5 font-mono font-medium ${row.up ? 'text-green-400' : 'text-red-400'}`}>
-                        <span className="flex items-center gap-0.5">
-                          {row.up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                          {row.chg}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5 font-mono text-violet-400">{row.iv}</td>
-                      <td className="px-5 py-3.5 font-mono text-white/40">{row.vol}</td>
-                      <td className="px-5 py-3.5">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${
-                          row.signal === 'Bullish'
-                            ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                            : row.signal === 'Bearish'
-                            ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                            : 'bg-white/5 text-white/40 border-white/10'
-                        }`}>
-                          {row.signal}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {stocksLoading || !previewRows ? (
+                    // Skeleton rows while data loads
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <tr key={i} className="border-b border-white/[0.04]">
+                        {Array.from({ length: 6 }).map((_, j) => (
+                          <td key={j} className="px-5 py-3.5">
+                            <div className="h-3 rounded bg-white/[0.06] animate-pulse" style={{ width: j === 0 ? '3rem' : j === 1 ? '4rem' : '3.5rem' }} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))
+                  ) : (
+                    previewRows.map((row) => {
+                      const up     = row.changePercent >= 0;
+                      const signal = getSignal(row);
+                      return (
+                        <tr key={row.symbol} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                          <td className="px-5 py-3.5 font-mono font-bold text-white/80">{row.symbol}</td>
+                          <td className="px-5 py-3.5 font-mono text-white/70">${row.price.toFixed(2)}</td>
+                          <td className={`px-5 py-3.5 font-mono font-medium ${up ? 'text-green-400' : 'text-red-400'}`}>
+                            <span className="flex items-center gap-0.5">
+                              {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                              {up ? '+' : ''}{row.changePercent.toFixed(2)}%
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5 font-mono text-violet-400">{ordinal(row.ivRank)}</td>
+                          <td className="px-5 py-3.5 font-mono text-white/40">{fmtVol(row.volume)}</td>
+                          <td className="px-5 py-3.5">
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${
+                              signal === 'Bullish'
+                                ? 'bg-green-500/10 text-green-400 border-green-500/20'
+                                : signal === 'Bearish'
+                                ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                                : 'bg-white/5 text-white/40 border-white/10'
+                            }`}>
+                              {signal}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
 
-            {/* Blur overlay teaser */}
+            {/* Footer */}
             <div className="relative px-6 py-4 border-t border-white/[0.06] flex items-center justify-between">
-              <span className="text-xs text-white/30">Showing 5 of 503 tracked symbols</span>
+              <span className="text-xs text-white/30">
+                Showing top 5 of {total.toLocaleString()} tracked symbols by IV rank
+              </span>
               <Link
                 href="/gate"
                 className="text-xs font-medium px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-colors"
