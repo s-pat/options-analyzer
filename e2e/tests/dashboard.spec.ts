@@ -1,5 +1,7 @@
 import { test, expect } from '../fixtures/authenticated';
 
+test.describe.configure({ mode: 'serial' });
+
 test.describe('Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');

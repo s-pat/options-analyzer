@@ -27,14 +27,16 @@ test.describe('Landing page', () => {
   });
 
   test('stats bar renders key metrics', async ({ page }) => {
-    await expect(page.getByText('503')).toBeVisible();
+    // Use first() — '503' also appears in "Showing 5 of 503 tracked symbols"
+    await expect(page.getByText('503').first()).toBeVisible();
     await expect(page.getByText(/S&P 500 Stocks Covered/i)).toBeVisible();
   });
 
   test('how it works section renders all 3 steps', async ({ page }) => {
-    await expect(page.getByText('01')).toBeVisible();
-    await expect(page.getByText('02')).toBeVisible();
-    await expect(page.getByText('03')).toBeVisible();
+    // Use step titles — '01'/'02'/'03' are substrings of ticker percentages (+0.21%, etc.)
+    await expect(page.getByText('Scan the market')).toBeVisible();
+    await expect(page.getByText('Analyze with precision')).toBeVisible();
+    await expect(page.getByText('Backtest & validate')).toBeVisible();
   });
 
   test('waitlist form accepts input', async ({ page }) => {

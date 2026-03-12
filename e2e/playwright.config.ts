@@ -4,9 +4,10 @@ import path from 'path';
 export default defineConfig({
   testDir: path.join(__dirname, 'tests'),
 
-  // Run tests sequentially — Yahoo Finance has rate limits
-  fullyParallel: false,
-  workers: 1,
+  // Parallel across files; API-hitting suites (dashboard, navigation) are
+  // marked serial internally to respect Yahoo Finance rate limits.
+  fullyParallel: true,
+  workers: process.env.CI ? 2 : undefined,
 
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

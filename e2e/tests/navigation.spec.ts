@@ -7,6 +7,8 @@ const pages = [
   { label: 'Backtest', url: '/backtest', heading: /backtest/i },
 ];
 
+test.describe.configure({ mode: 'serial' });
+
 test.describe('Navigation', () => {
   test.setTimeout(20_000);
 
