@@ -141,7 +141,35 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Prevent iOS font size adjustment on orientation change */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
+  /* Prevent iOS tap delay on all interactive elements */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+  /* Prevent table horizontal overflow zooming */
+  table {
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* ── Safe-area / mobile layout utilities ────────────────────────────────── */
+
+/* Bottom nav safe area — nav height (64px) + iPhone home indicator */
+.pb-safe-nav {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Raw safe area inset */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Bottom nav container accounts for safe area */
+.bottom-nav-pad {
+  padding-bottom: env(safe-area-inset-bottom, 8px);
 }
 
 /* ── Utility ──────────────────────────────────────────────────────────────── */
@@ -309,9 +337,8 @@
   transform-style: preserve-3d;
 }
 
-.flip-card:hover .flip-card-inner {
-  transform: rotateY(180deg);
-}
+/* Flip is driven by JS (state toggle) so we don't use :hover here —
+   works on both desktop hover and mobile tap */
 
 .flip-card-front,
 .flip-card-back {

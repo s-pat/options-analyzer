@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -602,6 +605,15 @@ function RiskSection() {
 }
 
 function GlossaryQuiz() {
+  const [flipped, setFlipped] = useState<Set<number>>(new Set());
+
+  const toggle = (i: number) =>
+    setFlipped((prev) => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
+
   const items = [
     { q: 'A call option is profitable when the stock goes…', a: 'UP (above the strike + premium paid)' },
     { q: 'A put option is profitable when the stock goes…', a: 'DOWN (below the strike − premium paid)' },
@@ -614,32 +626,40 @@ function GlossaryQuiz() {
   return (
     <section>
       <SectionTitle icon={Lightbulb}>Quick Knowledge Check</SectionTitle>
-      <p className="text-xs text-white/30 mb-4">Hover each card to reveal the answer.</p>
+      <p className="text-xs text-white/30 mb-4">Tap each card to reveal the answer.</p>
       <div className="grid sm:grid-cols-2 gap-3">
-        {items.map((item, i) => (
-          <div
-            key={item.q}
-            className="flip-card rounded-xl h-[88px]"
-          >
-            <div className="flip-card-inner rounded-xl">
-              {/* Front */}
-              <div className="flip-card-front rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 flex flex-col justify-center">
-                <div className="flex items-start gap-2">
-                  <span className="text-[10px] font-bold text-white/25 mt-0.5 shrink-0">Q{i + 1}</span>
-                  <p className="text-sm font-medium text-white/80 leading-snug">{item.q}</p>
+        {items.map((item, i) => {
+          const isFlipped = flipped.has(i);
+          return (
+            <button
+              key={item.q}
+              onClick={() => toggle(i)}
+              className="flip-card rounded-xl h-[88px] w-full text-left touch-manipulation"
+              aria-label={isFlipped ? `Answer: ${item.a}` : `Question ${i + 1}: ${item.q}. Tap to reveal.`}
+            >
+              <div
+                className="flip-card-inner rounded-xl"
+                style={{ transform: isFlipped ? 'rotateY(180deg)' : undefined }}
+              >
+                {/* Front — question */}
+                <div className="flip-card-front rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 flex flex-col justify-center">
+                  <div className="flex items-start gap-2">
+                    <span className="text-[10px] font-bold text-white/25 mt-0.5 shrink-0">Q{i + 1}</span>
+                    <p className="text-sm font-medium text-white/80 leading-snug">{item.q}</p>
+                  </div>
+                  <p className="text-[10px] text-white/25 mt-2 ml-5">tap to reveal →</p>
                 </div>
-                <p className="text-[10px] text-white/25 mt-2 ml-5">hover to reveal →</p>
-              </div>
-              {/* Back */}
-              <div className="flip-card-back rounded-xl border border-green-500/[0.25] bg-green-500/[0.06] p-4 flex flex-col justify-center">
-                <div className="flex items-start gap-2">
-                  <span className="text-[10px] font-bold text-green-400/50 mt-0.5 shrink-0">A{i + 1}</span>
-                  <p className="text-sm font-semibold text-green-400 leading-snug">{item.a}</p>
+                {/* Back — answer */}
+                <div className="flip-card-back rounded-xl border border-green-500/[0.25] bg-green-500/[0.06] p-4 flex flex-col justify-center">
+                  <div className="flex items-start gap-2">
+                    <span className="text-[10px] font-bold text-green-400/50 mt-0.5 shrink-0">A{i + 1}</span>
+                    <p className="text-sm font-semibold text-green-400 leading-snug">{item.a}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        ))}
+            </button>
+          );
+        })}
       </div>
     </section>
   );
