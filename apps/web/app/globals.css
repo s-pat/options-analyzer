@@ -83,37 +83,56 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
+  /* ── OptionsLab OLED dark theme — matches /landing page aesthetic ──────── */
+
+  /* Surfaces */
+  --background:           oklch(0.063 0.003 264);     /* #060608  deep black */
+  --foreground:           oklch(0.985 0 0);            /* near-white */
+
+  --card:                 oklch(0.082 0.006 264);      /* #0a0a11  elevated surface */
+  --card-foreground:      oklch(0.985 0 0);
+
+  --popover:              oklch(0.095 0.007 264);      /* slightly lighter for overlays */
+  --popover-foreground:   oklch(0.985 0 0);
+
+  /* Primary — blue-500 */
+  --primary:              oklch(0.6217 0.1888 259.81); /* #3B82F6 */
+  --primary-foreground:   oklch(0.985 0 0);
+
+  /* Secondary / muted / accent — white with very low opacity */
+  --secondary:            oklch(1 0 0 / 5%);           /* white/5  */
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+
+  --muted:                oklch(1 0 0 / 4%);           /* white/4  */
+  --muted-foreground:     oklch(1 0 0 / 45%);          /* white/45 */
+
+  --accent:               oklch(1 0 0 / 6%);           /* white/6  */
+  --accent-foreground:    oklch(0.985 0 0);
+
+  /* Danger */
+  --destructive:          oklch(0.704 0.191 22.216);   /* red-500  */
+
+  /* Borders & inputs */
+  --border:               oklch(1 0 0 / 8%);           /* white/8  */
+  --input:                oklch(1 0 0 / 8%);
+  --ring:                 oklch(0.6217 0.1888 259.81); /* blue-500 */
+
+  /* Charts */
+  --chart-1:              oklch(0.6217 0.1888 259.81); /* blue     */
+  --chart-2:              oklch(0.696  0.17   162.48); /* green    */
+  --chart-3:              oklch(0.769  0.188   70.08); /* amber    */
+  --chart-4:              oklch(0.627  0.265  303.9 ); /* violet   */
+  --chart-5:              oklch(0.645  0.246   16.44); /* red      */
+
+  /* Sidebar — barely distinguishable from bg, subtler than card */
+  --sidebar:              oklch(0.068 0.004 264);      /* #080810  */
+  --sidebar-foreground:   oklch(0.985 0 0);
+  --sidebar-primary:      oklch(0.6217 0.1888 259.81); /* blue-500 */
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent:       oklch(1 0 0 / 6%);
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-border:       oklch(1 0 0 / 8%);
+  --sidebar-ring:         oklch(0.6217 0.1888 259.81);
 }
 
 @layer base {
@@ -123,6 +142,11 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ── Utility ──────────────────────────────────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ── Stock loader animations ──────────────────────────────────────────────── */
