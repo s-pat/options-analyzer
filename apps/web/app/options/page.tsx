@@ -181,7 +181,7 @@ function OptionsPageInner() {
                   <div className="flex justify-center py-16">
                     <StockLoader size="md" message="Loading options chain…" />
                   </div>
-                ) : chain && (chain.calls.length > 0 || chain.puts.length > 0) ? (
+                ) : chain && ((chain.calls?.length ?? 0) > 0 || (chain.puts?.length ?? 0) > 0) ? (
                   <OptionsChain
                     chain={chain}
                     stockPrice={stock?.price ?? 0}
