@@ -4,7 +4,7 @@ import { jwtVerify } from 'jose';
 const COOKIE_NAME = 'beta_token';
 
 // Routes that are always accessible without the beta token
-const ALLOWED_PREFIXES = ['/landing', '/gate', '/api/auth', '/api/waitlist', '/api/v1'];
+const ALLOWED_PREFIXES = ['/landing', '/gate', '/design', '/api/auth', '/api/waitlist', '/api/v1'];
 
 function isAllowed(pathname: string): boolean {
   return ALLOWED_PREFIXES.some((prefix) => pathname.startsWith(prefix));

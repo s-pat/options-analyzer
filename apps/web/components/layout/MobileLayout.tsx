@@ -20,7 +20,7 @@ export function MobileLayout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
-  if (pathname === '/gate' || pathname === '/landing') {
+  if (pathname === '/gate' || pathname === '/landing' || pathname === '/design') {
     return <>{children}</>;
   }
 
