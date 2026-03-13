@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 // API_BACKEND_URL is a server-side-only env var — never exposed to the browser.
 // Set it to your deployed backend URL in production (e.g. https://your-api.railway.app).
@@ -25,4 +26,13 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Suppress build output if no auth token (local dev)
+  silent: !process.env.SENTRY_AUTH_TOKEN,
+
+  // Skip source map upload when no auth token is present
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+
+});
