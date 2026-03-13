@@ -3,8 +3,22 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { preload } from 'swr';
 import { Activity, ArrowLeft, Check, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { StockLoader } from '@/components/ui/StockLoader';
+import {
+  getMarketOverview,
+  getStocks,
+  getTodayOpportunities,
+  getRecommendations,
+} from '@/lib/api';
+
+function preloadAllPages() {
+  preload('market/overview', getMarketOverview);
+  preload('stocks', getStocks);
+  preload('options/today', getTodayOpportunities);
+  preload('options/recommendations/20', () => getRecommendations(20));
+}
 
 const BUFFER_MS = 10_000;
 
@@ -102,6 +116,7 @@ export default function GatePage() {
       });
       if (res.ok) {
         setAuthenticated(true);
+        preloadAllPages();
       } else {
         const data = await res.json().catch(() => ({}));
         setPwError(data.error ?? 'Invalid password');

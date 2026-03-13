@@ -12,17 +12,20 @@ import {
 } from '@/lib/api';
 import type { OptionsFilter } from '@/lib/types';
 
-const REFRESH_INTERVAL = 30_000; // 30s
+const REFRESH_INTERVAL = 30_000;   // 30s background refresh
+const DEDUP_INTERVAL  = 3 * 60_000; // 3 min — preloaded data stays fresh this long
 
 export function useMarketOverview() {
   return useSWR('market/overview', getMarketOverview, {
     refreshInterval: REFRESH_INTERVAL,
+    dedupingInterval: DEDUP_INTERVAL,
   });
 }
 
 export function useStocks() {
   return useSWR('stocks', getStocks, {
     refreshInterval: REFRESH_INTERVAL,
+    dedupingInterval: DEDUP_INTERVAL,
   });
 }
 
@@ -60,7 +63,8 @@ export function useFilteredChain(symbol: string | null, filter: OptionsFilter) {
 
 export function useTodayOpportunities() {
   return useSWR('options/today', getTodayOpportunities, {
-    refreshInterval: 60_000, // 1 min — this scan is expensive
+    refreshInterval: 60_000,        // 1 min — this scan is expensive
+    dedupingInterval: DEDUP_INTERVAL,
   });
 }
 
@@ -68,7 +72,7 @@ export function useRecommendations(limit = 20) {
   return useSWR(
     `options/recommendations/${limit}`,
     () => getRecommendations(limit),
-    { refreshInterval: REFRESH_INTERVAL },
+    { refreshInterval: REFRESH_INTERVAL, dedupingInterval: DEDUP_INTERVAL },
   );
 }
 

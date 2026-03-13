@@ -1,7 +1,7 @@
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Shield, Zap, BarChart3, ExternalLink } from 'lucide-react';
+import { TrendingUp, Shield, Zap, BarChart3, ExternalLink, ArrowUp, ChevronDown } from 'lucide-react';
 
 // ─────────────────────────────────────────────
 // Shared primitives
@@ -166,6 +166,7 @@ const range = (start: number, end: number, step = 5): number[] => {
 // ─────────────────────────────────────────────
 
 interface StrategyProps {
+  sectionId: string;
   meta: StrategyMeta;
   chart: React.ReactNode;
   when: string;
@@ -178,90 +179,103 @@ interface StrategyProps {
   references?: { label: string; url: string }[];
 }
 
-function StrategyCard({ meta, chart, when, howItWorks, entry, exit, pros, cons, example, references }: StrategyProps) {
+function StrategyCard({ sectionId, meta, chart, when, howItWorks, entry, exit, pros, cons, example, references }: StrategyProps) {
   return (
-    <Card className="mb-8">
-      <CardHeader className="pb-3">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <CardTitle className="text-lg">{meta.name}</CardTitle>
-          <div className="flex flex-wrap gap-1.5">
-            <OutlookBadge outlook={meta.outlook} />
-            <RiskBadge level={meta.risk} />
-            <ComplexityBadge level={meta.complexity} />
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-1">
-          <span>Max Loss: <strong className="text-red-400">{meta.maxLoss}</strong></span>
-          <span>Max Gain: <strong className="text-green-400">{meta.maxGain}</strong></span>
-          <span>Breakeven: <strong>{meta.breakeven}</strong></span>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Payoff chart */}
-          <div className="rounded-lg border border-border bg-muted/10 p-3">
-            {chart}
-          </div>
-          {/* When to use */}
-          <div className="space-y-3 text-sm">
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">When to use</p>
-              <p className="text-foreground/80 text-xs leading-relaxed">{when}</p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">How it works</p>
-              <p className="text-foreground/80 text-xs leading-relaxed">{howItWorks}</p>
+    <div id={sectionId} className="scroll-mt-20">
+      <Card className="mb-8 animate-slide-up">
+        <CardHeader className="pb-3">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <CardTitle className="text-lg">{meta.name}</CardTitle>
+            <div className="flex flex-wrap gap-1.5">
+              <OutlookBadge outlook={meta.outlook} />
+              <RiskBadge level={meta.risk} />
+              <ComplexityBadge level={meta.complexity} />
             </div>
           </div>
-        </div>
+          <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-1">
+            <span>Max Loss: <strong className="text-red-400">{meta.maxLoss}</strong></span>
+            <span>Max Gain: <strong className="text-green-400">{meta.maxGain}</strong></span>
+            <span>Breakeven: <strong>{meta.breakeven}</strong></span>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Payoff chart */}
+            <div className="rounded-lg border border-border bg-muted/10 p-3">
+              {chart}
+            </div>
+            {/* When to use */}
+            <div className="space-y-3 text-sm">
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">When to use</p>
+                <p className="text-foreground/80 text-xs leading-relaxed">{when}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">How it works</p>
+                <p className="text-foreground/80 text-xs leading-relaxed">{howItWorks}</p>
+              </div>
+            </div>
+          </div>
 
-        {/* Entry / Exit */}
-        <div className="grid sm:grid-cols-2 gap-3">
-          <div className="rounded-md bg-muted/20 border border-border p-3">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Entry Criteria</p>
-            <p className="text-xs text-foreground/80">{entry}</p>
+          {/* Entry / Exit */}
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="rounded-md bg-muted/20 border border-border p-3">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Entry Criteria</p>
+              <p className="text-xs text-foreground/80">{entry}</p>
+            </div>
+            <div className="rounded-md bg-muted/20 border border-border p-3">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Exit Plan</p>
+              <p className="text-xs text-foreground/80">{exit}</p>
+            </div>
           </div>
-          <div className="rounded-md bg-muted/20 border border-border p-3">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Exit Plan</p>
-            <p className="text-xs text-foreground/80">{exit}</p>
-          </div>
-        </div>
 
-        {/* Pros / Cons */}
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div>
-            <p className="text-[10px] font-semibold text-green-400 uppercase mb-2">Advantages</p>
-            <ul className="space-y-1">
-              {pros.map((p) => <li key={p} className="text-xs text-foreground/70 flex gap-1.5"><span className="text-green-400 shrink-0">✓</span>{p}</li>)}
-            </ul>
+          {/* Pros / Cons */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <p className="text-[10px] font-semibold text-green-400 uppercase mb-2">Advantages</p>
+              <ul className="space-y-1">
+                {pros.map((p) => <li key={p} className="text-xs text-foreground/70 flex gap-1.5"><span className="text-green-400 shrink-0">✓</span>{p}</li>)}
+              </ul>
+            </div>
+            <div>
+              <p className="text-[10px] font-semibold text-red-400 uppercase mb-2">Disadvantages</p>
+              <ul className="space-y-1">
+                {cons.map((c) => <li key={c} className="text-xs text-foreground/70 flex gap-1.5"><span className="text-red-400 shrink-0">✗</span>{c}</li>)}
+              </ul>
+            </div>
           </div>
-          <div>
-            <p className="text-[10px] font-semibold text-red-400 uppercase mb-2">Disadvantages</p>
-            <ul className="space-y-1">
-              {cons.map((c) => <li key={c} className="text-xs text-foreground/70 flex gap-1.5"><span className="text-red-400 shrink-0">✗</span>{c}</li>)}
-            </ul>
-          </div>
-        </div>
 
-        {/* Example */}
-        <div className="rounded-md border border-border bg-muted/10 p-3">
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Worked Example</p>
-          <p className="text-xs text-foreground/80 leading-relaxed">{example}</p>
-        </div>
-
-        {/* References */}
-        {references && (
-          <div className="flex flex-wrap gap-2">
-            {references.map((r) => (
-              <a key={r.url} href={r.url} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1 text-[10px] text-primary hover:underline">
-                <ExternalLink className="h-3 w-3" />{r.label}
-              </a>
-            ))}
+          {/* Example */}
+          <div className="rounded-md border border-border bg-muted/10 p-3">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Worked Example</p>
+            <p className="text-xs text-foreground/80 leading-relaxed">{example}</p>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* References */}
+          {references && (
+            <div className="flex flex-wrap gap-2">
+              {references.map((r) => (
+                <a key={r.url} href={r.url} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-[10px] text-primary hover:underline">
+                  <ExternalLink className="h-3 w-3" />{r.label}
+                </a>
+              ))}
+            </div>
+          )}
+
+          {/* Back to table */}
+          <div className="flex justify-end pt-1 border-t border-white/[0.05]">
+            <a
+              href="#strategy-table"
+              className="inline-flex items-center gap-1.5 text-[11px] text-white/30 hover:text-white/70 transition-colors group"
+            >
+              <ArrowUp className="h-3 w-3 group-hover:-translate-y-0.5 transition-transform" />
+              Back to comparison table
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -276,6 +290,7 @@ function LongCall() {
 
   return (
     <StrategyCard
+      sectionId="strategy-long-call"
       meta={{
         name: 'Long Call',
         type: 'single leg',
@@ -326,6 +341,7 @@ function LongPut() {
 
   return (
     <StrategyCard
+      sectionId="strategy-long-put"
       meta={{
         name: 'Long Put',
         type: 'single leg',
@@ -372,8 +388,6 @@ function LongPut() {
 function CoveredCall() {
   const S = range(85, 130);
   const K = 110, prem = 4;
-  // Covered call = long stock − short call
-  // P&L = (S - 100) - max(S - K, 0) + prem   (bought stock at 100)
   const stockCost = 100;
   const pts = S.map((s): [number, number] => [
     s,
@@ -383,6 +397,7 @@ function CoveredCall() {
 
   return (
     <StrategyCard
+      sectionId="strategy-covered-call"
       meta={{
         name: 'Covered Call',
         type: 'stock + short call',
@@ -431,7 +446,7 @@ function CoveredCall() {
 function BullCallSpread() {
   const S = range(90, 130);
   const K1 = 105, K2 = 115, width = K2 - K1;
-  const debit = 4; // net premium paid
+  const debit = 4;
   const pts = S.map((s): [number, number] => [
     s,
     Math.min(Math.max(s - K1, 0), width) - debit,
@@ -439,6 +454,7 @@ function BullCallSpread() {
 
   return (
     <StrategyCard
+      sectionId="strategy-bull-call-spread"
       meta={{
         name: 'Bull Call Spread (Debit Spread)',
         type: 'two legs',
@@ -493,6 +509,7 @@ function BearPutSpread() {
 
   return (
     <StrategyCard
+      sectionId="strategy-bear-put-spread"
       meta={{
         name: 'Bear Put Spread (Debit Spread)',
         type: 'two legs',
@@ -545,6 +562,7 @@ function ProtectivePut() {
 
   return (
     <StrategyCard
+      sectionId="strategy-protective-put"
       meta={{
         name: 'Protective Put (Married Put)',
         type: 'stock + long put',
@@ -600,6 +618,7 @@ function LongStraddle() {
 
   return (
     <StrategyCard
+      sectionId="strategy-long-straddle"
       meta={{
         name: 'Long Straddle',
         type: 'two legs (ATM call + ATM put)',
@@ -646,42 +665,99 @@ function LongStraddle() {
 // Comparison table
 // ─────────────────────────────────────────────
 
+const STRATEGIES_LIST = [
+  { name: 'Long Call',                    sectionId: 'strategy-long-call',         outlook: 'Bullish ↑',  legs: 1, loss: 'Premium',     gain: 'Unlimited',       complexity: 'Beginner'    as const },
+  { name: 'Long Put',                     sectionId: 'strategy-long-put',          outlook: 'Bearish ↓',  legs: 1, loss: 'Premium',     gain: 'Strike − Prem',   complexity: 'Beginner'    as const },
+  { name: 'Covered Call',                 sectionId: 'strategy-covered-call',      outlook: 'Neutral ↔',  legs: 2, loss: 'Stock → $0', gain: 'Capped',           complexity: 'Intermediate' as const },
+  { name: 'Bull Call Spread',             sectionId: 'strategy-bull-call-spread',  outlook: 'Bullish ↑',  legs: 2, loss: 'Net Debit',  gain: 'Spread − Debit',  complexity: 'Intermediate' as const },
+  { name: 'Bear Put Spread',              sectionId: 'strategy-bear-put-spread',   outlook: 'Bearish ↓',  legs: 2, loss: 'Net Debit',  gain: 'Spread − Debit',  complexity: 'Intermediate' as const },
+  { name: 'Protective Put',               sectionId: 'strategy-protective-put',    outlook: 'Bullish ↑',  legs: 2, loss: 'Capped',     gain: 'Unlimited',        complexity: 'Beginner'    as const },
+  { name: 'Long Straddle',               sectionId: 'strategy-long-straddle',     outlook: 'Any ↕',       legs: 2, loss: '2× Premium', gain: 'Unlimited',        complexity: 'Intermediate' as const },
+];
+
 function ComparisonTable() {
-  const strategies = [
-    { name: 'Long Call',        outlook: 'Bullish ↑',   legs: 1, loss: 'Premium', gain: 'Unlimited', complexity: 'Beginner' },
-    { name: 'Long Put',         outlook: 'Bearish ↓',   legs: 1, loss: 'Premium', gain: 'Strike − Prem', complexity: 'Beginner' },
-    { name: 'Covered Call',     outlook: 'Neutral ↔',   legs: 2, loss: 'Stock → $0', gain: 'Capped', complexity: 'Intermediate' },
-    { name: 'Bull Call Spread',  outlook: 'Bullish ↑',  legs: 2, loss: 'Net Debit', gain: 'Spread − Debit', complexity: 'Intermediate' },
-    { name: 'Bear Put Spread',   outlook: 'Bearish ↓',  legs: 2, loss: 'Net Debit', gain: 'Spread − Debit', complexity: 'Intermediate' },
-    { name: 'Protective Put',   outlook: 'Bullish ↑',   legs: 2, loss: 'Capped', gain: 'Unlimited', complexity: 'Beginner' },
-    { name: 'Long Straddle',    outlook: 'Any ↕',        legs: 2, loss: '2× Premium', gain: 'Unlimited', complexity: 'Intermediate' },
-  ];
+  const outlookColor = (o: string) =>
+    o.includes('↑') ? 'text-green-400' : o.includes('↓') ? 'text-red-400' : o.includes('↕') ? 'text-purple-400' : 'text-white/50';
+
+  const complexityColor = (c: string) =>
+    c === 'Beginner' ? 'text-green-400' : c === 'Intermediate' ? 'text-yellow-400' : 'text-red-400';
 
   return (
-    <section className="my-8">
+    <section id="strategy-table" className="my-8 scroll-mt-20">
       <SectionTitle icon={BarChart3}>Strategy Comparison at a Glance</SectionTitle>
-      <div className="overflow-x-auto">
-        <table className="w-full text-xs border-collapse">
-          <thead>
-            <tr className="border-b border-border">
-              {['Strategy', 'Outlook', 'Legs', 'Max Loss', 'Max Gain', 'Complexity'].map((h) => (
-                <th key={h} className="text-left py-2 px-3 text-muted-foreground font-medium">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {strategies.map((s, i) => (
-              <tr key={s.name} className={`border-b border-border/50 ${i % 2 === 0 ? 'bg-muted/5' : ''}`}>
-                <td className="py-2 px-3 font-medium">{s.name}</td>
-                <td className="py-2 px-3 text-muted-foreground">{s.outlook}</td>
-                <td className="py-2 px-3 text-center">{s.legs}</td>
-                <td className="py-2 px-3 text-red-400">{s.loss}</td>
-                <td className="py-2 px-3 text-green-400">{s.gain}</td>
-                <td className="py-2 px-3 text-muted-foreground">{s.complexity}</td>
+
+      {/* ── Mobile: compact card list ─────────────────────────── */}
+      <div className="sm:hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] overflow-hidden">
+        {STRATEGIES_LIST.map((s, i) => (
+          <a
+            key={s.sectionId}
+            href={`#${s.sectionId}`}
+            className={`flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-white/[0.06] touch-manipulation ${
+              i < STRATEGIES_LIST.length - 1 ? 'border-b border-white/[0.05]' : ''
+            }`}
+          >
+            {/* Name + outlook */}
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-sm text-white/85 truncate">{s.name}</div>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className={`text-[10px] font-medium ${outlookColor(s.outlook)}`}>{s.outlook}</span>
+                <span className="text-white/15">·</span>
+                <span className={`text-[10px] font-medium ${complexityColor(s.complexity)}`}>{s.complexity}</span>
+              </div>
+            </div>
+            {/* Loss / Gain */}
+            <div className="text-right shrink-0">
+              <div className="text-[10px] text-red-400/70">{s.loss}</div>
+              <div className="text-[10px] text-green-400/70">{s.gain}</div>
+            </div>
+            {/* Arrow */}
+            <ChevronDown className="h-4 w-4 text-white/20 shrink-0" />
+          </a>
+        ))}
+      </div>
+
+      {/* ── Desktop: full table ───────────────────────────────── */}
+      <div className="hidden sm:block rounded-2xl border border-white/[0.08] bg-white/[0.03] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs border-collapse">
+            <thead>
+              <tr className="border-b border-white/[0.06]">
+                {['Strategy', 'Outlook', 'Legs', 'Max Loss', 'Max Gain', 'Complexity', ''].map((h) => (
+                  <th key={h} className="text-left py-3 px-4 text-white/30 font-medium uppercase tracking-wide text-[10px]">{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {STRATEGIES_LIST.map((s, i) => (
+                <tr
+                  key={s.sectionId}
+                  className={`border-b border-white/[0.04] transition-colors duration-150 group ${
+                    i === STRATEGIES_LIST.length - 1 ? 'border-none' : ''
+                  } animate-slide-up delay-${Math.min(i * 50, 300)}`}
+                >
+                  <td className="py-2.5 px-4 font-semibold text-white/80 relative">
+                    <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity rounded-r-full" />
+                    {s.name}
+                  </td>
+                  <td className={`py-2.5 px-4 font-medium ${outlookColor(s.outlook)}`}>{s.outlook}</td>
+                  <td className="py-2.5 px-4 text-center text-white/50 font-mono">{s.legs}</td>
+                  <td className="py-2.5 px-4 text-red-400/80">{s.loss}</td>
+                  <td className="py-2.5 px-4 text-green-400/80">{s.gain}</td>
+                  <td className={`py-2.5 px-4 font-medium text-[11px] ${complexityColor(s.complexity)}`}>{s.complexity}</td>
+                  <td className="py-2.5 px-4">
+                    <a
+                      href={`#${s.sectionId}`}
+                      className="inline-flex items-center gap-1 text-[10px] text-white/25 hover:text-blue-400 transition-colors group/link"
+                    >
+                      <ChevronDown className="h-3 w-3 group-hover/link:translate-y-0.5 transition-transform" />
+                      View
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );
@@ -697,20 +773,29 @@ export default function StrategiesPage() {
       <Header title="Options Strategies" />
       <div className="flex-1 p-6 max-w-5xl mx-auto w-full">
         {/* Hero */}
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-6 mb-8">
-          <div className="flex items-start gap-4">
-            <Zap className="h-8 w-8 text-primary shrink-0 mt-1" />
+        <div className="relative rounded-2xl border border-blue-500/[0.2] bg-blue-500/[0.04] p-6 mb-8 overflow-hidden animate-slide-up">
+          <div className="absolute -top-16 -left-16 w-56 h-56 bg-blue-500/[0.07] rounded-full blur-3xl pointer-events-none" />
+          <div className="relative flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/[0.15] border border-blue-500/[0.2] flex items-center justify-center shrink-0">
+              <Zap className="h-6 w-6 text-blue-400" />
+            </div>
             <div>
-              <h1 className="text-2xl font-bold mb-2">Options Trading Strategies</h1>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <h1 className="text-2xl font-bold mb-2 text-white/90">Options Trading Strategies</h1>
+              <p className="text-sm text-white/40 leading-relaxed">
                 Practical guide to the most important long-options strategies. Each strategy
                 includes a payoff diagram, entry/exit criteria, real-world examples, and
-                honest pros and cons. This app focuses on <strong>buying</strong> (long) options —
+                honest pros and cons. This app focuses on <strong className="text-white/60">buying</strong> (long) options —
                 strategies with defined risk and no margin requirements.
               </p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {['Long Call', 'Long Put', 'Covered Call', 'Bull Call Spread', 'Bear Put Spread', 'Protective Put', 'Long Straddle'].map((t) => (
-                  <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {STRATEGIES_LIST.map((s) => (
+                  <a
+                    key={s.sectionId}
+                    href={`#${s.sectionId}`}
+                    className="text-[10px] px-2 py-0.5 rounded-md border border-blue-500/[0.2] bg-blue-500/[0.08] text-blue-300/70 hover:border-blue-500/[0.4] hover:text-blue-300 transition-colors"
+                  >
+                    {s.name}
+                  </a>
                 ))}
               </div>
             </div>
@@ -734,7 +819,7 @@ export default function StrategiesPage() {
         <LongStraddle />
 
         {/* Further reading */}
-        <section className="mt-10 rounded-lg border border-border bg-muted/10 p-5">
+        <section className="mt-10 rounded-lg border border-border bg-muted/10 p-5 animate-slide-up">
           <h3 className="font-semibold mb-3 text-sm">Further Reading & Resources</h3>
           <ul className="space-y-2 text-xs">
             {[
@@ -754,6 +839,17 @@ export default function StrategiesPage() {
             ))}
           </ul>
         </section>
+
+        {/* Back to top */}
+        <div className="flex justify-center mt-6">
+          <a
+            href="#strategy-table"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-white/40 hover:text-white/70 hover:bg-white/[0.07] transition-all group"
+          >
+            <ArrowUp className="h-3.5 w-3.5 group-hover:-translate-y-0.5 transition-transform" />
+            Back to comparison table
+          </a>
+        </div>
 
         {/* Disclaimer */}
         <div className="mt-6 rounded-lg border border-yellow-500/30 bg-yellow-950/10 p-4 text-xs text-yellow-400">

@@ -13,8 +13,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useStock, useStockHistory, useFilteredChain, useOptionAnalysis } from '@/hooks/useMarketData';
 import type { OptionContract, OptionsFilter } from '@/lib/types';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
 import { StockLoader } from '@/components/ui/StockLoader';
+import { cn } from '@/lib/utils';
 
 const DEFAULT_FILTER: OptionsFilter = {
   maxCapital: 0,
@@ -22,6 +23,15 @@ const DEFAULT_FILTER: OptionsFilter = {
   onlyCall: false,
   onlyPut: false,
 };
+
+function StatPill({ label, value, accent }: { label: string; value: string; accent?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+      <span className="text-[10px] text-white/35 uppercase tracking-wide font-medium">{label}</span>
+      <span className={cn('text-sm font-bold font-mono tabular-nums', accent ?? 'text-white/80')}>{value}</span>
+    </div>
+  );
+}
 
 function OptionsPageInner() {
   const params = useSearchParams();
@@ -40,48 +50,82 @@ function OptionsPageInner() {
     selectedOption?.expiration ?? null,
   );
 
+  const positive = (stock?.changePercent ?? 0) >= 0;
+  const bullish = stock ? stock.ema20 > stock.ema50 : null;
+
   return (
     <>
       <Header title={`Options Analyzer — ${symbol}`} />
       <div className="flex-1 p-6 space-y-6">
-        {/* Stock summary */}
+
+        {/* Stock summary strip */}
         {stockLoading ? (
-          <Card>
-            <CardContent className="flex justify-center py-8">
-              <StockLoader size="sm" message="Fetching stock data…" />
-            </CardContent>
-          </Card>
+          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 animate-pulse">
+            <div className="shimmer h-8 w-48 rounded-xl mb-3" />
+            <div className="flex gap-2">
+              {[...Array(5)].map((_, i) => <div key={i} className="shimmer h-12 w-24 rounded-xl" />)}
+            </div>
+          </div>
         ) : stock ? (
-          <Card>
-            <CardContent className="pt-4">
-              <div className="flex flex-wrap items-center gap-6">
-                <div>
-                  <div className="text-2xl font-bold">{stock.symbol}</div>
-                  <div className="text-sm text-muted-foreground">{stock.name}</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold">${stock.price?.toFixed(2)}</div>
-                  <div className={`text-sm ${stock.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent?.toFixed(2)}%
-                  </div>
-                </div>
-                <div className="flex gap-3 flex-wrap">
-                  <Badge variant="outline">IV Rank: {stock.ivRank?.toFixed(0)}</Badge>
-                  <Badge variant="outline">IV: {stock.iv?.toFixed(1)}%</Badge>
-                  <Badge variant="outline">HV30: {stock.hv30?.toFixed(1)}%</Badge>
-                  <Badge variant="outline">RSI: {stock.rsi?.toFixed(0)}</Badge>
-                  <Badge variant={stock.ema20 > stock.ema50 ? 'default' : 'secondary'}>
-                    {stock.ema20 > stock.ema50 ? 'Bullish (EMA)' : 'Bearish (EMA)'}
-                  </Badge>
-                </div>
+          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 animate-slide-up relative overflow-hidden">
+            {/* Top accent line */}
+            <div
+              className="absolute inset-x-0 top-0 h-px"
+              style={{
+                background: positive
+                  ? 'linear-gradient(90deg, transparent, oklch(0.696 0.17 162.48 / 50%), transparent)'
+                  : 'linear-gradient(90deg, transparent, oklch(0.645 0.246 16.44 / 50%), transparent)',
+              }}
+            />
+
+            {/* Symbol + price row */}
+            <div className="flex flex-wrap items-end gap-4 mb-4">
+              <div>
+                <div className="font-bold text-2xl text-white/90 tracking-tight">{stock.symbol}</div>
+                <div className="text-xs text-white/35 mt-0.5">{stock.name}</div>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex items-end gap-2">
+                <span className="font-mono text-3xl font-bold tabular-nums text-white">${stock.price?.toFixed(2)}</span>
+                <span className={cn(
+                  'flex items-center gap-1 text-sm font-medium font-mono tabular-nums mb-0.5',
+                  positive ? 'text-green-400' : 'text-red-400',
+                )}>
+                  {positive ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+                  {positive ? '+' : ''}{stock.changePercent?.toFixed(2)}%
+                </span>
+              </div>
+            </div>
+
+            {/* Stat pills */}
+            <div className="flex flex-wrap gap-2">
+              <StatPill
+                label="IV Rank"
+                value={`${stock.ivRank?.toFixed(0)}`}
+                accent={stock.ivRank <= 30 ? 'text-green-400' : stock.ivRank <= 60 ? 'text-yellow-400' : 'text-red-400'}
+              />
+              <StatPill label="IV" value={`${stock.iv?.toFixed(1)}%`} />
+              <StatPill label="HV30" value={`${stock.hv30?.toFixed(1)}%`} />
+              <StatPill label="RSI" value={`${stock.rsi?.toFixed(0)}`} accent={
+                stock.rsi < 30 ? 'text-green-400' : stock.rsi > 70 ? 'text-red-400' : 'text-white/80'
+              } />
+              <div className={cn(
+                'flex flex-col gap-0.5 px-3 py-2 rounded-xl border',
+                bullish
+                  ? 'bg-green-500/[0.08] border-green-500/[0.2]'
+                  : 'bg-red-500/[0.08] border-red-500/[0.2]',
+              )}>
+                <span className="text-[10px] text-white/35 uppercase tracking-wide font-medium">Trend</span>
+                <span className={cn('text-sm font-bold', bullish ? 'text-green-400' : 'text-red-400')}>
+                  {bullish ? '↑ Bullish' : '↓ Bearish'} (EMA)
+                </span>
+              </div>
+            </div>
+          </div>
         ) : null}
 
         {/* Synthetic data notice */}
         {chain?.isSynthetic && (
-          <div className="flex items-center gap-2 rounded-md border border-yellow-600/40 bg-yellow-950/20 px-4 py-2.5 text-sm text-yellow-400">
+          <div className="flex items-center gap-2 rounded-xl border border-yellow-600/30 bg-yellow-950/[0.15] px-4 py-3 text-sm text-yellow-400 animate-slide-up">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>
               <strong>Theoretical options data</strong> — Live Yahoo Finance options are unavailable right now
@@ -92,9 +136,9 @@ function OptionsPageInner() {
         )}
 
         {/* Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Price Chart (1Y)</CardTitle>
+        <Card className="rounded-2xl border-white/[0.08] bg-white/[0.03] animate-slide-up delay-100">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs text-white/40 uppercase tracking-wide font-medium">Price Chart — 1 Year</CardTitle>
           </CardHeader>
           <CardContent>
             {histLoading ? (
@@ -112,24 +156,24 @@ function OptionsPageInner() {
         </Card>
 
         {/* Filter + chain + detail panel */}
-        <div className="grid gap-6 xl:grid-cols-4">
-          {/* Filter panel — left column */}
+        <div className="grid gap-6 xl:grid-cols-4 animate-slide-up delay-200">
+          {/* Filter panel */}
           <div className="xl:col-span-1">
             <FilterPanel filter={filter} onChange={setFilter} />
           </div>
 
-          {/* Options chain — center 2 columns */}
+          {/* Options chain */}
           <div className="xl:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">
+            <Card className="rounded-2xl border-white/[0.08] bg-white/[0.03]">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs text-white/40 uppercase tracking-wide font-medium flex items-center gap-2">
                   Options Chain
                   {chain?.isSynthetic && (
-                    <Badge variant="outline" className="ml-2 text-[10px] border-yellow-600 text-yellow-500">
+                    <Badge variant="outline" className="text-[10px] border-yellow-600/40 text-yellow-500 bg-yellow-950/20">
                       Synthetic
                     </Badge>
                   )}
-                  <span className="text-muted-foreground font-normal ml-1">— click a row to analyze</span>
+                  <span className="text-white/25 font-normal normal-case text-[11px]">— click a row to analyze</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -137,7 +181,7 @@ function OptionsPageInner() {
                   <div className="flex justify-center py-16">
                     <StockLoader size="md" message="Loading options chain…" />
                   </div>
-                ) : chain && (chain.calls.length > 0 || chain.puts.length > 0) ? (
+                ) : chain && ((chain.calls?.length ?? 0) > 0 || (chain.puts?.length ?? 0) > 0) ? (
                   <OptionsChain
                     chain={chain}
                     stockPrice={stock?.price ?? 0}
@@ -145,7 +189,7 @@ function OptionsPageInner() {
                     selectedContract={selectedOption?.contractSymbol ?? null}
                   />
                 ) : (
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-white/30 text-sm">
                     No options match the current filters. Try relaxing your capital or risk settings.
                   </p>
                 )}
@@ -153,18 +197,18 @@ function OptionsPageInner() {
             </Card>
           </div>
 
-          {/* Analysis / detail panel — right column */}
+          {/* Analysis / detail panel */}
           <div className="xl:col-span-1 space-y-4">
             {selectedOption ? (
               <Tabs defaultValue="analysis">
-                <TabsList className="w-full">
-                  <TabsTrigger value="analysis" className="flex-1">Analysis</TabsTrigger>
-                  <TabsTrigger value="details" className="flex-1">Details</TabsTrigger>
+                <TabsList className="w-full bg-white/[0.04] border border-white/[0.06]">
+                  <TabsTrigger value="analysis" className="flex-1 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">Analysis</TabsTrigger>
+                  <TabsTrigger value="details" className="flex-1 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">Details</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="analysis" className="mt-3">
                   {analysisLoading ? (
-                    <Card>
+                    <Card className="rounded-2xl border-white/[0.08] bg-white/[0.03]">
                       <CardContent className="flex justify-center py-10">
                         <StockLoader size="md" message="Analyzing option…" />
                       </CardContent>
@@ -172,8 +216,8 @@ function OptionsPageInner() {
                   ) : analysis ? (
                     <OptionAnalysisPanel analysis={analysis} />
                   ) : (
-                    <Card>
-                      <CardContent className="pt-6 text-center text-sm text-muted-foreground">
+                    <Card className="rounded-2xl border-white/[0.08] bg-white/[0.03]">
+                      <CardContent className="pt-6 text-center text-sm text-white/30">
                         Could not load analysis
                       </CardContent>
                     </Card>
@@ -185,8 +229,11 @@ function OptionsPageInner() {
                 </TabsContent>
               </Tabs>
             ) : (
-              <Card>
-                <CardContent className="pt-8 text-center text-muted-foreground text-sm">
+              <Card className="rounded-2xl border-white/[0.08] bg-white/[0.03]">
+                <CardContent className="pt-10 pb-8 text-center text-white/25 text-sm">
+                  <div className="w-10 h-10 rounded-full bg-white/[0.04] flex items-center justify-center mx-auto mb-3">
+                    <AlertCircle className="h-5 w-5 text-white/20" />
+                  </div>
                   Select an option from the chain to see the analysis, thesis, and risk assessment
                 </CardContent>
               </Card>

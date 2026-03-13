@@ -40,7 +40,12 @@ export function Header({ title }: { title: string }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search symbol…"
-            className="w-full h-8 pl-8 pr-3 rounded-lg bg-white/[0.06] border border-white/[0.1] text-xs text-white placeholder:text-white/25 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/25 transition-all"
+            autoCapitalize="characters"
+            autoCorrect="off"
+            autoComplete="off"
+            spellCheck={false}
+            className="w-full h-8 pl-8 pr-3 rounded-lg bg-white/[0.06] border border-white/[0.1] text-white placeholder:text-white/25 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/25 transition-all"
+            style={{ fontSize: '16px' }}  /* prevent iOS auto-zoom on focus */
           />
         </div>
       </form>

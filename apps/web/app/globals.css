@@ -136,12 +136,43 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    /* Prevent iOS font size adjustment on orientation change */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
+  /* Prevent iOS tap delay on all interactive elements */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+  /* Prevent table horizontal overflow zooming */
+  table {
+    -webkit-text-size-adjust: 100%;
+  }
+}
+
+/* ── Safe-area / mobile layout utilities ────────────────────────────────── */
+
+/* Bottom nav safe area — nav height (64px) + iPhone home indicator */
+.pb-safe-nav {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Raw safe area inset */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Bottom nav container accounts for safe area */
+.bottom-nav-pad {
+  padding-bottom: env(safe-area-inset-bottom, 8px);
 }
 
 /* ── Utility ──────────────────────────────────────────────────────────────── */
@@ -218,4 +249,109 @@
   animation: hero-dot-pulse 2s ease-in-out infinite;
   transform-box: fill-box;
   transform-origin: center;
+}
+
+/* ── 21st.dev-inspired entrance animations ──────────────────────────────── */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes number-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to   { background-position:  200% center; }
+}
+
+@keyframes score-fill {
+  from { width: 0%; }
+  to   { width: var(--score-w, 0%); }
+}
+
+@keyframes border-glow {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50%       { box-shadow: 0 0 16px -2px var(--glow-color, oklch(0.6217 0.1888 259.81 / 30%)); }
+}
+
+/* Animation utility classes */
+.animate-slide-up   { animation: slide-up    0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-slide-in-l { animation: slide-in-left 0.38s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-scale-in   { animation: scale-in    0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-number-pop { animation: number-pop  0.3s  ease-out; }
+
+/* Stagger delay utilities */
+.delay-0   { animation-delay: 0ms; }
+.delay-50  { animation-delay: 50ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-250 { animation-delay: 250ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+
+/* Shimmer skeleton */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    oklch(1 0 0 / 3%) 25%,
+    oklch(1 0 0 / 8%) 50%,
+    oklch(1 0 0 / 3%) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease infinite;
+}
+
+/* Score progress bar */
+.score-bar {
+  height: 3px;
+  border-radius: 9999px;
+  animation: score-fill 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 300ms;
+}
+
+/* ── Flip card (learn page quiz) ────────────────────────────────────────── */
+.flip-card {
+  perspective: 800px;
+  cursor: default;
+  user-select: none;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+}
+
+/* Flip is driven by JS (state toggle) so we don't use :hover here —
+   works on both desktop hover and mobile tap */
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: inherit;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
 }
