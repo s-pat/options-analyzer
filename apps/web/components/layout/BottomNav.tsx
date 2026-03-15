@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Zap, Search, TrendingUp, BookOpen } from 'lucide-react';
+import { UserButton } from '@clerk/nextjs';
+import { BarChart3, Zap, Search, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const BOTTOM_NAV = [
@@ -10,7 +11,6 @@ const BOTTOM_NAV = [
   { href: '/today',     label: 'Today',     icon: Zap },
   { href: '/screener',  label: 'Screener',  icon: Search },
   { href: '/options',   label: 'Options',   icon: TrendingUp },
-  { href: '/learn',     label: 'Learn',     icon: BookOpen },
 ];
 
 export function BottomNav() {
@@ -54,6 +54,16 @@ export function BottomNav() {
             </Link>
           );
         })}
+        <div className="flex-1 flex flex-col items-center justify-center gap-1 min-h-[44px]">
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: 'w-6 h-6',
+              },
+            }}
+          />
+          <span className="text-[10px] font-medium text-white/30">Account</span>
+        </div>
       </div>
     </nav>
   );
