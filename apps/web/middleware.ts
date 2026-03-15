@@ -1,41 +1,46 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-const COOKIE_NAME = 'beta_token';
+const isPublicRoute = createRouteMatcher([
+  '/landing(.*)',
+  '/design(.*)',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/api/waitlist',
+  '/api/v1(.*)',
+]);
 
-// Routes that are always accessible without the beta token
-const ALLOWED_PREFIXES = ['/landing', '/gate', '/design', '/api/auth', '/api/waitlist', '/api/v1'];
+const isWaitlistRoute = createRouteMatcher(['/waitlist(.*)']);
 
-function isAllowed(pathname: string): boolean {
-  return ALLOWED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-}
+export default clerkMiddleware(async (auth, req) => {
+  const { userId, sessionClaims } = await auth();
 
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-
-  if (isAllowed(pathname)) {
+  // Public routes: allow through without auth
+  if (isPublicRoute(req)) {
     return NextResponse.next();
   }
 
-  const token = req.cookies.get(COOKIE_NAME)?.value;
-
-  if (token) {
-    const secret = process.env.JWT_SECRET;
-    if (secret) {
-      try {
-        await jwtVerify(token, new TextEncoder().encode(secret));
-        return NextResponse.next();
-      } catch {
-        // Invalid or expired token — fall through to redirect
-      }
-    }
+  // Not signed in: redirect to landing
+  if (!userId) {
+    return NextResponse.redirect(new URL('/landing', req.url));
   }
 
-  // Delete stale cookie and redirect to landing
-  const response = NextResponse.redirect(new URL('/landing', req.url));
-  response.cookies.set(COOKIE_NAME, '', { maxAge: 0, path: '/' });
-  return response;
-}
+  // Signed in, on waitlist page: allow (pending approval state)
+  if (isWaitlistRoute(req)) {
+    return NextResponse.next();
+  }
+
+  // Signed in: check if approved via publicMetadata
+  const metadata = sessionClaims?.metadata as { approved?: boolean } | undefined;
+  const approved = metadata?.approved === true;
+
+  if (!approved) {
+    return NextResponse.redirect(new URL('/waitlist', req.url));
+  }
+
+  // Approved: allow through
+  return NextResponse.next();
+});
 
 export const config = {
   matcher: [
