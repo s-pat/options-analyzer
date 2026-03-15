@@ -46,7 +46,7 @@ function waitlistHtml(firstName: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark" />
   <meta name="supported-color-schemes" content="dark" />
-  <title>Welcome to OptionsLab</title>
+  <title>Welcome to OptionLabs</title>
   <style>
     :root { color-scheme: dark; }
     body { background-color: #111111 !important; }
@@ -76,7 +76,7 @@ function waitlistHtml(firstName: string): string {
                     </svg>
                   </td>
                   <td style="vertical-align:middle;">
-                    <span style="font-size:20px;font-weight:600;color:#f5f5f5;letter-spacing:-0.02em;">OptionsLab</span>
+                    <span style="font-size:20px;font-weight:600;color:#f5f5f5;letter-spacing:-0.02em;">OptionLabs</span>
                   </td>
                 </tr>
               </table>
@@ -96,7 +96,7 @@ function waitlistHtml(firstName: string): string {
                 Welcome, ${firstName}!
               </p>
               <p style="margin:0 0 28px;font-size:15px;color:#999999;line-height:1.6;">
-                Your account has been created and you've been added to the OptionsLab private beta waitlist.
+                Your account has been created and you've been added to the OptionLabs private beta waitlist.
               </p>
 
               <div style="height:1px;background-color:rgba(255,255,255,0.08);margin-bottom:28px;"></div>
@@ -126,7 +126,7 @@ function waitlistHtml(firstName: string): string {
           <tr>
             <td align="center" style="padding-top:28px;">
               <p style="margin:0;font-size:12px;color:#555555;line-height:1.6;">
-                You're receiving this because you signed up for OptionsLab.<br/>
+                You're receiving this because you signed up for OptionLabs.<br/>
                 If this wasn't you, you can safely ignore this email.
               </p>
             </td>
@@ -148,7 +148,7 @@ function approvalHtml(firstName: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark" />
   <meta name="supported-color-schemes" content="dark" />
-  <title>You're approved for OptionsLab</title>
+  <title>You're approved for OptionLabs</title>
   <style>
     :root { color-scheme: dark; }
     body { background-color: #111111 !important; }
@@ -176,7 +176,7 @@ function approvalHtml(firstName: string): string {
                     </svg>
                   </td>
                   <td style="vertical-align:middle;">
-                    <span style="font-size:20px;font-weight:600;color:#f5f5f5;letter-spacing:-0.02em;">OptionsLab</span>
+                    <span style="font-size:20px;font-weight:600;color:#f5f5f5;letter-spacing:-0.02em;">OptionLabs</span>
                   </td>
                 </tr>
               </table>
@@ -187,20 +187,11 @@ function approvalHtml(firstName: string): string {
           <tr>
             <td class="email-card" style="background-color:#1e1e1e;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:40px 36px;">
 
-              <!-- Checkmark icon -->
-              <div style="text-align:center;margin-bottom:24px;">
-                <div style="display:inline-block;width:56px;height:56px;border-radius:50%;background-color:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);line-height:56px;text-align:center;">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;">
-                    <polyline points="20 6 9 17 4 12" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-
               <p style="margin:0 0 8px;font-size:22px;font-weight:600;color:#f5f5f5;line-height:1.3;text-align:center;">
                 You're in, ${firstName}!
               </p>
               <p style="margin:0 0 28px;font-size:15px;color:#999999;line-height:1.6;text-align:center;">
-                Your access to the OptionsLab private beta has been approved.
+                Your access to the OptionLabs private beta has been approved.
               </p>
 
               <div style="height:1px;background-color:rgba(255,255,255,0.08);margin-bottom:28px;"></div>
@@ -212,7 +203,7 @@ function approvalHtml(firstName: string): string {
               <!-- CTA Button -->
               <div style="text-align:center;margin-bottom:0;">
                 <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://optionlabs.app'}" style="display:inline-block;padding:12px 32px;background-color:#3B82F6;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:8px;letter-spacing:-0.01em;">
-                  Open OptionsLab
+                  Open OptionLabs
                 </a>
               </div>
 
@@ -223,7 +214,7 @@ function approvalHtml(firstName: string): string {
           <tr>
             <td align="center" style="padding-top:28px;">
               <p style="margin:0;font-size:12px;color:#555555;line-height:1.6;">
-                You're receiving this because you signed up for OptionsLab.<br/>
+                You're receiving this because you signed up for OptionLabs.<br/>
                 If this wasn't you, you can safely ignore this email.
               </p>
             </td>
@@ -294,7 +285,7 @@ export async function POST(req: NextRequest) {
     resend.emails.send({
       from,
       to: email,
-      subject: "Welcome to OptionsLab — You're on the waitlist",
+      subject: "Welcome to OptionLabs — You're on the waitlist",
       html: waitlistHtml(firstName),
     }).catch((err: unknown) => console.error('[clerk-webhook] waitlist email failed:', err));
 
@@ -304,7 +295,7 @@ export async function POST(req: NextRequest) {
       resend.emails.send({
         from,
         to: notifyEmail,
-        subject: `[OptionsLab] New signup: ${firstName} (${email})`,
+        subject: `[OptionLabs] New signup: ${firstName} (${email})`,
         text: [
           `New user signed up via Clerk SSO`,
           ``,
@@ -327,7 +318,7 @@ export async function POST(req: NextRequest) {
       resend.emails.send({
         from,
         to: email,
-        subject: "You're approved! Welcome to OptionsLab",
+        subject: "You're approved! Welcome to OptionLabs",
         html: approvalHtml(firstName),
       }).catch((err: unknown) => console.error('[clerk-webhook] approval email failed:', err));
     }
