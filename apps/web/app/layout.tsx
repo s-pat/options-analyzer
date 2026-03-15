@@ -36,22 +36,30 @@ export default function RootLayout({
             baseTheme: dark,
             variables: {
               colorPrimary: "#3B82F6",
-              colorBackground: "#0a0a0f",
-              colorInputBackground: "rgba(255,255,255,0.06)",
+              colorBackground: "#111118",
+              colorInputBackground: "rgba(255,255,255,0.1)",
               colorInputText: "#ffffff",
-              colorText: "#ffffff",
+              colorText: "#e2e2e2",
+              colorTextSecondary: "#a0a0b0",
               borderRadius: "0.75rem",
               fontFamily: "var(--font-geist-sans)",
             },
             elements: {
-              card: "bg-white/[0.025] border border-white/[0.08] shadow-2xl shadow-black/40",
+              card: "!bg-[#111118] border border-white/[0.12] shadow-2xl shadow-black/50",
+              headerTitle: "text-white",
+              headerSubtitle: "text-white/60",
+              socialButtonsBlockButton:
+                "!bg-white/[0.08] border border-white/[0.15] hover:!bg-white/[0.14] text-white/90 transition-all",
+              socialButtonsBlockButtonText: "text-white/90",
+              dividerLine: "bg-white/[0.12]",
+              dividerText: "text-white/40",
+              formFieldLabel: "text-white/70",
+              formFieldInput:
+                "!bg-white/[0.08] border border-white/[0.15] text-white placeholder:text-white/30 focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30",
               formButtonPrimary:
                 "bg-blue-500 hover:bg-blue-400 text-white font-semibold transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25",
               footerActionLink: "text-blue-400 hover:text-blue-300",
-              socialButtonsBlockButton:
-                "bg-white/[0.06] border border-white/[0.1] hover:bg-white/[0.1] transition-all",
-              formFieldInput:
-                "bg-white/[0.06] border border-white/[0.1] text-white placeholder:text-white/25 focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30",
+              footerActionText: "text-white/50",
               userButtonAvatarBox: "w-7 h-7",
             },
           }}
