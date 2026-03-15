@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 
 const geistSans = Geist({
@@ -33,34 +32,48 @@ export default function RootLayout({
         <ClerkProvider
           afterSignOutUrl="/landing"
           appearance={{
-            baseTheme: dark,
             variables: {
               colorPrimary: "#3B82F6",
-              colorBackground: "#111118",
-              colorInputBackground: "rgba(255,255,255,0.1)",
+              colorBackground: "#16161e",
+              colorInputBackground: "#1e1e2a",
               colorInputText: "#ffffff",
-              colorText: "#e2e2e2",
-              colorTextSecondary: "#a0a0b0",
+              colorText: "#f0f0f5",
+              colorTextSecondary: "#9999aa",
+              colorDanger: "#ef4444",
+              colorSuccess: "#22c55e",
+              colorNeutral: "#d0d0dd",
               borderRadius: "0.75rem",
               fontFamily: "var(--font-geist-sans)",
             },
             elements: {
-              card: "!bg-[#111118] border border-white/[0.12] shadow-2xl shadow-black/50",
-              headerTitle: "text-white",
-              headerSubtitle: "text-white/60",
+              rootBox: "w-full",
+              card: "!bg-[#16161e] !border !border-white/20 !shadow-2xl !shadow-black/60",
+              headerTitle: "!text-white !text-lg",
+              headerSubtitle: "!text-white/60",
               socialButtonsBlockButton:
-                "!bg-white/[0.08] border border-white/[0.15] hover:!bg-white/[0.14] text-white/90 transition-all",
-              socialButtonsBlockButtonText: "text-white/90",
-              dividerLine: "bg-white/[0.12]",
-              dividerText: "text-white/40",
-              formFieldLabel: "text-white/70",
+                "!bg-[#1e1e2a] !border !border-white/20 hover:!bg-[#2a2a38] !text-white transition-all",
+              socialButtonsBlockButtonText: "!text-white !font-medium",
+              socialButtonsProviderIcon: "brightness-0 invert",
+              dividerLine: "!bg-white/20",
+              dividerText: "!text-white/50",
+              formFieldLabel: "!text-white/80",
               formFieldInput:
-                "!bg-white/[0.08] border border-white/[0.15] text-white placeholder:text-white/30 focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30",
+                "!bg-[#1e1e2a] !border !border-white/20 !text-white placeholder:!text-white/40 focus:!border-blue-500 focus:!ring-1 focus:!ring-blue-500/40",
               formButtonPrimary:
-                "bg-blue-500 hover:bg-blue-400 text-white font-semibold transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25",
-              footerActionLink: "text-blue-400 hover:text-blue-300",
-              footerActionText: "text-white/50",
+                "!bg-blue-500 hover:!bg-blue-400 !text-white !font-semibold transition-all duration-200 hover:!shadow-lg hover:!shadow-blue-500/25",
+              footerActionLink: "!text-blue-400 hover:!text-blue-300",
+              footerActionText: "!text-white/50",
+              identityPreview: "!bg-[#1e1e2a] !border !border-white/20",
+              identityPreviewText: "!text-white/80",
+              identityPreviewEditButton: "!text-blue-400",
+              formResendCodeLink: "!text-blue-400",
+              alert: "!bg-[#1e1e2a] !border !border-white/20",
+              alertText: "!text-white/80",
               userButtonAvatarBox: "w-7 h-7",
+              userButtonPopoverCard: "!bg-[#16161e] !border !border-white/20",
+              userButtonPopoverActionButton: "!text-white/80 hover:!bg-white/10",
+              userButtonPopoverActionButtonText: "!text-white/80",
+              userButtonPopoverFooter: "!hidden",
             },
           }}
         >
