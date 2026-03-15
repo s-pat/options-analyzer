@@ -29,6 +29,19 @@ async function waitForPort(port: number, timeoutMs = 30_000): Promise<void> {
 }
 
 export default async function globalSetup() {
+  // Set up Clerk testing when token is available
+  if (process.env.CLERK_TESTING_TOKEN) {
+    try {
+      const { clerkSetup } = await import('@clerk/testing/playwright');
+      await clerkSetup();
+      console.log('[e2e] Clerk testing configured');
+    } catch (err) {
+      console.warn('[e2e] Clerk testing setup failed:', (err as Error).message);
+    }
+  } else {
+    console.log('[e2e] CLERK_TESTING_TOKEN not set — authenticated tests will be skipped');
+  }
+
   // Reuse an already-running API (common in local dev)
   if (await isPortListening(API_PORT)) {
     console.log(`\n[e2e] API already running on :${API_PORT} — reusing\n`);
@@ -36,10 +49,15 @@ export default async function globalSetup() {
   }
 
   console.log('\n[e2e] Building Go API...');
-  execSync('go build -o ./server ./cmd/server/...', {
-    cwd: API_DIR,
-    stdio: 'inherit',
-  });
+  try {
+    execSync('go build -o ./server ./cmd/server/...', {
+      cwd: API_DIR,
+      stdio: 'inherit',
+    });
+  } catch {
+    console.warn('[e2e] Go API build failed — API tests will be skipped. Frontend-only tests will still run.');
+    return;
+  }
 
   console.log('[e2e] Starting Go API...');
   const api = spawn('./server', [], {

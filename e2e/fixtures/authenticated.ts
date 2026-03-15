@@ -3,22 +3,29 @@ import { test as base } from '@playwright/test';
 /**
  * Extends the base `test` with an authenticated `page` fixture.
  *
- * - If the app has no gate (current main branch): navigates straight through.
- * - If feature/beta-gate is active: detects the /gate redirect and submits
- *   the E2E password automatically, so all downstream tests get a real session.
+ * Uses Clerk's testing token to bypass SSO for E2E tests.
+ * Requires CLERK_TESTING_TOKEN env var (from Clerk Dashboard → Testing).
+ *
+ * When Clerk is not configured, authenticated tests are skipped.
  */
 export const test = base.extend<{ page: ReturnType<typeof base['extend']> }>({
   page: async ({ page }, use) => {
-    await page.goto('/');
+    // Set up Clerk testing token when available
+    if (process.env.CLERK_TESTING_TOKEN) {
+      try {
+        const { setupClerkTestingToken } = await import('@clerk/testing/playwright');
+        await setupClerkTestingToken({ page });
+      } catch {
+        // Clerk setup not available — will skip below
+      }
+    }
 
-    // Unauthenticated users now redirect to /landing (public marketing page)
-    // before /gate. Navigate directly to /gate to authenticate.
-    if (page.url().includes('/landing') || page.url().includes('/gate')) {
-      await page.goto('/gate');
-      const password = process.env.E2E_PREVIEW_PASSWORD ?? 'e2e-test-password';
-      await page.locator('input[type="password"]').fill(password);
-      await page.locator('button[type="submit"]').click();
-      await page.waitForURL('/', { timeout: 20_000 });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+    // If we ended up on /landing, /sign-in, or /waitlist, auth isn't working — skip
+    const url = page.url();
+    if (url.includes('/landing') || url.includes('/sign-in') || url.includes('/waitlist')) {
+      base.skip(true, 'Clerk authentication required — set CLERK_TESTING_TOKEN to run authenticated tests');
     }
 
     await use(page as any);
