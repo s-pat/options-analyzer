@@ -168,13 +168,13 @@ function Navbar() {
         {/* CTAs */}
         <div className="flex items-center gap-3">
           <Link
-            href="/gate"
+            href="/sign-in"
             className="text-sm text-white/50 hover:text-white transition-colors duration-200 hidden sm:block"
           >
             Sign in
           </Link>
           <Link
-            href="/gate"
+            href="/sign-up"
             className="text-sm font-medium px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-400 text-white transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/30"
           >
             Get Access
@@ -478,7 +478,7 @@ export default function LandingPage() {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
-                  href="/gate"
+                  href="/sign-up"
                   className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-semibold text-sm transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
                 >
                   Get Beta Access
@@ -677,7 +677,7 @@ export default function LandingPage() {
                 <span className="text-sm font-semibold">Live Dashboard Preview</span>
                 <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 font-medium">LIVE</span>
               </div>
-              <Link href="/gate" className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
+              <Link href="/sign-in" className="text-xs text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
                 View full dashboard <ChevronRight className="h-3 w-3" />
               </Link>
             </div>
@@ -745,7 +745,7 @@ export default function LandingPage() {
                 Showing top 5 of {total.toLocaleString()} tracked symbols by IV rank
               </span>
               <Link
-                href="/gate"
+                href="/sign-in"
                 className="text-xs font-medium px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-colors"
               >
                 Unlock full access →
@@ -779,7 +779,7 @@ export default function LandingPage() {
           {/* Primary CTA */}
           <div className="flex justify-center mb-10">
             <Link
-              href="/gate"
+              href="/sign-up"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-semibold text-sm transition-all duration-200 hover:shadow-2xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
             >
               Enter Beta Access
@@ -882,8 +882,8 @@ export default function LandingPage() {
             © {new Date().getFullYear()} OptionsLab. For informational purposes only. Not financial advice.
           </p>
           <div className="flex items-center gap-5 text-xs text-white/35">
-            <Link href="/gate" className="hover:text-white/70 transition-colors">Sign In</Link>
-            <Link href="/gate" className="hover:text-white/70 transition-colors">Request Access</Link>
+            <Link href="/sign-in" className="hover:text-white/70 transition-colors">Sign In</Link>
+            <Link href="/sign-up" className="hover:text-white/70 transition-colors">Request Access</Link>
           </div>
         </div>
       </footer>

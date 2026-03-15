@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { BarChart3, TrendingUp, Search, FlaskConical, Activity, Zap, BookOpen, Target, LogOut } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { UserButton } from '@clerk/nextjs';
+import { BarChart3, TrendingUp, Search, FlaskConical, Activity, Zap, BookOpen, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -17,12 +18,6 @@ const navItems = [
 
 export function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
-  const router   = useRouter();
-
-  async function handleLogout() {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    router.push('/gate');
-  }
 
   return (
     <aside className="relative w-64 shrink-0 flex flex-col h-full md:h-screen md:sticky md:top-0 overflow-hidden border-r border-white/[0.07] bg-[#060608]">
@@ -80,13 +75,13 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           <p className="text-[11px] text-white/25 font-medium">Data: Yahoo Finance</p>
           <p className="text-[11px] text-white/20">30s auto-refresh</p>
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 text-xs text-white/30 hover:text-white/60 transition-colors w-full cursor-pointer"
-        >
-          <LogOut className="h-3.5 w-3.5" />
-          Leave preview
-        </button>
+        <UserButton
+          appearance={{
+            elements: {
+              avatarBox: 'w-7 h-7',
+            },
+          }}
+        />
       </div>
     </aside>
   );

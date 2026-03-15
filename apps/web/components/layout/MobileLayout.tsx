@@ -17,7 +17,7 @@ export function useSidebar() {
   return useContext(SidebarCtx);
 }
 
-const NO_SHELL_ROUTES = ['/gate', '/landing', '/design'];
+const NO_SHELL_ROUTES = ['/gate', '/landing', '/design', '/sign-in', '/sign-up', '/waitlist'];
 
 export function MobileLayout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +31,7 @@ export function MobileLayout({ children }: { children: React.ReactNode }) {
   // Close the sidebar whenever the route changes (navigation or initial load).
   useEffect(() => { setIsOpen(false); }, [pathname]);
 
-  if (NO_SHELL_ROUTES.includes(pathname)) {
+  if (NO_SHELL_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'))) {
     return <>{children}</>;
   }
 

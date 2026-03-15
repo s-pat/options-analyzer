@@ -9,9 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.0.4",
+    "@clerk/themes": "^2.4.57",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "jose": "^6.2.0",
     "lightweight-charts": "^5.1.0",
     "lucide-react": "^0.575.0",
     "next": "16.1.6",
@@ -20,6 +21,7 @@
     "react-dom": "19.2.3",
     "recharts": "^3.7.0",
     "resend": "^6.9.3",
+    "svix": "^1.88.0",
     "swr": "^2.4.1",
     "tailwind-merge": "^3.5.0"
   },

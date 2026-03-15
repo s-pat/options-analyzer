@@ -14,6 +14,7 @@
     "e2e:report": "playwright show-report e2e/report"
   },
   "devDependencies": {
+    "@clerk/testing": "^2.0.4",
     "@playwright/test": "1.58.2",
     "turbo": "^2.3.3"
   },

@@ -47,9 +47,9 @@ export default defineConfig({
       RESEND_API_KEY: '',
       RESEND_FROM: 'noreply@test.local',
       NOTIFY_EMAIL: '',
-      // Beta-gate credentials — used once feature/beta-gate is merged
-      PREVIEW_PASSWORD: process.env.E2E_PREVIEW_PASSWORD ?? 'e2e-test-password',
-      JWT_SECRET: process.env.E2E_JWT_SECRET ?? 'e2e-jwt-secret-for-testing-only!!',
+      // Clerk env vars — pass through from environment (set in CI secrets or .env.local)
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '',
+      CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY ?? '',
     },
   },
 });

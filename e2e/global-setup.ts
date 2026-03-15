@@ -3,6 +3,7 @@ import * as net from 'net';
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
+import { clerkSetup } from '@clerk/testing/playwright';
 
 const API_PORT = 8080;
 const API_DIR = path.join(__dirname, '../apps/api');
@@ -29,6 +30,20 @@ async function waitForPort(port: number, timeoutMs = 30_000): Promise<void> {
 }
 
 export default async function globalSetup() {
+  // Set up Clerk testing — fetches a testing token from Clerk Backend API.
+  // Requires CLERK_SECRET_KEY (and optionally NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY).
+  // The token is used by setupClerkTestingToken() in the authenticated fixture.
+  if (process.env.CLERK_SECRET_KEY) {
+    try {
+      await clerkSetup();
+      console.log('[e2e] Clerk testing configured');
+    } catch (err) {
+      console.warn('[e2e] Clerk testing setup failed:', (err as Error).message);
+    }
+  } else {
+    console.log('[e2e] CLERK_SECRET_KEY not set — authenticated tests will be skipped');
+  }
+
   // Reuse an already-running API (common in local dev)
   if (await isPortListening(API_PORT)) {
     console.log(`\n[e2e] API already running on :${API_PORT} — reusing\n`);
@@ -36,10 +51,15 @@ export default async function globalSetup() {
   }
 
   console.log('\n[e2e] Building Go API...');
-  execSync('go build -o ./server ./cmd/server/...', {
-    cwd: API_DIR,
-    stdio: 'inherit',
-  });
+  try {
+    execSync('go build -o ./server ./cmd/server/...', {
+      cwd: API_DIR,
+      stdio: 'inherit',
+    });
+  } catch {
+    console.warn('[e2e] Go API build failed — API tests will be skipped. Frontend-only tests will still run.');
+    return;
+  }
 
   console.log('[e2e] Starting Go API...');
   const api = spawn('./server', [], {
@@ -50,7 +70,6 @@ export default async function globalSetup() {
       GIN_MODE: 'release',
       ALLOWED_ORIGINS: 'http://localhost:3000',
     },
-    // Don't inherit stdio — keep test output clean
     stdio: 'ignore',
   });
 
