@@ -211,7 +211,7 @@ function approvalHtml(firstName: string): string {
 
               <!-- CTA Button -->
               <div style="text-align:center;margin-bottom:0;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://optionslab.app'}" style="display:inline-block;padding:12px 32px;background-color:#3B82F6;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:8px;letter-spacing:-0.01em;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://optionlabs.app'}" style="display:inline-block;padding:12px 32px;background-color:#3B82F6;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:8px;letter-spacing:-0.01em;">
                   Open OptionsLab
                 </a>
               </div>
