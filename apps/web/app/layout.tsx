@@ -66,6 +66,8 @@ export default function RootLayout({
               identityPreview: "!bg-[#1e1e2a] !border !border-white/20",
               identityPreviewText: "!text-white/80",
               identityPreviewEditButton: "!text-blue-400",
+              otpCodeFieldInput:
+                "!bg-[#1e1e2a] !border !border-white/20 !text-white !caret-white",
               formResendCodeLink: "!text-blue-400",
               alert: "!bg-[#1e1e2a] !border !border-white/20",
               alertText: "!text-white/80",
