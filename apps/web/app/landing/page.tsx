@@ -14,7 +14,6 @@ import {
   Target,
   BookOpen,
   ChevronRight,
-  Check,
   LineChart,
   Search,
   GitBranch,
@@ -162,7 +161,7 @@ function Navbar() {
         <nav className="hidden md:flex items-center gap-7 text-sm text-white/50">
           <a href="#features"     className="hover:text-white transition-colors duration-200">Features</a>
           <a href="#how-it-works" className="hover:text-white transition-colors duration-200">How it works</a>
-          <a href="#waitlist"     className="hover:text-white transition-colors duration-200">Early access</a>
+          <a href="#join"          className="hover:text-white transition-colors duration-200">Join beta</a>
         </nav>
 
         {/* CTAs */}
@@ -374,11 +373,6 @@ function FeatureCard({ feature }: { feature: typeof FEATURES[number] }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
-  const [name, setName]           = useState('');
-  const [email, setEmail]         = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading]     = useState(false);
-  const [formError, setFormError] = useState('');
 
   // Live market data — cached for 60s, no auto-refresh on landing page to reduce API load
   const { data: stocksData, isLoading: stocksLoading } = useSWR('stocks', getStocks, {
@@ -402,29 +396,6 @@ export default function LandingPage() {
   const previewRows = stocks.length > 0
     ? [...stocks].sort((a, b) => b.ivRank - a.ivRank).slice(0, 5)
     : null;
-
-  async function handleWaitlist(e: React.FormEvent) {
-    e.preventDefault();
-    setFormError('');
-    setLoading(true);
-    try {
-      const res = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email }),
-      });
-      if (res.ok) {
-        setSubmitted(true);
-      } else {
-        const data = await res.json().catch(() => ({}));
-        setFormError(data.error ?? 'Something went wrong. Please try again.');
-      }
-    } catch {
-      setFormError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }
 
   return (
     <div className="min-h-screen bg-[#060608] text-white selection:bg-blue-500/30 selection:text-white overflow-x-hidden">
@@ -755,14 +726,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA / Waitlist ───────────────────────────────────────────────── */}
-      <section id="waitlist" className="relative py-24 px-5 sm:px-8">
+      {/* ── CTA / Join Private Beta ──────────────────────────────────────── */}
+      <section id="join" className="relative py-24 px-5 sm:px-8">
         {/* Ambient glow */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-[700px] h-[350px] bg-blue-600/7 rounded-full blur-[120px]" />
         </div>
 
-        <div className="relative max-w-2xl mx-auto text-center">
+        <div className="relative max-w-xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.07] border border-white/[0.12] text-xs text-white/55 mb-7 font-medium">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
             Private Beta · Limited spots
@@ -772,87 +743,32 @@ export default function LandingPage() {
             Ready to trade with an edge?
           </h2>
           <p className="text-white/45 text-sm leading-relaxed mb-10 max-w-lg mx-auto">
-            Enter your beta access code to get started immediately,
-            or join the waitlist to be notified when new spots open.
+            Create an account to request access to the private beta.
+            We&apos;ll review your application and notify you when you&apos;re approved.
           </p>
 
-          {/* Primary CTA */}
-          <div className="flex justify-center mb-10">
+          {/* SSO CTA card */}
+          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-8 mb-8">
+            <p className="text-xs text-white/35 uppercase tracking-widest font-medium mb-6">
+              Join the private beta
+            </p>
             <Link
               href="/sign-up"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-semibold text-sm transition-all duration-200 hover:shadow-2xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-semibold text-sm transition-all duration-200 hover:shadow-2xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
             >
-              Enter Beta Access
+              Request beta access
               <ChevronRight className="h-4 w-4" />
             </Link>
+            <p className="text-xs text-white/25 mt-4">
+              Already have an account?{' '}
+              <Link href="/sign-in" className="text-white/50 hover:text-white transition-colors">
+                Sign in →
+              </Link>
+            </p>
           </div>
-
-          {/* Divider */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex-1 h-px bg-white/[0.08]" />
-            <span className="text-xs text-white/30">or join the waitlist</span>
-            <div className="flex-1 h-px bg-white/[0.08]" />
-          </div>
-
-          {/* Waitlist form */}
-          {submitted ? (
-            <div className="rounded-2xl border border-green-500/20 bg-green-500/[0.06] p-8">
-              <div className="flex items-center justify-center gap-2 text-green-400 font-semibold mb-2">
-                <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <Check className="h-4 w-4" />
-                </div>
-                You&apos;re on the list!
-              </div>
-              <p className="text-sm text-white/45 mt-2">
-                We&apos;ll reach out to{' '}
-                <strong className="text-white/70">{email}</strong>{' '}
-                when your spot is ready.
-              </p>
-            </div>
-          ) : (
-            <form
-              onSubmit={handleWaitlist}
-              className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-6 text-left"
-            >
-              <div className="grid sm:grid-cols-2 gap-3 mb-3">
-                <div>
-                  <label className="block text-xs text-white/45 mb-1.5 font-medium">Name</label>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name"
-                    required
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.06] border border-white/[0.1] text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-white/45 mb-1.5 font-medium">Email</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    required
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.06] border border-white/[0.1] text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-blue-500/60 focus:ring-1 focus:ring-blue-500/30 transition-all"
-                  />
-                </div>
-              </div>
-              {formError && (
-                <p className="text-xs text-red-400 mb-3">{formError}</p>
-              )}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-2.5 rounded-xl bg-white/[0.07] hover:bg-white/[0.12] border border-white/[0.1] text-sm font-semibold text-white transition-all duration-200 disabled:opacity-50 cursor-pointer"
-              >
-                {loading ? 'Joining…' : 'Request waitlist access →'}
-              </button>
-            </form>
-          )}
 
           {/* Social proof */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-xs text-white/30">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-white/30">
             <div className="flex items-center gap-1.5">
               <Shield className="h-3.5 w-3.5" />
               No spam, ever
