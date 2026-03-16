@@ -14,9 +14,76 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://optionslab.io";
+
 export const metadata: Metadata = {
-  title: "OptionsLab — S&P 500 Options Analyzer",
-  description: "Analyze S&P 500 options opportunities with real-time market data",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "OptionsLab — S&P 500 Options Analyzer & Screener",
+    template: "%s | OptionsLab",
+  },
+  description:
+    "Scan 503 S&P 500 options, analyze real-time Greeks, IV rank, and backtest strategies. Institutional-grade options trading platform built for retail traders.",
+  keywords: [
+    "options trading",
+    "options analyzer",
+    "S&P 500 options",
+    "options screener",
+    "implied volatility",
+    "IV rank",
+    "options Greeks",
+    "options backtesting",
+    "options chain",
+    "delta options",
+    "options scanner",
+    "stock options analysis",
+    "options strategy",
+    "Black-Scholes",
+    "retail options trading",
+  ],
+  authors: [{ name: "OptionsLab" }],
+  creator: "OptionsLab",
+  publisher: "OptionsLab",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteUrl,
+    siteName: "OptionsLab",
+    title: "OptionsLab — S&P 500 Options Analyzer & Screener",
+    description:
+      "Scan 503 S&P 500 options, analyze real-time Greeks, IV rank, and backtest strategies. Institutional-grade options trading platform built for retail traders.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "OptionsLab — S&P 500 Options Analyzer",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "OptionsLab — S&P 500 Options Analyzer & Screener",
+    description:
+      "Scan 503 S&P 500 options, analyze real-time Greeks, IV rank, and backtest strategies. Institutional-grade options trading for retail traders.",
+    images: ["/og-image.png"],
+    creator: "@optionslab",
+    site: "@optionslab",
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
 };
 
 export default function RootLayout({
