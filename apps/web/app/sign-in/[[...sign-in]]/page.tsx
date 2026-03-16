@@ -49,6 +49,7 @@ export default function SignInPage() {
         {/* Clerk Sign-In */}
         <div className="flex justify-center">
           <SignIn
+            forceRedirectUrl="/auth-loading"
             appearance={{
               elements: {
                 rootBox: 'w-full',
