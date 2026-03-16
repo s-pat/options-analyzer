@@ -1,10 +1,15 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
-import { Sidebar } from './Sidebar';
-import { BottomNav } from './BottomNav';
+import dynamic from 'next/dynamic';
 import { cn } from '@/lib/utils';
+
+// Load Sidebar and BottomNav after the main content is interactive.
+// On mobile the sidebar starts hidden off-screen, so deferring its JS
+// doesn't affect anything the user sees on first paint.
+const Sidebar = dynamic(() => import('./Sidebar').then((m) => ({ default: m.Sidebar })), { ssr: false });
+const BottomNav = dynamic(() => import('./BottomNav').then((m) => ({ default: m.BottomNav })), { ssr: false });
 
 interface SidebarContextValue {
   open: () => void;
@@ -35,8 +40,15 @@ export function MobileLayout({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  // Stable reference — prevents every useSidebar() consumer from re-rendering
+  // whenever MobileLayout re-renders (e.g. on pathname change).
+  const ctxValue = useMemo(
+    () => ({ open: () => setIsOpen(true), close: () => setIsOpen(false) }),
+    []
+  );
+
   return (
-    <SidebarCtx.Provider value={{ open: () => setIsOpen(true), close: () => setIsOpen(false) }}>
+    <SidebarCtx.Provider value={ctxValue}>
       <div className="flex min-h-screen bg-background">
 
         {/* Backdrop — sits above bottom nav (z-[55]) so it dims the whole screen */}
