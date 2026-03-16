@@ -24,7 +24,7 @@ export default function WaitlistPage() {
       await user?.reload();
       const approved = (user?.publicMetadata as { approved?: boolean })?.approved === true;
       if (approved) {
-        router.push('/');
+        router.push('/auth-loading');
       }
     } finally {
       setChecking(false);

@@ -30,6 +30,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ClerkProvider
+          afterSignInUrl="/auth-loading"
           afterSignOutUrl="/landing"
           appearance={{
             variables: {

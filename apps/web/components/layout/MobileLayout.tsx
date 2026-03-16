@@ -17,7 +17,7 @@ export function useSidebar() {
   return useContext(SidebarCtx);
 }
 
-const NO_SHELL_ROUTES = ['/gate', '/landing', '/design', '/sign-in', '/sign-up', '/waitlist'];
+const NO_SHELL_ROUTES = ['/gate', '/landing', '/design', '/sign-in', '/sign-up', '/waitlist', '/auth-loading'];
 
 export function MobileLayout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
