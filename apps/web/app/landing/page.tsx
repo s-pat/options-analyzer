@@ -231,8 +231,10 @@ export default function LandingPage() {
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative pt-28 pb-20 px-5 sm:px-8">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-blue-600/8 rounded-full blur-[150px] pointer-events-none" />
-        <div className="absolute top-20 left-1/4 w-[400px] h-[300px] bg-violet-600/6 rounded-full blur-[120px] pointer-events-none" />
+        {/* Ambient glows — hidden on mobile (blur filters are GPU-expensive on
+            low-end phones), reduced size on tablet, full size on desktop */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-blue-600/8 rounded-full pointer-events-none hidden sm:block sm:w-[500px] sm:h-[300px] sm:blur-[80px] lg:w-[900px] lg:h-[500px] lg:blur-[150px]" />
+        <div className="absolute top-20 left-1/4 bg-violet-600/6 rounded-full pointer-events-none hidden sm:block sm:w-[200px] sm:h-[150px] sm:blur-[60px] lg:w-[400px] lg:h-[300px] lg:blur-[120px]" />
 
         <div className="relative max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-14 items-center">
@@ -447,8 +449,8 @@ export default function LandingPage() {
 
       {/* ── CTA ──────────────────────────────────────────────────────────── */}
       <section id="join" className="relative py-24 px-5 sm:px-8">
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[700px] h-[350px] bg-blue-600/7 rounded-full blur-[120px]" />
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none hidden sm:flex">
+          <div className="bg-blue-600/7 rounded-full sm:w-[350px] sm:h-[175px] sm:blur-[60px] lg:w-[700px] lg:h-[350px] lg:blur-[120px]" />
         </div>
 
         <div className="relative max-w-xl mx-auto text-center">

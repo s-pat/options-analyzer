@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -17,6 +17,18 @@ const geistMono = Geist_Mono({
   // This removes one critical network request from the initial page load.
   preload: false,
 });
+
+// Viewport config — exported separately per Next.js 13+ spec.
+// themeColor paints the Android Chrome toolbar/status bar to match the OLED
+// background (#060608), preventing the jarring white flash on page load.
+// viewportFit=cover lets content extend under iPhone notch/home indicator.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,    // allow pinch-zoom for accessibility
+  viewportFit: "cover",
+  themeColor: "#060608",
+};
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://optionslab.io";
 
