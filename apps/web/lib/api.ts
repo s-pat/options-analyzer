@@ -16,11 +16,13 @@ import type {
 // you need to point the browser directly at the backend (e.g. local mobile dev).
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '/api/v1';
 
-async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
-  const { signal: callerSignal, ...restOptions } = options ?? {};
-  // 10s timeout prevents requests hanging indefinitely on poor mobile connections.
+async function fetchJSON<T>(path: string, options?: RequestInit & { timeoutMs?: number }): Promise<T> {
+  const { signal: callerSignal, timeoutMs = 10_000, ...restOptions } = options ?? {};
+  // Timeout prevents requests hanging indefinitely on poor mobile connections.
+  // Expensive scan endpoints (options/today, options/recommendations) pass a
+  // longer timeout because they fan out across 20-30 stocks before responding.
   // If the caller passes its own signal, merge both via AbortSignal.any().
-  const timeoutSignal = AbortSignal.timeout(10_000);
+  const timeoutSignal = AbortSignal.timeout(timeoutMs);
   const signal = callerSignal
     ? AbortSignal.any([timeoutSignal, callerSignal])
     : timeoutSignal;
@@ -64,10 +66,11 @@ export const getFilteredChain = (symbol: string, f: OptionsFilter) => {
   return fetchJSON<OptionsChain>(`/stocks/${symbol}/options/filtered${qs ? `?${qs}` : ''}`);
 };
 
-// Options recommendations
+// Options recommendations — allow up to 60 s: backend scans 20 stocks (4 concurrent)
 export const getRecommendations = (limit = 20) =>
   fetchJSON<{ recommendations: OptionRecommendation[]; total: number }>(
     `/options/recommendations?limit=${limit}`,
+    { timeoutMs: 60_000 },
   );
 
 // Option analysis
@@ -81,9 +84,9 @@ export const analyzeOption = (
     `/stocks/${symbol}/options/analyze?type=${type}&strike=${strike}&expiration=${expiration}`,
   );
 
-// Today's Picks
+// Today's Picks — allow up to 60 s: backend scans 30 stocks (4 concurrent)
 export const getTodayOpportunities = () =>
-  fetchJSON<TodayOpportunities>('/options/today');
+  fetchJSON<TodayOpportunities>('/options/today', { timeoutMs: 60_000 });
 
 // Backtest
 export const runBacktest = (req: BacktestRequest) =>
