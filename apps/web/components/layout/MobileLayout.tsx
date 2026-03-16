@@ -26,6 +26,11 @@ export function MobileLayout({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
+  const ctxValue = useMemo(
+    () => ({ open: () => setIsOpen(true), close: () => setIsOpen(false) }),
+    [],
+  );
+
   useEffect(() => { setMounted(true); }, []);
 
   // Close the sidebar whenever the route changes (navigation or initial load).
