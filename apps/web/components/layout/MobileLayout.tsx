@@ -26,6 +26,11 @@ export function MobileLayout({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
+  const ctxValue = useMemo(
+    () => ({ open: () => setIsOpen(true), close: () => setIsOpen(false) }),
+    [],
+  );
+
   useEffect(() => { setMounted(true); }, []);
 
   // Close the sidebar whenever the route changes (navigation or initial load).
@@ -34,11 +39,6 @@ export function MobileLayout({ children }: { children: React.ReactNode }) {
   if (NO_SHELL_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'))) {
     return <>{children}</>;
   }
-
-  const ctxValue = useMemo(
-    () => ({ open: () => setIsOpen(true), close: () => setIsOpen(false) }),
-    [],
-  );
 
   return (
     <SidebarCtx.Provider value={ctxValue}>
