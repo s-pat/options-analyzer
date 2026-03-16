@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
@@ -35,8 +35,13 @@ export function MobileLayout({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  const ctxValue = useMemo(
+    () => ({ open: () => setIsOpen(true), close: () => setIsOpen(false) }),
+    [],
+  );
+
   return (
-    <SidebarCtx.Provider value={{ open: () => setIsOpen(true), close: () => setIsOpen(false) }}>
+    <SidebarCtx.Provider value={ctxValue}>
       <div className="flex min-h-screen bg-background">
 
         {/* Backdrop — sits above bottom nav (z-[55]) so it dims the whole screen */}
