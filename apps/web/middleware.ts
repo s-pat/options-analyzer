@@ -44,12 +44,7 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-  // Run middleware on all routes except truly static/public ones.
-  // /sign-in and /sign-up MUST be included — Clerk needs the middleware to
-  // run on /sign-in/sso-callback and /sign-up/sso-callback to complete the
-  // OAuth session handshake. Excluding them breaks SSO sign-in.
-  // Only /landing and /design are skipped (no Clerk involvement at all).
   matcher: [
-    '/((?!landing|design|_next/static|_next/image|favicon\\.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/webhooks|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)).*)',
   ],
 };

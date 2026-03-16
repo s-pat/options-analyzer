@@ -15,35 +15,23 @@ import type { OptionsFilter } from '@/lib/types';
 const REFRESH_INTERVAL = 30_000;   // 30s background refresh
 const DEDUP_INTERVAL  = 3 * 60_000; // 3 min — preloaded data stays fresh this long
 
-// On slow mobile connections (2G/3G) reduce polling so requests don't compete
-// with each other and drain battery. navigator.connection is non-standard but
-// supported on Chrome/Android which covers most mobile users.
-function networkRefreshInterval(base: number): number {
-  if (typeof navigator === 'undefined') return base;
-  const conn = (navigator as unknown as { connection?: { effectiveType?: string } }).connection;
-  const type = conn?.effectiveType;
-  if (type === 'slow-2g' || type === '2g') return base * 4; // 2min on 2G
-  if (type === '3g') return base * 2;                        // 1min on 3G
-  return base;
-}
-
 export function useMarketOverview() {
   return useSWR('market/overview', getMarketOverview, {
-    refreshInterval: networkRefreshInterval(REFRESH_INTERVAL),
+    refreshInterval: REFRESH_INTERVAL,
     dedupingInterval: DEDUP_INTERVAL,
   });
 }
 
 export function useStocks() {
   return useSWR('stocks', getStocks, {
-    refreshInterval: networkRefreshInterval(REFRESH_INTERVAL),
+    refreshInterval: REFRESH_INTERVAL,
     dedupingInterval: DEDUP_INTERVAL,
   });
 }
 
 export function useStock(symbol: string | null) {
   return useSWR(symbol ? `stocks/${symbol}` : null, () => getStock(symbol!), {
-    refreshInterval: networkRefreshInterval(REFRESH_INTERVAL),
+    refreshInterval: REFRESH_INTERVAL,
   });
 }
 
@@ -51,7 +39,7 @@ export function useStockHistory(symbol: string | null, range = '1y') {
   return useSWR(
     symbol ? `stocks/${symbol}/history/${range}` : null,
     () => getStockHistory(symbol!, range),
-    { refreshInterval: networkRefreshInterval(REFRESH_INTERVAL) },
+    { refreshInterval: REFRESH_INTERVAL },
   );
 }
 
@@ -59,7 +47,7 @@ export function useOptionsChain(symbol: string | null) {
   return useSWR(
     symbol ? `stocks/${symbol}/options` : null,
     () => getOptionsChain(symbol!),
-    { refreshInterval: networkRefreshInterval(REFRESH_INTERVAL) },
+    { refreshInterval: REFRESH_INTERVAL },
   );
 }
 
@@ -69,13 +57,13 @@ export function useFilteredChain(symbol: string | null, filter: OptionsFilter) {
     ? `stocks/${symbol}/options/filtered/${filter.maxCapital}/${filter.riskLevel}/${filter.onlyCall}/${filter.onlyPut}`
     : null;
   return useSWR(key, () => getFilteredChain(symbol!, filter), {
-    refreshInterval: networkRefreshInterval(REFRESH_INTERVAL),
+    refreshInterval: REFRESH_INTERVAL,
   });
 }
 
 export function useTodayOpportunities() {
   return useSWR('options/today', getTodayOpportunities, {
-    refreshInterval: networkRefreshInterval(60_000), // 1 min base — scan is expensive
+    refreshInterval: 60_000,        // 1 min — this scan is expensive
     dedupingInterval: DEDUP_INTERVAL,
   });
 }
@@ -84,10 +72,7 @@ export function useRecommendations(limit = 20) {
   return useSWR(
     `options/recommendations/${limit}`,
     () => getRecommendations(limit),
-    {
-      refreshInterval: networkRefreshInterval(REFRESH_INTERVAL),
-      dedupingInterval: DEDUP_INTERVAL,
-    },
+    { refreshInterval: REFRESH_INTERVAL, dedupingInterval: DEDUP_INTERVAL },
   );
 }
 

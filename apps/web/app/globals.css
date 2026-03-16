@@ -137,12 +137,7 @@
 
 @layer base {
   html {
-    /* Only enable smooth scroll when the user hasn't asked for reduced motion.
-       Budget Android phones often enable this via battery saver or accessibility
-       settings — honoring it prevents janky scroll on underpowered devices. */
-    @media (prefers-reduced-motion: no-preference) {
-      scroll-behavior: smooth;
-    }
+    scroll-behavior: smooth;
   }
   * {
     @apply border-border outline-ring/50;
@@ -160,26 +155,6 @@
   /* Prevent table horizontal overflow zooming */
   table {
     -webkit-text-size-adjust: 100%;
-  }
-}
-
-/* ── Reduced motion — stop all infinite/looping animations ──────────────────
-   Many budget Android phones enable this automatically (battery saver,
-   accessibility settings). Infinite animations (ticker-scroll, float-y,
-   hero-dot-pulse, shimmer, animate-pulse) run continuously on the GPU —
-   on low-end devices this drains battery and blocks UI thread work.
-   One-shot entry animations (fade-in-up, slide-up) are left but made instant
-   so layout is still correct. ─────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    /* Make every animation/transition complete in one frame */
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    transition-delay: 0ms !important;
-    scroll-behavior: auto !important;
   }
 }
 

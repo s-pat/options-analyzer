@@ -1,12 +1,8 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-const OptionsPayoff = dynamic(
-  () => import('@/components/charts/OptionsPayoff').then((m) => ({ default: m.OptionsPayoff })),
-  { ssr: false, loading: () => <div className="h-[200px] animate-pulse rounded-xl bg-white/[0.03]" /> }
-);
+import { OptionsPayoff } from '@/components/charts/OptionsPayoff';
 import type { OptionContract } from '@/lib/types';
 
 interface OptionCardProps {
