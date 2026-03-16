@@ -37,8 +37,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Cache public assets for 24h
-        source: "/(:path((?!api/).*)*)",
+        source: "/:path*",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
