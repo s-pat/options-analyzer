@@ -8,8 +8,8 @@ test.describe('Dashboard', () => {
   });
 
   test('page title and header render', async ({ page }) => {
-    await expect(page).toHaveTitle(/OptionsLab/i);
-    await expect(page.getByText('OptionsLab').first()).toBeVisible();
+    await expect(page).toHaveTitle(/OptionLabs/i);
+    await expect(page.getByText('OptionLabs').first()).toBeVisible();
   });
 
   test('sidebar navigation links are present', async ({ page }) => {

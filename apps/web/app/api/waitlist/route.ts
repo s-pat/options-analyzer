@@ -12,7 +12,7 @@ function confirmationHtml(name: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark" />
   <meta name="supported-color-schemes" content="dark" />
-  <title>You're on the OptionsLab waitlist</title>
+  <title>You're on the OptionLabs waitlist</title>
   <style>
     :root { color-scheme: dark; }
     body { background-color: #111111 !important; }
@@ -44,7 +44,7 @@ function confirmationHtml(name: string): string {
                     </svg>
                   </td>
                   <td style="vertical-align:middle;">
-                    <span style="font-size:20px;font-weight:600;color:#f5f5f5;letter-spacing:-0.02em;">OptionsLab</span>
+                    <span style="font-size:20px;font-weight:600;color:#f5f5f5;letter-spacing:-0.02em;">OptionLabs</span>
                   </td>
                 </tr>
               </table>
@@ -64,7 +64,7 @@ function confirmationHtml(name: string): string {
                 You're on the list, ${firstName}.
               </p>
               <p style="margin:0 0 28px;font-size:15px;color:#999999;line-height:1.6;">
-                We've received your request for early access to OptionsLab.
+                We've received your request for early access to OptionLabs.
               </p>
 
               <!-- Divider -->
@@ -78,9 +78,9 @@ function confirmationHtml(name: string): string {
                 In the meantime, if you have any questions feel free to reply to this email.
               </p>
 
-              <!-- What's OptionsLab section -->
+              <!-- What's OptionLabs section -->
               <div class="email-inner" style="background-color:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:20px 24px;margin-bottom:0;">
-                <p style="margin:0 0 12px;font-size:12px;font-weight:600;color:#888888;letter-spacing:0.06em;text-transform:uppercase;">What's OptionsLab?</p>
+                <p style="margin:0 0 12px;font-size:12px;font-weight:600;color:#888888;letter-spacing:0.06em;text-transform:uppercase;">What's OptionLabs?</p>
                 <table cellpadding="0" cellspacing="0" width="100%">
                   <tr>
                     <td style="padding:6px 0;font-size:13px;color:#bbbbbb;line-height:1.5;">
@@ -112,7 +112,7 @@ function confirmationHtml(name: string): string {
           <tr>
             <td align="center" style="padding-top:28px;">
               <p style="margin:0;font-size:12px;color:#555555;line-height:1.6;">
-                You're receiving this because you requested beta access to OptionsLab.<br/>
+                You're receiving this because you requested beta access to OptionLabs.<br/>
                 If this wasn't you, you can safely ignore this email.
               </p>
             </td>
@@ -159,7 +159,7 @@ export async function POST(req: NextRequest) {
     resend.emails.send({
       from,
       to: entry.email,
-      subject: "You're on the OptionsLab waitlist",
+      subject: "You're on the OptionLabs waitlist",
       html: confirmationHtml(entry.name),
     }).catch((err: unknown) => console.error('[waitlist] confirmation email failed:', err));
 
@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
       resend.emails.send({
         from,
         to: notifyEmail,
-        subject: `[OptionsLab Beta] Access request from ${entry.name}`,
+        subject: `[OptionLabs Beta] Access request from ${entry.name}`,
         text: [
           `Name:      ${entry.name}`,
           `Email:     ${entry.email}`,

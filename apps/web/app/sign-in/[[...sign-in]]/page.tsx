@@ -38,7 +38,7 @@ export default function SignInPage() {
             <div className="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
               <Activity className="h-5 w-5 text-blue-400" />
             </div>
-            <span className="font-semibold text-xl tracking-tight">OptionsLab</span>
+            <span className="font-semibold text-xl tracking-tight">OptionLabs</span>
           </div>
           <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
@@ -61,7 +61,7 @@ export default function SignInPage() {
 
         {/* Footer */}
         <p className="text-xs text-white/20 text-center mt-6">
-          &copy; {new Date().getFullYear()} OptionsLab &middot; For informational purposes only
+          &copy; {new Date().getFullYear()} OptionLabs &middot; For informational purposes only
         </p>
       </div>
     </div>
