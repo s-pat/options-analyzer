@@ -44,11 +44,12 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-  // Only run middleware on routes that actually need auth checks.
-  // Explicitly skipping public pages (landing, design, sign-in/up) means
-  // Clerk's auth() is never called for unauthenticated visitors — saves
-  // ~50-200ms per request on mobile by avoiding the Clerk network call.
+  // Run middleware on all routes except truly static/public ones.
+  // /sign-in and /sign-up MUST be included — Clerk needs the middleware to
+  // run on /sign-in/sso-callback and /sign-up/sso-callback to complete the
+  // OAuth session handshake. Excluding them breaks SSO sign-in.
+  // Only /landing and /design are skipped (no Clerk involvement at all).
   matcher: [
-    '/((?!landing|design|sign-in|sign-up|_next/static|_next/image|favicon\\.ico|api/).*)',
+    '/((?!landing|design|_next/static|_next/image|favicon\\.ico).*)',
   ],
 };
