@@ -6,19 +6,18 @@ import { Header } from "@/components/layout/Header";
 // loads in parallel after the shell renders. Combined with <Suspense>,
 // React uses Selective Hydration — it can hydrate whichever section the
 // user taps first without waiting for the others, keeping FID low.
-const MarketOverview = dynamic(
-  () => import("@/components/dashboard/MarketOverview").then((m) => ({ default: m.MarketOverview })),
-  { ssr: false }
+// ssr: false is not allowed in Server Components — omitting it means Next.js
+// SSR's the loading skeleton, then hydrates with live data on the client.
+const MarketOverview = dynamic(() =>
+  import("@/components/dashboard/MarketOverview").then((m) => ({ default: m.MarketOverview }))
 );
 
-const SectorHeatmap = dynamic(
-  () => import("@/components/dashboard/SectorHeatmap").then((m) => ({ default: m.SectorHeatmap })),
-  { ssr: false }
+const SectorHeatmap = dynamic(() =>
+  import("@/components/dashboard/SectorHeatmap").then((m) => ({ default: m.SectorHeatmap }))
 );
 
-const TopOptions = dynamic(
-  () => import("@/components/dashboard/TopOptions").then((m) => ({ default: m.TopOptions })),
-  { ssr: false }
+const TopOptions = dynamic(() =>
+  import("@/components/dashboard/TopOptions").then((m) => ({ default: m.TopOptions }))
 );
 
 // Skeleton shapes that match each section's rough dimensions.
