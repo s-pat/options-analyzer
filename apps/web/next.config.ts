@@ -15,11 +15,33 @@ const nextConfig: NextConfig = {
       ? `${process.env.API_BACKEND_URL}/api/v1`
       : "/api/v1",
   },
+  // Tree-shake lucide-react so only imported icons are bundled
+  experimental: {
+    optimizePackageImports: ["lucide-react", "recharts"],
+  },
   async rewrites() {
     return [
       {
         source: "/api/v1/:path*",
         destination: `${apiBackendUrl}/api/v1/:path*`,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        // Cache static assets aggressively (JS/CSS chunks are hashed)
+        source: "/_next/static/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        ],
       },
     ];
   },

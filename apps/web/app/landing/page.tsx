@@ -384,12 +384,10 @@ export default function LandingPage() {
   const stocks = stocksData?.stocks ?? [];
   const total  = stocksData?.total ?? 503;
 
-  // Stable reference — only recompute when actual ticker symbols/prices change
-  const tickerKey = stocks.map((s) => `${s.symbol}${s.price}`).join(',');
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const tickerItems = useMemo(
     () => (stocks.length > 0 ? stocksToTicker(stocks) : TICKERS),
-    [tickerKey],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [stocks],
   );
 
   // Top 5 by IV rank — highest IV = most actionable options setups

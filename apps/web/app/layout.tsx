@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { MobileLayout } from "@/components/layout/MobileLayout";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -93,6 +94,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <link rel="preconnect" href="https://clerk.optionslab.io" />
+        <link rel="preconnect" href="https://api.clerk.dev" />
+        <link rel="dns-prefetch" href="https://api.clerk.dev" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -148,6 +154,7 @@ export default function RootLayout({
         >
           <MobileLayout>{children}</MobileLayout>
         </ClerkProvider>
+        <SpeedInsights />
       </body>
     </html>
   );

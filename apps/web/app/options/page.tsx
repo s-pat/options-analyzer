@@ -1,9 +1,13 @@
 'use client';
 
 import { useState, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
-import { StockChart } from '@/components/charts/StockChart';
+const StockChart = dynamic(
+  () => import('@/components/charts/StockChart').then((m) => ({ default: m.StockChart })),
+  { ssr: false, loading: () => <div className="h-[280px] animate-pulse rounded-xl bg-white/[0.03]" /> }
+);
 import { OptionsChain } from '@/components/options/OptionsChain';
 import { FilterPanel } from '@/components/options/FilterPanel';
 import { OptionCard } from '@/components/options/OptionCard';
