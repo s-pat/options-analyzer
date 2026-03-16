@@ -17,9 +17,18 @@ import type {
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '/api/v1';
 
 async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
+  const { signal: callerSignal, ...restOptions } = options ?? {};
+  // 10s timeout prevents requests hanging indefinitely on poor mobile connections.
+  // If the caller passes its own signal, merge both via AbortSignal.any().
+  const timeoutSignal = AbortSignal.timeout(10_000);
+  const signal = callerSignal
+    ? AbortSignal.any([timeoutSignal, callerSignal])
+    : timeoutSignal;
+
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: { 'Content-Type': 'application/json' },
-    ...options,
+    signal,
+    ...restOptions,
   });
   if (!res.ok) {
     const text = await res.text();

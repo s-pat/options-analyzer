@@ -13,6 +13,9 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  // Don't eagerly preload mono — it's only used for numbers/code, not body text.
+  // This removes one critical network request from the initial page load.
+  preload: false,
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://optionslab.io";
