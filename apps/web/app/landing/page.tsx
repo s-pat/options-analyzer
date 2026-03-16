@@ -756,7 +756,7 @@ export default function LandingPage() {
               href="/sign-up"
               className="inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-semibold text-sm transition-all duration-200 hover:shadow-2xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
             >
-              Request beta access
+              Request Beta Access
               <ChevronRight className="h-4 w-4" />
             </Link>
             <p className="text-xs text-white/25 mt-4">
