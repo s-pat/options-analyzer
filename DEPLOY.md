@@ -1,4 +1,4 @@
-# Deployment Guide — OptionsLab
+# Deployment Guide — OptionLabs
 
 This guide covers three scenarios:
 1. **Local QA** — run the full stack locally with Docker Compose

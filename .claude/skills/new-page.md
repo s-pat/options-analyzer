@@ -1,6 +1,6 @@
-# OptionsLab — New Page Skill
+# OptionLabs — New Page Skill
 
-> Use this skill when adding any new page or major component to the OptionsLab app.
+> Use this skill when adding any new page or major component to the OptionLabs app.
 > Trigger: user says "add a page", "create a new route", "build a new screen", or similar.
 
 ---
@@ -17,7 +17,7 @@
 
 ---
 
-## OptionsLab Design System — Key Rules
+## OptionLabs Design System — Key Rules
 
 ### Theme
 - **Style:** Dark OLED — deep black, glassmorphism cards, blue-500 primary

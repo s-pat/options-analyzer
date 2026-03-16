@@ -1,4 +1,4 @@
-# OptionsLab
+# OptionLabs
 
 A full-stack options analytics platform for retail investors. Scan S&P 500 stocks, analyze options chains grouped by expiry category, get AI-scored trade recommendations, and backtest long call/put strategies — all powered by free Yahoo Finance market data.
 

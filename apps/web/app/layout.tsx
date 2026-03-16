@@ -19,8 +19,8 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://optionslab.io";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "OptionsLab — S&P 500 Options Analyzer & Screener",
-    template: "%s | OptionsLab",
+    default: "OptionLabs — S&P 500 Options Analyzer & Screener",
+    template: "%s | OptionLabs",
   },
   description:
     "Scan 503 S&P 500 options, analyze real-time Greeks, IV rank, and backtest strategies. Institutional-grade options trading platform built for retail traders.",
@@ -41,9 +41,9 @@ export const metadata: Metadata = {
     "Black-Scholes",
     "retail options trading",
   ],
-  authors: [{ name: "OptionsLab" }],
-  creator: "OptionsLab",
-  publisher: "OptionsLab",
+  authors: [{ name: "OptionLabs" }],
+  creator: "OptionLabs",
+  publisher: "OptionLabs",
   robots: {
     index: true,
     follow: true,
@@ -59,8 +59,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    siteName: "OptionsLab",
-    title: "OptionsLab — S&P 500 Options Analyzer & Screener",
+    siteName: "OptionLabs",
+    title: "OptionLabs — S&P 500 Options Analyzer & Screener",
     description:
       "Scan 503 S&P 500 options, analyze real-time Greeks, IV rank, and backtest strategies. Institutional-grade options trading platform built for retail traders.",
     images: [
@@ -68,13 +68,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "OptionsLab — S&P 500 Options Analyzer",
+        alt: "OptionLabs — S&P 500 Options Analyzer",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "OptionsLab — S&P 500 Options Analyzer & Screener",
+    title: "OptionLabs — S&P 500 Options Analyzer & Screener",
     description:
       "Scan 503 S&P 500 options, analyze real-time Greeks, IV rank, and backtest strategies. Institutional-grade options trading for retail traders.",
     images: ["/og-image.png"],

@@ -154,7 +154,7 @@ function Navbar() {
           <div className="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
             <Activity className="h-4 w-4 text-blue-400" />
           </div>
-          <span className="font-semibold text-base tracking-tight text-white">OptionsLab</span>
+          <span className="font-semibold text-base tracking-tight text-white">OptionLabs</span>
         </div>
 
         {/* Nav links */}
@@ -561,7 +561,7 @@ export default function LandingPage() {
               </span>
             </h2>
             <p className="text-white/45 mt-4 max-w-xl mx-auto text-sm leading-relaxed">
-              From screening to backtesting, OptionsLab gives you every tool professional
+              From screening to backtesting, OptionLabs gives you every tool professional
               traders use—without the complexity or the Bloomberg terminal price tag.
             </p>
           </div>
@@ -792,10 +792,10 @@ export default function LandingPage() {
             <div className="w-6 h-6 rounded-md bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
               <Activity className="h-3.5 w-3.5 text-blue-400" />
             </div>
-            <span className="text-sm font-semibold">OptionsLab</span>
+            <span className="text-sm font-semibold">OptionLabs</span>
           </div>
           <p className="text-xs text-white/25 text-center">
-            © {new Date().getFullYear()} OptionsLab. For informational purposes only. Not financial advice.
+            © {new Date().getFullYear()} OptionLabs. For informational purposes only. Not financial advice.
           </p>
           <div className="flex items-center gap-5 text-xs text-white/35">
             <Link href="/sign-in" className="hover:text-white/70 transition-colors">Sign In</Link>

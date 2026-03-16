@@ -4,7 +4,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://optionslab.io";
 const landingUrl = `${siteUrl}/landing`;
 
 export const metadata: Metadata = {
-  title: "OptionsLab — Options Trading Platform for S&P 500",
+  title: "OptionLabs — Options Trading Platform for S&P 500",
   description:
     "Scan the entire S&P 500 options market, analyze chains with real-time Greeks and IV rank, backtest strategies, and get daily high-probability trade picks. Free beta access.",
   keywords: [
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: landingUrl,
-    title: "OptionsLab — Options Trading Platform for S&P 500",
+    title: "OptionLabs — Options Trading Platform for S&P 500",
     description:
       "Scan the entire S&P 500 options market, analyze chains with real-time Greeks and IV rank, backtest strategies, and get daily high-probability trade picks.",
     images: [
@@ -41,13 +41,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "OptionsLab — S&P 500 Options Analyzer Platform",
+        alt: "OptionLabs — S&P 500 Options Analyzer Platform",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "OptionsLab — Options Trading Platform for S&P 500",
+    title: "OptionLabs — Options Trading Platform for S&P 500",
     description:
       "Scan 503 S&P 500 options, real-time Greeks, IV rank, backtesting & daily picks. Institutional-grade tools for retail traders.",
     images: ["/og-image.png"],
@@ -59,7 +59,7 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "SoftwareApplication",
-      name: "OptionsLab",
+      name: "OptionLabs",
       url: landingUrl,
       description:
         "Institutional-grade options trading platform for retail investors. Scan 503 S&P 500 options, analyze real-time Greeks, IV rank, and backtest strategies.",
@@ -89,7 +89,7 @@ const jsonLd = {
     },
     {
       "@type": "WebSite",
-      name: "OptionsLab",
+      name: "OptionLabs",
       url: siteUrl,
       description:
         "S&P 500 options analyzer and trading platform for retail investors.",
@@ -104,7 +104,7 @@ const jsonLd = {
     },
     {
       "@type": "Organization",
-      name: "OptionsLab",
+      name: "OptionLabs",
       url: siteUrl,
       description:
         "Options trading analysis platform providing institutional-grade tools for retail investors.",
@@ -115,10 +115,10 @@ const jsonLd = {
       mainEntity: [
         {
           "@type": "Question",
-          name: "What is OptionsLab?",
+          name: "What is OptionLabs?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "OptionsLab is an institutional-grade options trading platform for retail investors. It scans 503 S&P 500 stocks, tracks 2M+ options contracts, provides real-time Greeks, IV rank analysis, strategy backtesting, and daily trade picks.",
+            text: "OptionLabs is an institutional-grade options trading platform for retail investors. It scans 503 S&P 500 stocks, tracks 2M+ options contracts, provides real-time Greeks, IV rank analysis, strategy backtesting, and daily trade picks.",
           },
         },
         {
@@ -126,7 +126,7 @@ const jsonLd = {
           name: "What is IV Rank (Implied Volatility Rank)?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "IV Rank measures where current implied volatility sits relative to its 52-week range. A high IV Rank (above 50) means options are expensive relative to history — ideal for selling premium strategies. OptionsLab displays IV Rank for all 503 S&P 500 stocks.",
+            text: "IV Rank measures where current implied volatility sits relative to its 52-week range. A high IV Rank (above 50) means options are expensive relative to history — ideal for selling premium strategies. OptionLabs displays IV Rank for all 503 S&P 500 stocks.",
           },
         },
         {
@@ -134,15 +134,15 @@ const jsonLd = {
           name: "What options strategies can I backtest?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "OptionsLab supports backtesting long calls, long puts, and other directional strategies against 1-2 years of historical price data to validate your edge before risking real capital.",
+            text: "OptionLabs supports backtesting long calls, long puts, and other directional strategies against 1-2 years of historical price data to validate your edge before risking real capital.",
           },
         },
         {
           "@type": "Question",
-          name: "How much does OptionsLab cost?",
+          name: "How much does OptionLabs cost?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "OptionsLab is currently in beta and free to access. Request beta access on the website to get started.",
+            text: "OptionLabs is currently in beta and free to access. Request beta access on the website to get started.",
           },
         },
       ],

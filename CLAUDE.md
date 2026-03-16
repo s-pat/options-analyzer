@@ -1,7 +1,7 @@
-# OptionsLab — Claude Code Guidelines
+# OptionLabs — Claude Code Guidelines
 
 ## Project Overview
-OptionsLab is a full-stack options trading analysis platform.
+OptionLabs is a full-stack options trading analysis platform.
 - **Frontend:** Next.js 16 App Router (`apps/web`) — Tailwind CSS v4, shadcn/ui, SWR
 - **Backend:** Go API (`apps/api`) hitting Yahoo Finance
 - **Monorepo:** Turborepo

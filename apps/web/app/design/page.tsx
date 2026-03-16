@@ -1,9 +1,9 @@
 'use client';
 
 /**
- * OptionsLab Design Spec — /design
+ * OptionLabs Design Spec — /design
  *
- * Live visual reference for the OptionsLab OLED dark design system.
+ * Live visual reference for the OptionLabs OLED dark design system.
  * Use this page when building new features to ensure visual consistency.
  *
  * Key rules:
@@ -72,12 +72,12 @@ export default function DesignPage() {
             <div className="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
               <Activity className="h-4 w-4 text-blue-400" />
             </div>
-            <span className="font-semibold text-lg tracking-tight">OptionsLab</span>
+            <span className="font-semibold text-lg tracking-tight">OptionLabs</span>
             <span className="text-xs px-2 py-0.5 rounded-full bg-white/[0.07] border border-white/[0.1] text-white/50 font-medium">Design System</span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">Design Spec</h1>
           <p className="text-white/45 text-sm leading-relaxed max-w-lg">
-            The single source of truth for the OptionsLab OLED dark aesthetic.
+            The single source of truth for the OptionLabs OLED dark aesthetic.
             Reference this page when building new pages or components.
           </p>
         </div>
@@ -425,7 +425,7 @@ export default function DesignPage() {
 
         {/* Footer */}
         <footer className="border-t border-white/[0.07] pt-8 flex items-center justify-between">
-          <p className="text-xs text-white/25">OptionsLab Design System · v1.0</p>
+          <p className="text-xs text-white/25">OptionLabs Design System · v1.0</p>
           <div className="flex items-center gap-2 text-xs text-white/25">
             <TrendingUp className="h-3.5 w-3.5" />
             <span>Dark OLED · Blue-500 primary · Geist font</span>

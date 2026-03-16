@@ -6,7 +6,7 @@ test.describe('Landing page', () => {
   });
 
   test('loads with correct title and headline', async ({ page }) => {
-    await expect(page).toHaveTitle(/OptionsLab/i);
+    await expect(page).toHaveTitle(/OptionLabs/i);
     await expect(page.getByText(/options trading/i).first()).toBeVisible();
   });
 
@@ -69,7 +69,7 @@ test.describe('Sign-in page', () => {
 
   test('sign-in page renders with branding', async ({ page }) => {
     await page.goto('/sign-in');
-    await expect(page.getByText('OptionsLab').first()).toBeVisible();
+    await expect(page.getByText('OptionLabs').first()).toBeVisible();
     await expect(page.getByText('Private Beta')).toBeVisible();
   });
 
@@ -83,7 +83,7 @@ test.describe('Sign-in page', () => {
 test.describe('Sign-up page', () => {
   test('sign-up page renders with branding', async ({ page }) => {
     await page.goto('/sign-up');
-    await expect(page.getByText('OptionsLab').first()).toBeVisible();
+    await expect(page.getByText('OptionLabs').first()).toBeVisible();
     await expect(page.getByText('Private Beta')).toBeVisible();
   });
 

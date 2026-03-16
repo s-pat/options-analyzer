@@ -41,7 +41,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
         <div className="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center shrink-0">
           <Activity className="h-4 w-4 text-blue-400" />
         </div>
-        <span className="font-semibold text-base tracking-tight text-white">OptionsLab</span>
+        <span className="font-semibold text-base tracking-tight text-white">OptionLabs</span>
       </div>
 
       {/* Nav */}
