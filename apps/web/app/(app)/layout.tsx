@@ -20,7 +20,7 @@ export default function AppLayout({
           colorInputBackground: "#1e1e2a",
           colorInputText: "#ffffff",
           colorText: "#f0f0f5",
-          colorTextSecondary: "#9999aa",
+          colorTextSecondary: "#b8b8cc",
           colorDanger: "#ef4444",
           colorSuccess: "#22c55e",
           colorNeutral: "#d0d0dd",
@@ -69,6 +69,10 @@ export default function AppLayout({
           userButtonPopoverFooter: "!hidden",
 
           // ── UserProfile "Manage Account" ────────────────────────────────
+          // Page header — "Account" title + "Manage your account info." subtitle
+          pageHeaderTitle: "!text-white !font-bold",
+          pageHeaderSubtitle: "!text-white/60",
+
           // Left nav sidebar
           navbar: "!bg-[#111118] !border-r !border-white/[0.08]",
           navbarButton:
@@ -93,10 +97,12 @@ export default function AppLayout({
           userPreviewSecondaryIdentifier: "!text-white/55",
           userPreviewAvatarBox: "!border !border-white/10",
 
-          // Accordion items (e.g. "Connected accounts", "Active devices")
+          // Accordion items (e.g. email addresses, active devices)
           accordionTriggerButton:
             "!text-white/80 hover:!text-white hover:!bg-white/[0.04]",
-          accordionContent: "!text-white/70",
+          accordionContent: "!text-white/75",
+          // Text inside accordion rows (the actual email / device name)
+          accordionTriggerButtonText: "!text-white/85",
 
           // Breadcrumb navigation
           breadcrumbsItem: "!text-white/50",
