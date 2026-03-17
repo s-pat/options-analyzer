@@ -4,10 +4,13 @@ import { Header } from '@/components/layout/Header';
 import { BacktestForm } from '@/components/backtest/BacktestForm';
 import { BacktestResults } from '@/components/backtest/BacktestResults';
 import { useBacktest } from '@/hooks/useBacktest';
+import { UpgradeGate } from '@/components/ui/UpgradeGate';
+import { useSubscription } from '@/hooks/useSubscription';
 import { BarChart3, AlertCircle } from 'lucide-react';
 
 export default function BacktestPage() {
   const { result, loading, error, run } = useBacktest();
+  const { canAccess } = useSubscription();
 
   return (
     <>
@@ -28,21 +31,32 @@ export default function BacktestPage() {
           </div>
         </div>
 
-        <div className="animate-slide-up delay-100">
-          <BacktestForm onSubmit={run} loading={loading} />
-        </div>
+        {canAccess('pro') ? (
+          <>
+            <div className="animate-slide-up delay-100">
+              <BacktestForm onSubmit={run} loading={loading} />
+            </div>
 
-        {error && (
-          <div className="flex items-center gap-3 rounded-xl border border-red-500/[0.2] bg-red-500/[0.05] px-4 py-3 text-sm text-red-400 animate-slide-up">
-            <AlertCircle className="h-4 w-4 shrink-0" />
-            {error}
-          </div>
-        )}
+            {error && (
+              <div className="flex items-center gap-3 rounded-xl border border-red-500/[0.2] bg-red-500/[0.05] px-4 py-3 text-sm text-red-400 animate-slide-up">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {error}
+              </div>
+            )}
 
-        {result && (
-          <div className="animate-slide-up">
-            <BacktestResults result={result} />
-          </div>
+            {result && (
+              <div className="animate-slide-up">
+                <BacktestResults result={result} />
+              </div>
+            )}
+          </>
+        ) : (
+          <UpgradeGate
+            required="pro"
+            feature="Strategy Backtester"
+            description="Simulate your options strategies against historical data to validate your edge before risking real capital."
+            fullPage
+          />
         )}
       </div>
     </>
