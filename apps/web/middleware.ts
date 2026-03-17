@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 
 const isPublicRoute = createRouteMatcher([
   '/landing(.*)',
+  '/pricing(.*)',
   '/design(.*)',
   '/sign-in(.*)',
   '/sign-up(.*)',
@@ -50,6 +51,6 @@ export const config = {
   // OAuth session handshake. Excluding them breaks SSO sign-in.
   // Only /landing and /design are skipped (no Clerk involvement at all).
   matcher: [
-    '/((?!landing|design|_next/static|_next/image|favicon\\.ico).*)',
+    '/((?!landing|pricing|design|_next/static|_next/image|favicon\\.ico).*)',
   ],
 };
