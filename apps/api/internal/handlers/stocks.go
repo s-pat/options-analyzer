@@ -13,18 +13,18 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sohanpatel/options-analyzer/api/internal/datasource"
 	"github.com/sohanpatel/options-analyzer/api/internal/services"
-	"github.com/sohanpatel/options-analyzer/api/internal/yahoo"
 )
 
 // StocksHandler handles stock data endpoints
 type StocksHandler struct {
 	sp500  *services.SP500Service
-	client *yahoo.Client
+	client datasource.DataSource
 }
 
 // NewStocksHandler creates a new StocksHandler
-func NewStocksHandler(sp500 *services.SP500Service, client *yahoo.Client) *StocksHandler {
+func NewStocksHandler(sp500 *services.SP500Service, client datasource.DataSource) *StocksHandler {
 	return &StocksHandler{sp500: sp500, client: client}
 }
 

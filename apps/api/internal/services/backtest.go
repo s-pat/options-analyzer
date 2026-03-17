@@ -39,18 +39,18 @@ import (
 	"math"
 	"time"
 
+	"github.com/sohanpatel/options-analyzer/api/internal/datasource"
 	bsmath "github.com/sohanpatel/options-analyzer/api/internal/math"
 	"github.com/sohanpatel/options-analyzer/api/internal/models"
-	"github.com/sohanpatel/options-analyzer/api/internal/yahoo"
 )
 
 // BacktestService runs historical long call/put option simulations.
 type BacktestService struct {
-	client *yahoo.Client
+	client datasource.DataSource
 }
 
 // NewBacktestService creates a new BacktestService
-func NewBacktestService(client *yahoo.Client) *BacktestService {
+func NewBacktestService(client datasource.DataSource) *BacktestService {
 	return &BacktestService{client: client}
 }
 

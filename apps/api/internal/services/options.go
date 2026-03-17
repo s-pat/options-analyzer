@@ -6,6 +6,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/sohanpatel/options-analyzer/api/internal/datasource"
 	bsmath "github.com/sohanpatel/options-analyzer/api/internal/math"
 	"github.com/sohanpatel/options-analyzer/api/internal/models"
 	"github.com/sohanpatel/options-analyzer/api/internal/yahoo"
@@ -38,12 +39,12 @@ const (
 // When live data is unavailable the service transparently falls back to a
 // synthetic Black-Scholes priced chain (see package yahoo/synthetic.go).
 type OptionsService struct {
-	client *yahoo.Client
+	client datasource.DataSource
 	sp500  *SP500Service
 }
 
 // NewOptionsService creates a new OptionsService
-func NewOptionsService(client *yahoo.Client, sp500 *SP500Service) *OptionsService {
+func NewOptionsService(client datasource.DataSource, sp500 *SP500Service) *OptionsService {
 	return &OptionsService{
 		client: client,
 		sp500:  sp500,
@@ -61,18 +62,8 @@ func (s *OptionsService) GetOptionsChain(symbol string) (*models.OptionsChain, e
 	hv := stock.HV30 / 100.0
 
 	// First call gets the expiration date list
-	raw0, _, rawErr := s.client.GetOptionsChain(symbol, 0)
-	if rawErr != nil {
-		chain := yahoo.SyntheticOptionsChain(symbol, stock.Price, hv, riskFreeRate)
-		s.enrichAndTag(chain, stock.Price, hv)
-		return chain, nil
-	}
-
-	var allExpirations []int64
-	if len(raw0.OptionChain.Result) > 0 {
-		allExpirations = raw0.OptionChain.Result[0].ExpirationDates
-	}
-	if len(allExpirations) == 0 {
+	allExpirations, expErr := s.client.GetOptionExpirations(symbol)
+	if expErr != nil || len(allExpirations) == 0 {
 		chain := yahoo.SyntheticOptionsChain(symbol, stock.Price, hv, riskFreeRate)
 		s.enrichAndTag(chain, stock.Price, hv)
 		return chain, nil
@@ -94,11 +85,10 @@ func (s *OptionsService) GetOptionsChain(symbol string) (*models.OptionsChain, e
 		models.ExpiryWeekly, models.ExpiryMonthly, models.ExpiryQuarterly, models.ExpiryLEAPS,
 	} {
 		for _, exp := range byCategory[cat] {
-			rawExp, _, fetchErr := s.client.GetOptionsChain(symbol, exp)
+			parsed, fetchErr := s.client.GetOptionsForExpiry(symbol, exp, stock.Price, riskFreeRate)
 			if fetchErr != nil {
 				continue
 			}
-			parsed := yahoo.ParseOptionsChain(symbol, rawExp, stock.Price, riskFreeRate)
 			// Tag every contract with its category
 			expTime := time.Unix(exp, 0)
 			dte := int(expTime.Sub(now).Hours() / 24)

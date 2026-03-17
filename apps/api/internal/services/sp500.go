@@ -16,9 +16,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sohanpatel/options-analyzer/api/internal/datasource"
 	bsmath "github.com/sohanpatel/options-analyzer/api/internal/math"
 	"github.com/sohanpatel/options-analyzer/api/internal/models"
-	"github.com/sohanpatel/options-analyzer/api/internal/yahoo"
 )
 
 // SP500Symbols is a curated list of ~60 liquid S&P 500 constituents covering all
@@ -111,13 +111,13 @@ var SP500Symbols = []struct {
 //
 // Results are cached in-memory with a 5-minute TTL to avoid redundant fetches.
 type SP500Service struct {
-	client *yahoo.Client
+	client datasource.DataSource
 	cache  map[string]*models.Stock
 	mu     sync.RWMutex
 }
 
 // NewSP500Service creates a new SP500 service
-func NewSP500Service(client *yahoo.Client) *SP500Service {
+func NewSP500Service(client datasource.DataSource) *SP500Service {
 	return &SP500Service{
 		client: client,
 		cache:  make(map[string]*models.Stock),

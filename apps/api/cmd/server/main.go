@@ -9,6 +9,8 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/sohanpatel/options-analyzer/api/internal/alphavantage"
+	"github.com/sohanpatel/options-analyzer/api/internal/datasource"
 	grpcserver "github.com/sohanpatel/options-analyzer/api/internal/grpc"
 	"github.com/sohanpatel/options-analyzer/api/internal/handlers"
 	"github.com/sohanpatel/options-analyzer/api/internal/services"
@@ -41,16 +43,32 @@ func main() {
 
 	gin.SetMode(ginMode)
 
+	// Select market-data provider via DATA_SOURCE env var.
+	// Supported values: "yahoo" (default), "alphavantage"
+	var ds datasource.DataSource
+	switch strings.ToLower(getEnv("DATA_SOURCE", "yahoo")) {
+	case "alphavantage", "av":
+		avKey := getEnv("ALPHA_VANTAGE_API_KEY", "")
+		if avKey == "" {
+			log.Fatal("DATA_SOURCE=alphavantage requires ALPHA_VANTAGE_API_KEY to be set")
+		}
+		premium := strings.ToLower(getEnv("ALPHA_VANTAGE_PREMIUM", "false")) == "true"
+		ds = alphavantage.NewClient(avKey, premium)
+		log.Printf("market data: AlphaVantage (premium=%v)", premium)
+	default:
+		ds = yahoo.NewClient()
+		log.Printf("market data: Yahoo Finance")
+	}
+
 	// Initialize shared dependencies
-	yahooClient := yahoo.NewClient()
-	sp500Svc := services.NewSP500Service(yahooClient)
-	optionsSvc := services.NewOptionsService(yahooClient, sp500Svc)
-	backtestSvc := services.NewBacktestService(yahooClient)
+	sp500Svc := services.NewSP500Service(ds)
+	optionsSvc := services.NewOptionsService(ds, sp500Svc)
+	backtestSvc := services.NewBacktestService(ds)
 	todaySvc := services.NewTodayService(optionsSvc, sp500Svc)
 
 	// Initialize handlers
-	marketH := handlers.NewMarketHandler(yahooClient)
-	stocksH := handlers.NewStocksHandler(sp500Svc, yahooClient)
+	marketH := handlers.NewMarketHandler(ds)
+	stocksH := handlers.NewStocksHandler(sp500Svc, ds)
 	optionsH := handlers.NewOptionsHandler(optionsSvc)
 	backtestH := handlers.NewBacktestHandler(backtestSvc)
 	todayH := handlers.NewTodayHandler(todaySvc)

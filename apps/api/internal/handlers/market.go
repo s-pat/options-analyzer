@@ -4,17 +4,17 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sohanpatel/options-analyzer/api/internal/datasource"
 	"github.com/sohanpatel/options-analyzer/api/internal/models"
-	"github.com/sohanpatel/options-analyzer/api/internal/yahoo"
 )
 
 // MarketHandler handles market overview endpoints
 type MarketHandler struct {
-	client *yahoo.Client
+	client datasource.DataSource
 }
 
 // NewMarketHandler creates a new MarketHandler
-func NewMarketHandler(client *yahoo.Client) *MarketHandler {
+func NewMarketHandler(client datasource.DataSource) *MarketHandler {
 	return &MarketHandler{client: client}
 }
 

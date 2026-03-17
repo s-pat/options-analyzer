@@ -414,6 +414,33 @@ func (c *Client) GetOptionsChain(symbol string, expiry int64) (*OptionsResponse,
 	return &resp, false, nil
 }
 
+// ── datasource.DataSource adapter methods ─────────────────────────────────────
+
+// GetOptionExpirations implements datasource.DataSource.
+// It fetches the first (expiry=0) options response and extracts the date list.
+func (c *Client) GetOptionExpirations(symbol string) ([]int64, error) {
+	resp, _, err := c.GetOptionsChain(symbol, 0)
+	if err != nil {
+		return nil, err
+	}
+	if len(resp.OptionChain.Result) == 0 {
+		return nil, fmt.Errorf("yahoo: no expirations for %s", symbol)
+	}
+	return resp.OptionChain.Result[0].ExpirationDates, nil
+}
+
+// GetOptionsForExpiry implements datasource.DataSource.
+// It fetches the chain for one expiry and converts it to *models.OptionsChain.
+func (c *Client) GetOptionsForExpiry(symbol string, expiry int64, stockPrice, riskFreeRate float64) (*models.OptionsChain, error) {
+	resp, isSynth, err := c.GetOptionsChain(symbol, expiry)
+	if err != nil {
+		return nil, err
+	}
+	chain := ParseOptionsChain(symbol, resp, stockPrice, riskFreeRate)
+	chain.IsSynthetic = isSynth
+	return chain, nil
+}
+
 // ParseOptionsChain converts raw Yahoo options data into model contracts
 func ParseOptionsChain(symbol string, raw *OptionsResponse, stockPrice float64, riskFreeRate float64) *models.OptionsChain {
 	chain := &models.OptionsChain{
