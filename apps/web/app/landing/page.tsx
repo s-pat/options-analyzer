@@ -290,6 +290,12 @@ export default function LandingPage() {
               </div>
             </div>
 
+            {/* Mobile ticker — sits between star rating and SPY card on mobile,
+                hidden on desktop (desktop ticker is rendered after the section) */}
+            <div className="lg:hidden -mx-5 sm:-mx-8">
+              <LandingTicker />
+            </div>
+
             {/* Right: chart + floating badges */}
             <div className="relative" style={{ animation: 'fade-in-up 0.6s ease 0.15s both' }}>
               <HeroChart />
@@ -349,8 +355,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Client island: live ticker marquee */}
-      <LandingTicker />
+      {/* Client island: live ticker marquee — desktop only (mobile version is inside the hero) */}
+      <div className="hidden lg:block">
+        <LandingTicker />
+      </div>
 
       {/* ── Features ─────────────────────────────────────────────────────── */}
       <section id="features" className="relative py-24 px-5 sm:px-8">
