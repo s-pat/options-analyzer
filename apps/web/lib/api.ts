@@ -66,11 +66,14 @@ export const getFilteredChain = (symbol: string, f: OptionsFilter) => {
   return fetchJSON<OptionsChain>(`/stocks/${symbol}/options/filtered${qs ? `?${qs}` : ''}`);
 };
 
-// Options recommendations — allow up to 60 s: backend scans 20 stocks (4 concurrent)
+// Options recommendations — 20 s timeout. Backend scans 20 stocks in parallel
+// and pre-warms the cache on startup, so cold-start responses arrive in ~15 s.
+// Keeping the timeout below 30 s means the user sees an error/retry state
+// rather than an infinite spinner if the API is temporarily unavailable.
 export const getRecommendations = (limit = 20) =>
   fetchJSON<{ recommendations: OptionRecommendation[]; total: number }>(
     `/options/recommendations?limit=${limit}`,
-    { timeoutMs: 60_000 },
+    { timeoutMs: 20_000 },
   );
 
 // Option analysis

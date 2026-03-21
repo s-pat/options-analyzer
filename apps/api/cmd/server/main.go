@@ -49,9 +49,21 @@ func main() {
 	backtestSvc := services.NewBacktestService(yahooClient)
 	todaySvc := services.NewTodayService(optionsSvc, sp500Svc)
 
-	// Pre-warm the recommendations cache so the first post-deploy login is
-	// instant rather than waiting for the full scan. TodayService already does
-	// this via its refreshLoop; recommendations need the same treatment.
+	// Initialize handlers
+	marketH := handlers.NewMarketHandler(yahooClient)
+	stocksH := handlers.NewStocksHandler(sp500Svc, yahooClient)
+	optionsH := handlers.NewOptionsHandler(optionsSvc)
+	backtestH := handlers.NewBacktestHandler(backtestSvc)
+	todayH := handlers.NewTodayHandler(todaySvc)
+
+	// Pre-warm both hot endpoints on startup so the first user after a deploy
+	// hits warm caches. Google OAuth + Clerk callbacks take ~5s, giving the
+	// server enough time to finish both scans before anyone reaches the dashboard.
+	go func() {
+		log.Println("pre-warming market overview cache…")
+		marketH.WarmCache()
+		log.Println("market overview cache ready")
+	}()
 	go func() {
 		log.Println("pre-warming recommendations cache…")
 		if _, err := optionsSvc.GetRecommendations(20); err != nil {
@@ -60,13 +72,6 @@ func main() {
 			log.Println("recommendations cache ready")
 		}
 	}()
-
-	// Initialize handlers
-	marketH := handlers.NewMarketHandler(yahooClient)
-	stocksH := handlers.NewStocksHandler(sp500Svc, yahooClient)
-	optionsH := handlers.NewOptionsHandler(optionsSvc)
-	backtestH := handlers.NewBacktestHandler(backtestSvc)
-	todayH := handlers.NewTodayHandler(todaySvc)
 
 	// Start gRPC server in background
 	grpcSrv := grpcserver.NewServer(":" + grpcPort)
