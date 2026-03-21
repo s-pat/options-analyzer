@@ -2,9 +2,14 @@
 
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
-import { Sidebar } from './Sidebar';
-import { BottomNav } from './BottomNav';
+import dynamic from 'next/dynamic';
 import { cn } from '@/lib/utils';
+
+// Lazy-loaded so their JS is never downloaded for auth/public routes
+// (sign-in, sign-up, auth-loading, waitlist) where MobileLayout renders
+// <>{children}</> and never mounts these components.
+const Sidebar = dynamic(() => import('./Sidebar').then((m) => m.Sidebar));
+const BottomNav = dynamic(() => import('./BottomNav').then((m) => m.BottomNav));
 
 interface SidebarContextValue {
   open: () => void;

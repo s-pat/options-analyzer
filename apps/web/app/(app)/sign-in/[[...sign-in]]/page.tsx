@@ -15,9 +15,10 @@ export default function SignInPage() {
       {/* Grid background */}
       <div className="fixed inset-0 pointer-events-none" style={GRID_BG} />
 
-      {/* Ambient glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-blue-600/7 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-600/5 rounded-full blur-[120px] pointer-events-none" />
+      {/* Ambient glows — hidden on mobile: blur() at these radii triggers GPU
+          compositing on iOS that blocks paint and delays Clerk's render */}
+      <div className="hidden sm:block absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-blue-600/7 rounded-full blur-[140px] pointer-events-none" />
+      <div className="hidden sm:block absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-600/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div
         className="relative w-full max-w-md"
