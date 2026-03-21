@@ -25,6 +25,7 @@ package services
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"sort"
 	"sync"
@@ -32,6 +33,9 @@ import (
 
 	"github.com/sohanpatel/options-analyzer/api/internal/models"
 )
+
+// scanInterval controls how often the background goroutine refreshes the scan cache.
+const scanInterval = 22 * time.Minute
 
 // todaySymbols is the liquid universe we scan for Today's Picks
 var todaySymbols = []string{
@@ -57,19 +61,68 @@ var costBands = []struct {
 	{"1500+", "$1,500+ / contract", 1500, math.MaxFloat64},
 }
 
-// TodayService builds the Today's Picks list
+// TodayService builds the Today's Picks list and keeps results in an in-memory
+// cache that is refreshed every scanInterval by a background goroutine.
 type TodayService struct {
 	optSvc *OptionsService
 	sp500  *SP500Service
+
+	mu     sync.RWMutex
+	result *models.TodayOpportunities
+	ready  chan struct{} // closed once the first scan completes (or fails)
 }
 
-// NewTodayService creates a TodayService
+// NewTodayService creates a TodayService and immediately starts a background
+// goroutine that populates the cache and refreshes it every scanInterval.
 func NewTodayService(optSvc *OptionsService, sp500 *SP500Service) *TodayService {
-	return &TodayService{optSvc: optSvc, sp500: sp500}
+	t := &TodayService{
+		optSvc: optSvc,
+		sp500:  sp500,
+		ready:  make(chan struct{}),
+	}
+	go t.refreshLoop()
+	return t
 }
 
-// GetOpportunities scans the liquid universe and returns top picks per cost band.
+// refreshLoop runs the scan immediately and then on a fixed interval.
+func (t *TodayService) refreshLoop() {
+	first := true
+	for {
+		log.Println("[today] starting TopOptions scan…")
+		result, err := t.runScan()
+		if err != nil {
+			log.Printf("[today] scan error: %v", err)
+		} else {
+			t.mu.Lock()
+			t.result = result
+			t.mu.Unlock()
+			log.Printf("[today] scan complete, next refresh in %v", scanInterval)
+		}
+		if first {
+			close(t.ready) // unblock any callers waiting on cold start
+			first = false
+		}
+		time.Sleep(scanInterval)
+	}
+}
+
+// GetOpportunities returns the cached scan result.
+// It blocks only on the very first call (cold start) until the initial scan finishes.
 func (t *TodayService) GetOpportunities() (*models.TodayOpportunities, error) {
+	<-t.ready // instant on every call after the first scan completes
+
+	t.mu.RLock()
+	result := t.result
+	t.mu.RUnlock()
+
+	if result == nil {
+		return nil, fmt.Errorf("scan unavailable — please retry shortly")
+	}
+	return result, nil
+}
+
+// runScan does the full expensive scan across all liquid symbols.
+func (t *TodayService) runScan() (*models.TodayOpportunities, error) {
 	var mu sync.Mutex
 	var allPicks []models.TodayOption
 	var wg sync.WaitGroup
