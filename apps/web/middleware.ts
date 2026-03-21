@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 const isPublicRoute = createRouteMatcher([
   '/landing(.*)',
   '/design(.*)',
+  '/share(.*)',
   '/sign-in(.*)',
   '/sign-up(.*)',
   '/api/waitlist',
@@ -77,5 +78,6 @@ export const config = {
   // otherwise get redirected to /landing, silently dropping mobile vitals data).
   matcher: [
     '/((?!landing|design|_next/static|_next/image|favicon\\.ico|_vercel).*)',
+    '/share/:path*',
   ],
 };

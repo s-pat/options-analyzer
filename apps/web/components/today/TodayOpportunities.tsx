@@ -7,6 +7,7 @@ import type { TodayOpportunities as TodayOpportunitiesType, TodayOption, TodayVe
 import { cn } from '@/lib/utils';
 import { TrendingUp, TrendingDown, Zap, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { ShareButton } from '@/components/ui/ShareButton';
 
 const VERDICT_CONFIG: Record<TodayVerdict, { color: string; bg: string; label: string }> = {
   'Strong Buy': { color: 'text-green-400', bg: 'bg-green-400/10 border-green-400/30', label: 'Strong Buy' },
@@ -82,6 +83,9 @@ function PickCard({ pick }: { pick: TodayOption }) {
         <Badge variant="outline" className="text-[10px] py-0">
           {pick.expiryCategory}
         </Badge>
+        <div className="ml-auto">
+          <ShareButton contractSymbol={pick.contractSymbol} />
+        </div>
       </div>
     </div>
   );

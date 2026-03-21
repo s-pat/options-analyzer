@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useStock, useStockHistory, useFilteredChain, useOptionAnalysis } from '@/hooks/useMarketData';
 import type { OptionContract, OptionsFilter } from '@/lib/types';
 import { AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { ShareButton } from '@/components/ui/ShareButton';
 
 const StockChart = dynamic(
   () => import('@/components/charts/StockChart').then((m) => ({ default: m.StockChart })),
@@ -218,10 +219,13 @@ function OptionsPageInner() {
           <div className="xl:col-span-1 space-y-4">
             {selectedOption ? (
               <Tabs defaultValue="analysis">
-                <TabsList className="w-full bg-white/[0.04] border border-white/[0.06]">
-                  <TabsTrigger value="analysis" className="flex-1 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">Analysis</TabsTrigger>
-                  <TabsTrigger value="details" className="flex-1 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">Details</TabsTrigger>
-                </TabsList>
+                <div className="flex items-center gap-2 mb-0">
+                  <TabsList className="flex-1 bg-white/[0.04] border border-white/[0.06]">
+                    <TabsTrigger value="analysis" className="flex-1 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">Analysis</TabsTrigger>
+                    <TabsTrigger value="details" className="flex-1 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">Details</TabsTrigger>
+                  </TabsList>
+                  <ShareButton contractSymbol={selectedOption.contractSymbol} iconOnly />
+                </div>
 
                 <TabsContent value="analysis" className="mt-3">
                   {analysisLoading ? (
