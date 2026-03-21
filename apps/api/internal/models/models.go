@@ -180,6 +180,38 @@ type MarketOverview struct {
 	Sectors []SectorPerformance `json:"sectors"`
 }
 
+// IVCrushScenario represents a single IV crush scenario
+type IVCrushScenario struct {
+	Label       string  `json:"label"`       // "Mild Crush (25%)", "Base Case (45%)", "Severe Crush (65%)"
+	CrushPct    float64 `json:"crushPct"`    // 25, 45, 65
+	PostIV      float64 `json:"postIV"`
+	OptionPrice float64 `json:"optionPrice"`
+	PnLPct      float64 `json:"pnlPct"`
+}
+
+// IVCrushEstimate is the result of an IV crush simulation for a specific option contract
+type IVCrushEstimate struct {
+	Symbol             string            `json:"symbol"`
+	OptionType         string            `json:"optionType"`
+	Strike             float64           `json:"strike"`
+	Expiration         int64             `json:"expiration"`
+	DTE                int               `json:"dte"`
+	CurrentIV          float64           `json:"currentIV"`          // as decimal e.g. 0.45
+	CurrentIVPct       float64           `json:"currentIVPct"`       // e.g. 45.0
+	IVRank             float64           `json:"ivRank"`
+	EstimatedCrushPct  float64           `json:"estimatedCrushPct"`  // e.g. 45.0 means 45% drop
+	PostEarningsIV     float64           `json:"postEarningsIV"`     // as decimal
+	PostEarningsIVPct  float64           `json:"postEarningsIVPct"`
+	CurrentOptionPrice float64           `json:"currentOptionPrice"` // current ask
+	PostEarningsPrice  float64           `json:"postEarningsPrice"`  // re-priced with post-IV
+	PnLPct             float64           `json:"pnlPct"`             // % change in option value
+	PnLDollar          float64           `json:"pnlDollar"`          // dollar change per share
+	PnLPerContract     float64           `json:"pnlPerContract"`     // * 100
+	Verdict            string            `json:"verdict"`            // "High Risk", "Moderate Risk", "Low Risk"
+	Warning            string            `json:"warning"`            // human-readable explanation
+	Scenarios          []IVCrushScenario `json:"scenarios"`
+}
+
 // BacktestRequest is the input for the backtesting engine
 type BacktestRequest struct {
 	Symbol      string  `json:"symbol" binding:"required"`
@@ -275,6 +307,19 @@ type NewsItem struct {
 	Catalyst     NewsCatalyst  `json:"catalyst"`
 	CatalystLabel string       `json:"catalystLabel,omitempty"`
 	Summary      string       `json:"summary,omitempty"` // first ~120 chars of snippet if available
+}
+
+// EarningsEvent holds upcoming earnings date and EPS estimate data for a symbol
+type EarningsEvent struct {
+	Symbol          string    `json:"symbol"`
+	EarningsDate    time.Time `json:"earningsDate"`    // next earnings date
+	EarningsDateFmt string    `json:"earningsDateFmt"` // "Mar 28, 2026"
+	DaysUntil       int       `json:"daysUntil"`       // days until earnings
+	EPSEstimate     float64   `json:"epsEstimate"`     // consensus EPS
+	EPSLow          float64   `json:"epsLow"`
+	EPSHigh         float64   `json:"epsHigh"`
+	HasDate         bool      `json:"hasDate"`    // false if no upcoming date
+	UpdatedAt       time.Time `json:"updatedAt"`
 }
 
 // StockNews is the full news response for a symbol
