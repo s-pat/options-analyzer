@@ -72,7 +72,10 @@ export const config = {
   // run on /sign-in/sso-callback and /sign-up/sso-callback to complete the
   // OAuth session handshake. Excluding them breaks SSO sign-in.
   // Only /landing and /design are skipped (no Clerk involvement at all).
+  // _vercel is excluded so Speed Insights v2 resilient-intake beacon/discovery
+  // requests are never intercepted by Clerk (unauthenticated beacons would
+  // otherwise get redirected to /landing, silently dropping mobile vitals data).
   matcher: [
-    '/((?!landing|design|_next/static|_next/image|favicon\\.ico).*)',
+    '/((?!landing|design|_next/static|_next/image|favicon\\.ico|_vercel).*)',
   ],
 };
