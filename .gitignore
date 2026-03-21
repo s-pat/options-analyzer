@@ -56,3 +56,4 @@ e2e/report/
 e2e/.api.pid
 playwright-report/
 test-results/
+.claude/worktrees/
