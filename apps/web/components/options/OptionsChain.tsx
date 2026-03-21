@@ -207,15 +207,18 @@ function OptionTable({
 }
 
 export function OptionsChain({ chain, stockPrice, onSelectOption, selectedContract }: OptionsChainProps) {
+  const calls = chain.calls ?? [];
+  const puts = chain.puts ?? [];
+  const defaultTab = calls.length > 0 ? 'calls' : 'puts';
   return (
-    <Tabs defaultValue="calls">
+    <Tabs defaultValue={defaultTab}>
       <TabsList>
-        <TabsTrigger value="calls">Calls ({chain.calls.length})</TabsTrigger>
-        <TabsTrigger value="puts">Puts ({chain.puts.length})</TabsTrigger>
+        <TabsTrigger value="calls">Calls ({calls.length})</TabsTrigger>
+        <TabsTrigger value="puts">Puts ({puts.length})</TabsTrigger>
       </TabsList>
       <TabsContent value="calls" className="mt-4">
         <OptionTable
-          options={chain.calls}
+          options={calls}
           stockPrice={stockPrice}
           onSelect={onSelectOption}
           selectedContract={selectedContract}
@@ -223,7 +226,7 @@ export function OptionsChain({ chain, stockPrice, onSelectOption, selectedContra
       </TabsContent>
       <TabsContent value="puts" className="mt-4">
         <OptionTable
-          options={chain.puts}
+          options={puts}
           stockPrice={stockPrice}
           onSelect={onSelectOption}
           selectedContract={selectedContract}

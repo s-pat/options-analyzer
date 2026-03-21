@@ -143,8 +143,12 @@ func (s *OptionsService) GetFilteredChain(symbol string, f models.OptionsFilter)
 	filterContracts := func(contracts []models.OptionContract) []models.OptionContract {
 		var out []models.OptionContract
 		for _, c := range contracts {
-			// Hard structural filters: always exclude zero-OI and negative-ask
+			// Hard structural filters: exclude zero-OI, negative-ask, and
+			// completely unquoted contracts (bid=0 AND ask=0 — no market).
 			if c.OpenInterest < 10 || c.Ask < 0 {
+				continue
+			}
+			if c.Bid <= 0 && c.Ask <= 0 {
 				continue
 			}
 			// Capital filter: use contractCost when ask>0, otherwise fall back to BS fair value × 100
