@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	grpcserver "github.com/sohanpatel/options-analyzer/api/internal/grpc"
 	"github.com/sohanpatel/options-analyzer/api/internal/handlers"
@@ -63,6 +64,7 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// CORS: configured via ALLOWED_ORIGINS env var
 	r.Use(cors.New(cors.Config{
