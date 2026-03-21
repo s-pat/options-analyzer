@@ -3,14 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
-import { BarChart3, Zap, Search, TrendingUp } from 'lucide-react';
+import { BarChart3, Zap, Search, TrendingUp, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const BOTTOM_NAV = [
-  { href: '/',          label: 'Dashboard', icon: BarChart3 },
-  { href: '/today',     label: 'Today',     icon: Zap },
-  { href: '/screener',  label: 'Screener',  icon: Search },
-  { href: '/options',   label: 'Options',   icon: TrendingUp },
+  { href: '/',           label: 'Dashboard', icon: BarChart3 },
+  { href: '/today',      label: 'Today',     icon: Zap },
+  { href: '/portfolio',  label: 'Portfolio', icon: Briefcase },
+  { href: '/options',    label: 'Options',   icon: TrendingUp },
 ];
 
 export function BottomNav() {
