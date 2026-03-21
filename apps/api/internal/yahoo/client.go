@@ -19,7 +19,7 @@ import (
 const (
 	baseURL1   = "https://query1.finance.yahoo.com"
 	baseURL2   = "https://query2.finance.yahoo.com"
-	rateDelay  = 150 * time.Millisecond
+	rateDelay  = 100 * time.Millisecond
 	cacheTTL   = 5 * time.Minute
 	cacheClean = 10 * time.Minute
 	crumbTTL   = 55 * time.Minute // rotate crumb every 55 minutes
@@ -29,7 +29,9 @@ const (
 type Client struct {
 	http        *http.Client
 	cache       *cache.Cache
-	mu          sync.Mutex
+	mu          sync.Mutex // protects crumb state only
+	rateMu      sync.Mutex // protects rate-limit state; kept separate so crumb
+	// refreshes are never blocked while a goroutine sleeps in rateLimit().
 	lastCall    time.Time
 	crumb       string
 	crumbExpiry time.Time
@@ -124,10 +126,11 @@ func (c *Client) setHeaders(req *http.Request) {
 	// and handles transparent decompression. Setting it manually bypasses that.
 }
 
-// rateLimit enforces minimum delay between requests
+// rateLimit enforces minimum delay between requests.
+// Uses rateMu (not mu) so crumb operations are never blocked during the sleep.
 func (c *Client) rateLimit() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.rateMu.Lock()
+	defer c.rateMu.Unlock()
 	elapsed := time.Since(c.lastCall)
 	if elapsed < rateDelay {
 		time.Sleep(rateDelay - elapsed)
