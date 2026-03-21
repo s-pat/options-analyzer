@@ -1,6 +1,7 @@
 import type {
   BacktestRequest,
   BacktestResult,
+  EarningsEvent,
   MarketOverview,
   OptionsChain,
   OptionsFilter,
@@ -96,10 +97,13 @@ export const getTodayOpportunities = () =>
 export const getStockNews = (symbol: string) =>
   fetchJSON<StockNews>(`/stocks/${symbol}/news`);
 
+// Earnings calendar
+export const getEarnings = (symbol: string) =>
+  fetchJSON<EarningsEvent>(`/stocks/${symbol}/earnings`);
+
 // Backtest
 export const runBacktest = (req: BacktestRequest) =>
   fetchJSON<BacktestResult>('/backtest', {
     method: 'POST',
     body: JSON.stringify(req),
   });
-

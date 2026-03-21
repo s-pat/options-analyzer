@@ -8,7 +8,7 @@ import { StockLoader } from '@/components/ui/StockLoader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useStock, useStockHistory, useFilteredChain, useOptionAnalysis, useStockNews } from '@/hooks/useMarketData';
+import { useStock, useStockHistory, useFilteredChain, useOptionAnalysis, useStockNews, useIVCrush } from '@/hooks/useMarketData';
 import type { OptionContract, OptionsFilter } from '@/lib/types';
 import { AlertCircle, TrendingUp, TrendingDown, Newspaper } from 'lucide-react';
 
@@ -35,6 +35,10 @@ const OptionAnalysisPanel = dynamic(
 const NewsFeed = dynamic(
   () => import('@/components/options/NewsFeed').then((m) => ({ default: m.NewsFeed })),
   { loading: () => <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="h-16 animate-pulse rounded-xl bg-white/[0.03]" />)}</div> }
+);
+const IVCrushPanel = dynamic(
+  () => import('@/components/options/IVCrushPanel').then((m) => ({ default: m.IVCrushPanel })),
+  { loading: () => <div className="flex justify-center py-10"><StockLoader size="md" message="Running IV crush simulation…" /></div> }
 );
 import { cn } from '@/lib/utils';
 
@@ -66,6 +70,13 @@ function OptionsPageInner() {
   const { data: news, isLoading: newsLoading } = useStockNews(symbol);
 
   const { data: analysis, isLoading: analysisLoading } = useOptionAnalysis(
+    selectedOption ? symbol : null,
+    selectedOption?.optionType ?? null,
+    selectedOption?.strike ?? null,
+    selectedOption?.expiration ?? null,
+  );
+
+  const { data: ivCrush, isLoading: ivCrushLoading } = useIVCrush(
     selectedOption ? symbol : null,
     selectedOption?.optionType ?? null,
     selectedOption?.strike ?? null,
@@ -281,6 +292,9 @@ function OptionsPageInner() {
                 <TabsList className="w-full bg-white/[0.04] border border-white/[0.06]">
                   <TabsTrigger value="analysis" className="flex-1 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">Analysis</TabsTrigger>
                   <TabsTrigger value="details" className="flex-1 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">Details</TabsTrigger>
+                  <TabsTrigger value="iv-crush" className="flex-1 data-[state=active]:bg-amber-500/20 data-[state=active]:text-amber-400 text-amber-500/70">
+                    ⚠ IV Crush
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="analysis" className="mt-3">
@@ -303,6 +317,24 @@ function OptionsPageInner() {
 
                 <TabsContent value="details" className="mt-3">
                   <OptionCard option={selectedOption} stockPrice={stock?.price ?? 0} />
+                </TabsContent>
+
+                <TabsContent value="iv-crush" className="mt-3">
+                  {ivCrushLoading ? (
+                    <Card className="rounded-2xl border-white/[0.08] bg-white/[0.03]">
+                      <CardContent className="flex justify-center py-10">
+                        <StockLoader size="md" message="Running IV crush simulation…" />
+                      </CardContent>
+                    </Card>
+                  ) : ivCrush ? (
+                    <IVCrushPanel estimate={ivCrush} />
+                  ) : (
+                    <Card className="rounded-2xl border-white/[0.08] bg-white/[0.03]">
+                      <CardContent className="pt-6 text-center text-sm text-white/30">
+                        Could not load IV crush estimate
+                      </CardContent>
+                    </Card>
+                  )}
                 </TabsContent>
               </Tabs>
             ) : (

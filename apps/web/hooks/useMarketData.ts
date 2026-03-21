@@ -10,6 +10,7 @@ import {
   analyzeOption,
   getTodayOpportunities,
   getStockNews,
+  getEarnings,
 } from '@/lib/api';
 import type { OptionsFilter } from '@/lib/types';
 
@@ -104,22 +105,5 @@ export function useStockNews(symbol: string | null) {
       refreshInterval: networkRefreshInterval(5 * 60_000), // 5 min — news is cached 10 min on backend
       dedupingInterval: 4 * 60_000,
     },
-  );
-}
-
-export function useOptionAnalysis(
-  symbol: string | null,
-  type: 'call' | 'put' | null,
-  strike: number | null,
-  expiration: number | null,
-) {
-  const key =
-    symbol && type && strike && expiration
-      ? `options/analyze/${symbol}/${type}/${strike}/${expiration}`
-      : null;
-  return useSWR(
-    key,
-    () => analyzeOption(symbol!, type!, strike!, expiration!),
-    { revalidateOnFocus: false },
   );
 }
