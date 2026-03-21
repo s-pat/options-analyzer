@@ -7,6 +7,7 @@ import type { TodayOpportunities as TodayOpportunitiesType, TodayOption, TodayVe
 import { cn } from '@/lib/utils';
 import { TrendingUp, TrendingDown, Zap, Clock } from 'lucide-react';
 import Link from 'next/link';
+import { UpgradeGate } from '@/components/ui/UpgradeGate';
 
 const VERDICT_CONFIG: Record<TodayVerdict, { color: string; bg: string; label: string }> = {
   'Strong Buy': { color: 'text-green-400', bg: 'bg-green-400/10 border-green-400/30', label: 'Strong Buy' },
@@ -92,7 +93,7 @@ interface BandSectionProps {
   picks: TodayOption[];
 }
 
-function BandSection({ label, picks }: BandSectionProps) {
+function BandSection({ label, picks, maxPicks }: BandSectionProps & { maxPicks: number }) {
   if (picks.length === 0) {
     return (
       <div className="text-sm text-muted-foreground py-6 text-center">
@@ -101,20 +102,39 @@ function BandSection({ label, picks }: BandSectionProps) {
     );
   }
 
+  const visiblePicks = picks.slice(0, maxPicks);
+  const lockedPicks = picks.slice(maxPicks);
+
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-      {picks.map((pick) => (
-        <PickCard key={`${pick.stockSymbol}-${pick.optionType}-${pick.strike}-${pick.expiration}`} pick={pick} />
-      ))}
+    <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        {visiblePicks.map((pick) => (
+          <PickCard key={`${pick.stockSymbol}-${pick.optionType}-${pick.strike}-${pick.expiration}`} pick={pick} />
+        ))}
+      </div>
+      {lockedPicks.length > 0 && (
+        <UpgradeGate
+          required="pro"
+          feature={`${lockedPicks.length} more pick${lockedPicks.length > 1 ? 's' : ''}`}
+          description="Upgrade to Pro to see all of today's high-scoring options setups."
+        >
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {lockedPicks.slice(0, 3).map((pick) => (
+              <PickCard key={`locked-${pick.stockSymbol}-${pick.optionType}-${pick.strike}-${pick.expiration}`} pick={pick} />
+            ))}
+          </div>
+        </UpgradeGate>
+      )}
     </div>
   );
 }
 
 interface TodayOpportunitiesProps {
   data: TodayOpportunitiesType;
+  maxPicks?: number;
 }
 
-export function TodayOpportunities({ data }: TodayOpportunitiesProps) {
+export function TodayOpportunities({ data, maxPicks = Infinity }: TodayOpportunitiesProps) {
   const generatedAt = new Date(data.generatedAt).toLocaleTimeString('en-US', {
     hour: '2-digit', minute: '2-digit',
   });
@@ -147,7 +167,7 @@ export function TodayOpportunities({ data }: TodayOpportunitiesProps) {
 
         {data.bands.map((band) => (
           <TabsContent key={band.band} value={band.band} className="mt-4">
-            <BandSection label={band.label} picks={band.picks} />
+            <BandSection label={band.label} picks={band.picks} maxPicks={maxPicks} />
           </TabsContent>
         ))}
       </Tabs>

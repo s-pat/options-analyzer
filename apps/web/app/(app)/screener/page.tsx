@@ -14,8 +14,10 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent } from '@/components/ui/card';
 import { useStocks } from '@/hooks/useMarketData';
+import { useSubscription } from '@/hooks/useSubscription';
 import { ArrowUpDown, ArrowUp, ArrowDown, Search, ChevronRight } from 'lucide-react';
 import { StockLoader } from '@/components/ui/StockLoader';
+import { UpgradeGate } from '@/components/ui/UpgradeGate';
 import { cn } from '@/lib/utils';
 import type { Stock } from '@/lib/types';
 
@@ -84,6 +86,7 @@ function StockCard({ s, onClick }: { s: Stock; onClick: () => void }) {
 export default function ScreenerPage() {
   const router = useRouter();
   const { data, isLoading, error } = useStocks();
+  const { limits, canAccess } = useSubscription();
   const [filter, setFilter] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('ivRank');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
@@ -112,6 +115,11 @@ export default function ScreenerPage() {
       return sortDir === 'asc' ? as.localeCompare(bs) : bs.localeCompare(as);
     });
   }, [filtered, sortKey, sortDir]);
+
+  // For free tier: show first 20 visible, gate the rest.
+  const isPro = canAccess('pro');
+  const visibleRows = isPro ? sorted : sorted.slice(0, limits.screenerRows);
+  const lockedCount = isPro ? 0 : Math.max(0, sorted.length - limits.screenerRows);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -174,7 +182,10 @@ export default function ScreenerPage() {
           </div>
           <div className="flex items-center justify-between mt-2">
             <span className="text-xs text-white/25 font-mono tabular-nums">
-              {sorted.length} stocks
+              {isPro ? sorted.length : `${visibleRows.length} of ${sorted.length}`} stocks
+              {!isPro && sorted.length > limits.screenerRows && (
+                <span className="text-white/20"> (upgrade to see all)</span>
+              )}
             </span>
             <span className="text-[10px] text-white/20 uppercase tracking-wide">
               Sorted by {String(sortKey)} {sortDir === 'asc' ? '↑' : '↓'}
@@ -195,10 +206,21 @@ export default function ScreenerPage() {
             {/* ── Mobile card list (< sm) ───────────────────────────────── */}
             <div className="sm:hidden animate-slide-up delay-100">
               <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] overflow-hidden mx-4">
-                {sorted.map((s) => (
+                {visibleRows.map((s) => (
                   <StockCard key={s.symbol} s={s} onClick={() => navigateTo(s.symbol)} />
                 ))}
               </div>
+              {lockedCount > 0 && (
+                <div className="mx-4 mt-3">
+                  <UpgradeGate required="pro" feature={`${lockedCount} more stocks`} description="Upgrade to Pro to see all 503 S&P 500 stocks with full sorting and filtering.">
+                    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 space-y-2">
+                      {[...Array(Math.min(3, lockedCount))].map((_, i) => (
+                        <div key={i} className="h-12 rounded-xl bg-white/[0.03] border border-white/[0.05]" />
+                      ))}
+                    </div>
+                  </UpgradeGate>
+                </div>
+              )}
             </div>
 
             {/* ── Desktop table (≥ sm) ──────────────────────────────────── */}
@@ -220,7 +242,7 @@ export default function ScreenerPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {sorted.map((s) => (
+                      {visibleRows.map((s) => (
                         <TableRow
                           key={s.symbol}
                           className={cn(
@@ -251,6 +273,28 @@ export default function ScreenerPage() {
                   </Table>
                 </div>
               </div>
+              {/* Locked rows gate for desktop */}
+              {lockedCount > 0 && (
+                <div className="mt-3">
+                  <UpgradeGate required="pro" feature={`${lockedCount} more stocks`} description="Upgrade to Pro to unlock all 503 S&P 500 stocks with full sorting and filtering.">
+                    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] overflow-hidden">
+                      <Table>
+                        <TableBody>
+                          {[...Array(Math.min(5, lockedCount))].map((_, i) => (
+                            <TableRow key={i} className="border-white/[0.04]">
+                              {[...Array(9)].map((__, j) => (
+                                <TableCell key={j}>
+                                  <div className="h-4 rounded bg-white/[0.05]" />
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </UpgradeGate>
+                </div>
+              )}
             </div>
           </>
         )}

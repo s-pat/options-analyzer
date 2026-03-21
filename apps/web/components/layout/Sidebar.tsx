@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
-import { BarChart3, TrendingUp, Search, FlaskConical, Activity, Zap, BookOpen, Target } from 'lucide-react';
+import { BarChart3, TrendingUp, Search, FlaskConical, Activity, Zap, BookOpen, Target, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const navItems = [
   { href: '/',           label: 'Dashboard',    icon: BarChart3 },
@@ -18,6 +19,7 @@ const navItems = [
 
 export function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname();
+  const { tier, display } = useSubscription();
 
   return (
     <aside className="relative w-64 shrink-0 flex flex-col h-full md:h-screen md:sticky md:top-0 overflow-hidden border-r border-white/[0.07] bg-[#060608]">
@@ -70,18 +72,40 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
       </nav>
 
       {/* Footer — pb accounts for iPhone home indicator when sidebar overlays bottom nav */}
-      <div className="relative px-5 pt-4 pb-safe border-t border-white/[0.07] space-y-3" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 1rem))' }}>
-        <div>
-          <p className="text-[11px] text-white/25 font-medium">Data: Yahoo Finance</p>
-          <p className="text-[11px] text-white/20">30s auto-refresh</p>
+      <div className="relative px-3 pt-3 pb-safe border-t border-white/[0.07] space-y-1" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0.75rem))' }}>
+        {/* Account / billing link */}
+        <Link
+          href="/account"
+          onClick={onClose}
+          className={cn(
+            'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 w-full',
+            pathname === '/account'
+              ? 'bg-blue-500/[0.12] text-blue-400 border border-blue-500/[0.2]'
+              : 'text-white/45 hover:text-white/80 hover:bg-white/[0.05]',
+          )}
+        >
+          <CreditCard className={cn('h-4 w-4 shrink-0', pathname === '/account' ? 'text-blue-400' : 'text-white/40')} />
+          <span className="flex-1">Account</span>
+          {/* Tier badge */}
+          <span className={cn(
+            'text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full border',
+            tier === 'pro'     ? 'bg-blue-500/15 text-blue-300 border-blue-500/25' :
+            tier === 'premium' ? 'bg-violet-500/15 text-violet-300 border-violet-500/25' :
+                                 'bg-white/[0.06] text-white/30 border-white/[0.08]',
+          )}>
+            {display.label}
+          </span>
+        </Link>
+
+        <div className="flex items-center gap-3 px-3 py-2">
+          <UserButton
+            appearance={{ elements: { avatarBox: 'w-7 h-7' } }}
+          />
+          <div>
+            <p className="text-[11px] text-white/25 font-medium">Data: Yahoo Finance</p>
+            <p className="text-[11px] text-white/20">30s auto-refresh</p>
+          </div>
         </div>
-        <UserButton
-          appearance={{
-            elements: {
-              avatarBox: 'w-7 h-7',
-            },
-          }}
-        />
       </div>
     </aside>
   );

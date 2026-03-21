@@ -4,11 +4,13 @@ import { Header } from '@/components/layout/Header';
 import { TodayOpportunities } from '@/components/today/TodayOpportunities';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTodayOpportunities } from '@/hooks/useMarketData';
+import { useSubscription } from '@/hooks/useSubscription';
 import { TrendingUp, AlertCircle, Zap, RefreshCw } from 'lucide-react';
 import { StockLoader } from '@/components/ui/StockLoader';
 
 export default function TodayPage() {
   const { data, isLoading, error } = useTodayOpportunities();
+  const { limits, canAccess } = useSubscription();
 
   return (
     <>
@@ -74,7 +76,7 @@ export default function TodayPage() {
             </CardContent>
           </Card>
         ) : data ? (
-          <TodayOpportunities data={data} />
+          <TodayOpportunities data={data} maxPicks={canAccess('pro') ? Infinity : limits.todayPicks} />
         ) : null}
       </div>
     </>
