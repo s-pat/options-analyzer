@@ -31,11 +31,49 @@ const CATEGORY_CONFIG: Record<ExpiryCategory, { label: string; color: string }> 
 
 const CATEGORY_ORDER: ExpiryCategory[] = ['weekly', 'monthly', 'quarterly', 'leaps'];
 
+// Priority tiers for retail buyers.
+// "prime"  → sweet-spot contracts most retail buyers should consider
+// "good"   → reasonable but not ideal
+// "normal" → fine, just not optimal
+// "dim"    → far OTM lottery tickets; shown but de-emphasised
+type Priority = 'prime' | 'good' | 'normal' | 'dim';
+
+function getPriority(opt: OptionContract): Priority {
+  const abs = Math.abs(opt.delta);
+  if (abs < 0.15) return 'dim';
+  if (
+    abs >= 0.30 && abs <= 0.65 &&
+    opt.dte >= 21 && opt.dte <= 75 &&
+    opt.openInterest >= 100 &&
+    opt.isFeasible
+  ) return 'prime';
+  if (abs >= 0.20 && abs <= 0.75 && opt.openInterest >= 50) return 'good';
+  return 'normal';
+}
+
+// Moneyness label relative to stock price
+function getMoneyness(opt: OptionContract, stockPrice: number): 'ITM' | 'ATM' | 'OTM' {
+  const dist = Math.abs(opt.strike - stockPrice) / stockPrice;
+  if (dist < 0.02) return 'ATM';
+  const isCall = opt.optionType === 'call';
+  const isITM = isCall ? opt.strike < stockPrice : opt.strike > stockPrice;
+  return isITM ? 'ITM' : 'OTM';
+}
+
 function deltaColor(delta: number) {
   const abs = Math.abs(delta);
   if (abs >= 0.7) return 'text-green-400';
   if (abs >= 0.4) return 'text-yellow-400';
   return 'text-muted-foreground';
+}
+
+function PrimeDot() {
+  return (
+    <span
+      title="Prime: ideal strike & expiry for retail buyers"
+      className="inline-block w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"
+    />
+  );
 }
 
 function ExpiryGroup({
@@ -58,18 +96,28 @@ function ExpiryGroup({
   const cat = opts[0]?.expiryCategory ?? 'weekly';
   const cfg = CATEGORY_CONFIG[cat] ?? CATEGORY_CONFIG.weekly;
 
+  const primeCount = useMemo(
+    () => opts.filter((o) => getPriority(o) === 'prime').length,
+    [opts],
+  );
+
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-2">
         <span className="text-sm font-medium">{date}</span>
         <Badge variant="outline" className="text-xs">{dte} DTE</Badge>
         <Badge variant="outline" className={cn('text-xs', cfg.color)}>{cfg.label}</Badge>
+        {primeCount > 0 && (
+          <span className="text-[10px] text-blue-400/70 font-medium">
+            {primeCount} prime contract{primeCount > 1 ? 's' : ''}
+          </span>
+        )}
       </div>
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="text-xs">
-              <TableHead>Strike</TableHead>
+              <TableHead className="w-[110px]">Strike</TableHead>
               <TableHead>Bid</TableHead>
               <TableHead>Ask</TableHead>
               <TableHead>Cost</TableHead>
@@ -83,32 +131,66 @@ function ExpiryGroup({
             {[...opts]
               .sort((a, b) => a.strike - b.strike)
               .map((opt) => {
-                const isATM = Math.abs(opt.strike - stockPrice) / stockPrice < 0.02;
+                const priority = getPriority(opt);
+                const moneyness = getMoneyness(opt, stockPrice);
+                const isATM = moneyness === 'ATM';
+                const isSelected = selectedContract === opt.contractSymbol;
+
                 return (
                   <TableRow
                     key={opt.contractSymbol}
-                    className={cn(
-                      'text-sm cursor-pointer hover:bg-muted/60',
-                      isATM && 'bg-primary/5 font-medium',
-                      selectedContract === opt.contractSymbol && 'ring-1 ring-inset ring-primary bg-primary/10',
-                    )}
                     onClick={() => onSelect?.(opt)}
+                    className={cn(
+                      'text-sm cursor-pointer transition-colors',
+                      // Priority-based left-accent via inset box-shadow (works on <tr>)
+                      isATM && 'shadow-[inset_3px_0_0_rgb(96_165_250)] bg-blue-500/[0.08] font-medium hover:bg-blue-500/[0.12]',
+                      !isATM && priority === 'prime' && 'shadow-[inset_3px_0_0_rgb(59_130_246_/_0.45)] bg-blue-500/[0.04] hover:bg-blue-500/[0.07]',
+                      !isATM && priority === 'good' && 'hover:bg-white/[0.04]',
+                      !isATM && priority === 'normal' && 'hover:bg-white/[0.03]',
+                      !isATM && priority === 'dim' && 'opacity-45 hover:opacity-65',
+                      isSelected && '!bg-primary/10 shadow-[inset_3px_0_0_rgb(59_130_246)]',
+                    )}
                   >
+                    {/* Strike + moneyness badge */}
                     <TableCell>
-                      ${opt.strike.toFixed(0)}
-                      {isATM && <Badge variant="outline" className="ml-1 text-[10px] py-0">ATM</Badge>}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-mono">${opt.strike.toFixed(0)}</span>
+                        {isATM && (
+                          <Badge className="text-[9px] py-0 px-1.5 h-4 bg-blue-500/20 text-blue-300 border border-blue-500/30 font-semibold">
+                            ATM
+                          </Badge>
+                        )}
+                        {moneyness === 'ITM' && (
+                          <Badge className="text-[9px] py-0 px-1.5 h-4 bg-green-500/15 text-green-400 border border-green-500/25">
+                            ITM
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
-                    <TableCell>${opt.bid.toFixed(2)}</TableCell>
-                    <TableCell>${opt.ask.toFixed(2)}</TableCell>
-                    <TableCell className="font-medium">
+
+                    <TableCell className="font-mono">${opt.bid.toFixed(2)}</TableCell>
+                    <TableCell className="font-mono">${opt.ask.toFixed(2)}</TableCell>
+                    <TableCell className="font-mono font-medium">
                       ${opt.contractCost?.toFixed(0) ?? (opt.ask * 100).toFixed(0)}
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">{(opt.impliedVolatility * 100).toFixed(0)}%</TableCell>
-                    <TableCell className={cn('hidden sm:table-cell', deltaColor(opt.delta))}>
-                      {opt.delta.toFixed(2)}
+                    <TableCell className="hidden md:table-cell font-mono">
+                      {(opt.impliedVolatility * 100).toFixed(0)}%
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell">{opt.openInterest.toLocaleString()}</TableCell>
-                    <TableCell className="hidden sm:table-cell">{opt.volume.toLocaleString()}</TableCell>
+
+                    {/* Delta — with prime dot indicator */}
+                    <TableCell className={cn('hidden sm:table-cell font-mono', deltaColor(opt.delta))}>
+                      <div className="flex items-center gap-1.5">
+                        {priority === 'prime' && <PrimeDot />}
+                        {opt.delta.toFixed(2)}
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="hidden sm:table-cell font-mono">
+                      {opt.openInterest.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell font-mono">
+                      {opt.volume.toLocaleString()}
+                    </TableCell>
                   </TableRow>
                 );
               })}
