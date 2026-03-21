@@ -10,6 +10,8 @@ import { getMarketOverview, getRecommendations } from '@/lib/api';
 // Hard cap — never block the user for more than 3s regardless of API speed.
 // SWR will retry any incomplete fetches on the dashboard itself.
 const MAX_WAIT_MS = 3_000;
+// Always show the loader for at least this long so the screen is never a flash.
+const MIN_DISPLAY_MS = 1_500;
 
 export default function AuthLoadingPage() {
   const router = useRouter();
@@ -19,25 +21,37 @@ export default function AuthLoadingPage() {
     function goToDashboard() {
       if (navigated.current) return;
       navigated.current = true;
+      // Tell middleware this session has been through auth-loading so it won't
+      // redirect back here on the next full-page load of the dashboard.
+      document.cookie = '_al=1; path=/; max-age=86400; samesite=lax';
       router.replace('/');
     }
 
     // Hard timeout — never trap the user if APIs are slow
     const timeout = setTimeout(goToDashboard, MAX_WAIT_MS);
 
-    // Warm the SWR cache; navigate as soon as both resolve (or timeout fires)
-    Promise.all([
+    // Minimum display so the loading screen is always visible on fast connections
+    const minDelay = new Promise<void>((resolve) => setTimeout(resolve, MIN_DISPLAY_MS));
+
+    // Use allSettled so a failed preload/import never causes an early rejection
+    // that would bypass minDelay. Navigate only after BOTH the minimum display
+    // time AND all data/chunk requests have settled (succeeded or failed).
+    const dataReady = Promise.allSettled([
       preload('market/overview', getMarketOverview),
       preload('options/recommendations/20', () => getRecommendations(20)),
-    ])
-      .then(goToDashboard)
-      .catch(goToDashboard);
+      // Kick off dashboard JS chunk downloads while the loader is visible
+      import('@/components/dashboard/MarketOverview'),
+      import('@/components/dashboard/SectorHeatmap'),
+      import('@/components/dashboard/TopOptions'),
+    ]);
+
+    Promise.all([dataReady, minDelay]).then(goToDashboard);
 
     return () => clearTimeout(timeout);
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-[#060608] flex flex-col items-center justify-center gap-8">
+    <div className="min-h-dvh bg-[#060608] flex flex-col items-center justify-center gap-8">
       {/* Ambient glows — hidden on mobile, scaled on tablet */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 bg-blue-600/7 rounded-full pointer-events-none hidden sm:block sm:w-[400px] sm:h-[250px] sm:blur-[80px] lg:w-[700px] lg:h-[450px] lg:blur-[140px]" />
       <div className="fixed bottom-0 right-1/4 bg-violet-600/5 rounded-full pointer-events-none hidden sm:block sm:w-[200px] sm:h-[150px] sm:blur-[60px] lg:w-[400px] lg:h-[300px] lg:blur-[120px]" />

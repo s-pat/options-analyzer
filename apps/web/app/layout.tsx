@@ -107,9 +107,15 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        {/* Clerk — preconnect to all three hosts it uses:
+            1. Custom frontend API (sign-in UI + session tokens)
+            2. clerk.accounts.dev — where clerk.browser.js is actually served from
+            3. api.clerk.dev — auth API requests */}
         <link rel="preconnect" href="https://clerk.optionslab.io" />
         <link rel="preconnect" href="https://api.clerk.dev" />
+        <link rel="preconnect" href="https://clerk.accounts.dev" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://api.clerk.dev" />
+        <link rel="dns-prefetch" href="https://clerk.accounts.dev" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

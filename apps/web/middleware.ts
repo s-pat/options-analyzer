@@ -13,11 +13,23 @@ const isPublicRoute = createRouteMatcher([
 
 const isWaitlistRoute = createRouteMatcher(['/waitlist(.*)']);
 
+// Cookie that auth-loading sets once it has run for this browser session.
+// Middleware checks for it so the loading screen is only shown once per sign-in.
+const AUTH_LOADED_COOKIE = '_al';
+
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth();
+  const pathname = req.nextUrl.pathname;
 
-  // Public routes: allow through without auth
+  // Public routes: allow through without auth.
+  // If the user isn't signed in but the auth-loaded cookie still exists from a
+  // previous session, clear it now so the next sign-in shows the loader again.
   if (isPublicRoute(req)) {
+    if (!userId && req.cookies.has(AUTH_LOADED_COOKIE)) {
+      const res = NextResponse.next();
+      res.cookies.delete(AUTH_LOADED_COOKIE);
+      return res;
+    }
     return NextResponse.next();
   }
 
@@ -37,6 +49,13 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (!approved) {
     return NextResponse.redirect(new URL('/waitlist', req.url));
+  }
+
+  // Approved user hitting the dashboard without having gone through auth-loading:
+  // redirect them there so the loading screen is always shown after sign-in,
+  // regardless of which redirect path Clerk used (component vs. SSO callback).
+  if (pathname === '/' && !req.cookies.has(AUTH_LOADED_COOKIE)) {
+    return NextResponse.redirect(new URL('/auth-loading', req.url));
   }
 
   // Approved: allow through
