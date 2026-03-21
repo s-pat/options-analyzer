@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -79,7 +80,7 @@ function ExpiryGroup({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {opts
+            {[...opts]
               .sort((a, b) => a.strike - b.strike)
               .map((opt) => {
                 const isATM = Math.abs(opt.strike - stockPrice) / stockPrice < 0.02;
@@ -129,20 +130,21 @@ function OptionTable({
   onSelect?: (opt: OptionContract) => void;
   selectedContract?: string | null;
 }) {
+  const { byCategory, activeCats } = useMemo(() => {
+    const grouped: Partial<Record<ExpiryCategory, Record<number, OptionContract[]>>> = {};
+    for (const opt of options) {
+      const cat = opt.expiryCategory ?? 'weekly';
+      if (!grouped[cat]) grouped[cat] = {};
+      if (!grouped[cat]![opt.expiration]) grouped[cat]![opt.expiration] = [];
+      grouped[cat]![opt.expiration].push(opt);
+    }
+    const cats = CATEGORY_ORDER.filter((c) => grouped[c] && Object.keys(grouped[c]!).length > 0);
+    return { byCategory: grouped, activeCats: cats };
+  }, [options]);
+
   if (options.length === 0) {
     return <p className="text-sm text-muted-foreground py-4">No contracts match your filters.</p>;
   }
-
-  // Group by category, then by expiration within each category
-  const byCategory: Partial<Record<ExpiryCategory, Record<number, OptionContract[]>>> = {};
-  for (const opt of options) {
-    const cat = opt.expiryCategory ?? 'weekly';
-    if (!byCategory[cat]) byCategory[cat] = {};
-    if (!byCategory[cat]![opt.expiration]) byCategory[cat]![opt.expiration] = [];
-    byCategory[cat]![opt.expiration].push(opt);
-  }
-
-  const activeCats = CATEGORY_ORDER.filter((c) => byCategory[c] && Object.keys(byCategory[c]!).length > 0);
 
   if (activeCats.length === 0) {
     return <p className="text-sm text-muted-foreground py-4">No contracts available.</p>;

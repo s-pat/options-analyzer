@@ -4,21 +4,34 @@ import { useState, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
-const StockChart = dynamic(
-  () => import('@/components/charts/StockChart').then((m) => ({ default: m.StockChart })),
-  { ssr: false, loading: () => <div className="h-[280px] animate-pulse rounded-xl bg-white/[0.03]" /> }
-);
-import { OptionsChain } from '@/components/options/OptionsChain';
-import { FilterPanel } from '@/components/options/FilterPanel';
-import { OptionCard } from '@/components/options/OptionCard';
-import { OptionAnalysisPanel } from '@/components/options/OptionAnalysis';
+import { StockLoader } from '@/components/ui/StockLoader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useStock, useStockHistory, useFilteredChain, useOptionAnalysis } from '@/hooks/useMarketData';
 import type { OptionContract, OptionsFilter } from '@/lib/types';
 import { AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
-import { StockLoader } from '@/components/ui/StockLoader';
+
+const StockChart = dynamic(
+  () => import('@/components/charts/StockChart').then((m) => ({ default: m.StockChart })),
+  { ssr: false, loading: () => <div className="h-[280px] animate-pulse rounded-xl bg-white/[0.03]" /> }
+);
+const OptionsChain = dynamic(
+  () => import('@/components/options/OptionsChain').then((m) => ({ default: m.OptionsChain })),
+  { loading: () => <div className="flex justify-center py-16"><StockLoader size="md" message="Loading options chain…" /></div> }
+);
+const FilterPanel = dynamic(
+  () => import('@/components/options/FilterPanel').then((m) => ({ default: m.FilterPanel })),
+  { loading: () => <div className="h-48 animate-pulse rounded-xl bg-white/[0.03]" /> }
+);
+const OptionCard = dynamic(
+  () => import('@/components/options/OptionCard').then((m) => ({ default: m.OptionCard })),
+  { loading: () => <div className="h-32 animate-pulse rounded-xl bg-white/[0.03]" /> }
+);
+const OptionAnalysisPanel = dynamic(
+  () => import('@/components/options/OptionAnalysis').then((m) => ({ default: m.OptionAnalysisPanel })),
+  { loading: () => <div className="flex justify-center py-10"><StockLoader size="md" message="Analyzing option…" /></div> }
+);
 import { cn } from '@/lib/utils';
 
 const DEFAULT_FILTER: OptionsFilter = {

@@ -337,7 +337,7 @@ export default function LandingPage() {
                     <div className="text-[9px] text-white/35 uppercase tracking-wider font-medium mb-0.5">{chip.label}</div>
                     <div
                       className={`font-mono font-bold text-xs ${chip.color}`}
-                      style={{ animation: `float-y 4s ease-in-out ${chip.delay} infinite` }}
+                      style={{ animation: `float-y 4s ease-in-out ${chip.delay} infinite`, willChange: 'transform' }}
                     >
                       {chip.value}
                     </div>

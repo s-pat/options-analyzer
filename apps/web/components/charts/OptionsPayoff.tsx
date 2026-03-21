@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -20,22 +21,22 @@ interface OptionsPayoffProps {
 export function OptionsPayoff({ option, stockPrice }: OptionsPayoffProps) {
   const { strike, ask, optionType } = option;
   const premium = ask;
-  const range = Math.max(strike * 0.3, 30);
-  const steps = 50;
 
-  const data = Array.from({ length: steps + 1 }, (_, i) => {
-    const price = strike - range + (i * 2 * range) / steps;
-    let intrinsic = 0;
-    if (optionType === 'call') {
-      intrinsic = Math.max(price - strike, 0);
-    } else {
-      intrinsic = Math.max(strike - price, 0);
-    }
-    const pnl = intrinsic - premium;
-    return { price: parseFloat(price.toFixed(2)), pnl: parseFloat(pnl.toFixed(4)) };
-  });
-
-  const breakeven = optionType === 'call' ? strike + premium : strike - premium;
+  const { data, breakeven } = useMemo(() => {
+    const range = Math.max(strike * 0.3, 30);
+    const steps = 50;
+    const pts = Array.from({ length: steps + 1 }, (_, i) => {
+      const price = strike - range + (i * 2 * range) / steps;
+      const intrinsic = optionType === 'call'
+        ? Math.max(price - strike, 0)
+        : Math.max(strike - price, 0);
+      return { price: parseFloat(price.toFixed(2)), pnl: parseFloat((intrinsic - premium).toFixed(4)) };
+    });
+    return {
+      data: pts,
+      breakeven: optionType === 'call' ? strike + premium : strike - premium,
+    };
+  }, [strike, premium, optionType]);
 
   return (
     <div className="h-48 w-full">
