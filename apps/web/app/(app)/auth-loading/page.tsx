@@ -10,7 +10,8 @@ import { getMarketOverview, getRecommendations } from '@/lib/api';
 // Hard cap — never block the user for more than 3 s regardless of API speed.
 const MAX_WAIT_MS = 3_000;
 // Always show the loader for at least this long so it's never a flash.
-const MIN_DISPLAY_MS = 1_500;
+// 500 ms is enough to prevent a jarring flash while keeping total load time low.
+const MIN_DISPLAY_MS = 500;
 
 // NOTE: The _al cookie is set server-side by /auth-callback before this page
 // ever loads, so this page never needs to touch document.cookie.  It can
