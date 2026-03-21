@@ -1,0 +1,76 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { preload } from 'swr';
+import { Activity } from 'lucide-react';
+import { StockLoader } from '@/components/ui/StockLoader';
+import { getMarketOverview, getRecommendations } from '@/lib/api';
+
+// Hard cap — never block the user for more than 3 s regardless of API speed.
+const MAX_WAIT_MS = 3_000;
+// Always show the loader for at least this long so it's never a flash.
+const MIN_DISPLAY_MS = 1_500;
+
+// NOTE: The _al cookie is set server-side by /auth-callback before this page
+// ever loads, so this page never needs to touch document.cookie.  It can
+// call router.replace('/') unconditionally and the middleware will let it
+// through.  The <meta http-equiv="refresh"> in the head is a fallback for
+// slow devices where JS hydration takes longer than MAX_WAIT_MS — the cookie
+// is already committed so that redirect also clears the middleware gate.
+
+export default function AuthLoadingPage() {
+  const router = useRouter();
+  const navigated = useRef(false);
+
+  useEffect(() => {
+    function goToDashboard() {
+      if (navigated.current) return;
+      navigated.current = true;
+      router.replace('/');
+    }
+
+    const timeout = setTimeout(goToDashboard, MAX_WAIT_MS);
+
+    const minDelay = new Promise<void>((resolve) => setTimeout(resolve, MIN_DISPLAY_MS));
+
+    const dataReady = Promise.allSettled([
+      preload('market/overview', getMarketOverview),
+      preload('options/recommendations/20', () => getRecommendations(20)),
+      import('@/components/dashboard/MarketOverview'),
+      import('@/components/dashboard/SectorHeatmap'),
+      import('@/components/dashboard/TopOptions'),
+    ]);
+
+    Promise.all([dataReady, minDelay]).then(goToDashboard);
+
+    return () => clearTimeout(timeout);
+  }, [router]);
+
+  return (
+    <>
+      {/* Fallback for very slow devices: if JS hydration hasn't fired the
+          router.replace above within 5 s, the meta-refresh takes over.
+          The _al cookie is already set by /auth-callback so middleware
+          will allow the / request through. */}
+      <meta httpEquiv="refresh" content="5; url=/" />
+
+      <div className="min-h-dvh bg-[#060608] flex flex-col items-center justify-center gap-8">
+        {/* Ambient glows — hidden on mobile, scaled on tablet */}
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 bg-blue-600/7 rounded-full pointer-events-none hidden sm:block sm:w-[400px] sm:h-[250px] sm:blur-[80px] lg:w-[700px] lg:h-[450px] lg:blur-[140px]" />
+        <div className="fixed bottom-0 right-1/4 bg-violet-600/5 rounded-full pointer-events-none hidden sm:block sm:w-[200px] sm:h-[150px] sm:blur-[60px] lg:w-[400px] lg:h-[300px] lg:blur-[120px]" />
+
+        {/* Logo */}
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
+            <Activity className="h-5 w-5 text-blue-400" />
+          </div>
+          <span className="font-semibold text-xl tracking-tight text-white">OptionsLab</span>
+        </div>
+
+        {/* Animated loader with rotating messages */}
+        <StockLoader size="md" subtitle="Preparing your dashboard…" />
+      </div>
+    </>
+  );
+}

@@ -52,10 +52,14 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // Approved user hitting the dashboard without having gone through auth-loading:
-  // redirect them there so the loading screen is always shown after sign-in,
-  // regardless of which redirect path Clerk used (component vs. SSO callback).
+  // redirect to /auth-callback which sets the _al cookie server-side and
+  // forwards to the branded loading page.  Using /auth-callback (not
+  // /auth-loading directly) ensures the cookie is committed before the
+  // loading page renders, so its router.replace('/') and the <meta refresh>
+  // fallback both clear the middleware gate without needing client-side
+  // document.cookie writes.
   if (pathname === '/' && !req.cookies.has(AUTH_LOADED_COOKIE)) {
-    return NextResponse.redirect(new URL('/auth-loading', req.url));
+    return NextResponse.redirect(new URL('/auth-callback', req.url));
   }
 
   // Approved: allow through

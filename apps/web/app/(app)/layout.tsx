@@ -13,7 +13,7 @@ export default function AppLayout({
   return (
     <ClerkProvider
       afterSignOutUrl="/landing"
-      signInForceRedirectUrl="/auth-loading"
+      signInForceRedirectUrl="/auth-callback"
       appearance={{
         variables: {
           colorPrimary: "#3B82F6",
