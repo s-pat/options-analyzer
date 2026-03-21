@@ -205,6 +205,36 @@ export interface PortfolioSummary {
   losers: number;
 }
 
+export interface IVCrushScenario {
+  label: string;
+  crushPct: number;
+  postIV: number;
+  optionPrice: number;
+  pnlPct: number;
+}
+
+export interface IVCrushEstimate {
+  symbol: string;
+  optionType: string;
+  strike: number;
+  expiration: number;
+  dte: number;
+  currentIV: number;
+  currentIVPct: number;
+  ivRank: number;
+  estimatedCrushPct: number;
+  postEarningsIV: number;
+  postEarningsIVPct: number;
+  currentOptionPrice: number;
+  postEarningsPrice: number;
+  pnlPct: number;
+  pnlDollar: number;
+  pnlPerContract: number;
+  verdict: string;
+  warning: string;
+  scenarios: IVCrushScenario[];
+}
+
 export interface BacktestRequest {
   symbol: string;
   type: 'call' | 'put';

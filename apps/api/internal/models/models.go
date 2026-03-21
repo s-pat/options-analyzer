@@ -287,3 +287,16 @@ type StockNews struct {
 	NeutralCount    int        `json:"neutralCount"`
 	UpdatedAt       time.Time  `json:"updatedAt"`
 }
+
+// EarningsEvent holds upcoming earnings date and EPS estimate data for a symbol
+type EarningsEvent struct {
+	Symbol          string    `json:"symbol"`
+	EarningsDate    time.Time `json:"earningsDate"`    // next earnings date
+	EarningsDateFmt string    `json:"earningsDateFmt"` // "Mar 28, 2026"
+	DaysUntil       int       `json:"daysUntil"`       // days until earnings
+	EPSEstimate     float64   `json:"epsEstimate"`     // consensus EPS
+	EPSLow          float64   `json:"epsLow"`
+	EPSHigh         float64   `json:"epsHigh"`
+	HasDate         bool      `json:"hasDate"`    // false if no upcoming date
+	UpdatedAt       time.Time `json:"updatedAt"`
+}

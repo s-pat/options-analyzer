@@ -10,6 +10,7 @@ import {
   analyzeOption,
   getTodayOpportunities,
   getStockNews,
+  getEarnings,
 } from '@/lib/api';
 import type { OptionsFilter } from '@/lib/types';
 
@@ -104,6 +105,14 @@ export function useStockNews(symbol: string | null) {
       refreshInterval: networkRefreshInterval(5 * 60_000), // 5 min — news is cached 10 min on backend
       dedupingInterval: 4 * 60_000,
     },
+  );
+}
+
+export function useEarnings(symbol: string | null) {
+  return useSWR(
+    symbol ? `stocks/${symbol}/earnings` : null,
+    () => getEarnings(symbol!),
+    { refreshInterval: 30 * 60_000, dedupingInterval: 25 * 60_000 },
   );
 }
 

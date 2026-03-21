@@ -12,6 +12,7 @@ const navItems = [
   { href: '/portfolio',  label: 'Portfolio',    icon: Briefcase },
   { href: '/screener',   label: 'Screener',     icon: Search },
   { href: '/options',    label: 'Options',      icon: TrendingUp },
+  { href: '/earnings',   label: 'Earnings',     icon: Calendar },
   { href: '/backtest',   label: 'Backtest',     icon: FlaskConical },
   { href: '/learn',      label: 'Learn Options', icon: BookOpen },
   { href: '/strategies', label: 'Strategies',   icon: Target },

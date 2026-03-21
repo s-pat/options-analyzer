@@ -526,3 +526,70 @@ func convertOption(raw RawOption, optType string, T float64, dte int) models.Opt
 		OptionType:        optType,
 	}
 }
+
+// quoteSummaryResponse is the Yahoo v10 quoteSummary calendarEvents response
+type quoteSummaryResponse struct {
+	QuoteSummary struct {
+		Result []struct {
+			CalendarEvents struct {
+				Earnings struct {
+					EarningsDate []struct {
+						Raw int64 `json:"raw"`
+					} `json:"earningsDate"`
+					EarningsAverage struct {
+						Raw float64 `json:"raw"`
+					} `json:"earningsAverage"`
+					EarningsLow struct {
+						Raw float64 `json:"raw"`
+					} `json:"earningsLow"`
+					EarningsHigh struct {
+						Raw float64 `json:"raw"`
+					} `json:"earningsHigh"`
+				} `json:"earnings"`
+			} `json:"calendarEvents"`
+		} `json:"result"`
+		Error interface{} `json:"error"`
+	} `json:"quoteSummary"`
+}
+
+// GetEarnings fetches upcoming earnings date and EPS estimates for a symbol
+func (c *Client) GetEarnings(symbol string) (*models.EarningsEvent, error) {
+	rawURL := fmt.Sprintf("%s/v10/finance/quoteSummary/%s?modules=calendarEvents", baseURL1, symbol)
+	body, err := c.get(rawURL)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp quoteSummaryResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return nil, fmt.Errorf("earnings parse: %w", err)
+	}
+
+	event := &models.EarningsEvent{
+		Symbol:    symbol,
+		UpdatedAt: time.Now(),
+	}
+
+	if len(resp.QuoteSummary.Result) == 0 {
+		return event, nil
+	}
+
+	cal := resp.QuoteSummary.Result[0].CalendarEvents.Earnings
+	event.EPSEstimate = cal.EarningsAverage.Raw
+	event.EPSLow = cal.EarningsLow.Raw
+	event.EPSHigh = cal.EarningsHigh.Raw
+
+	now := time.Now().UTC()
+	for _, d := range cal.EarningsDate {
+		t := time.Unix(d.Raw, 0).UTC()
+		if t.After(now) {
+			event.EarningsDate = t
+			event.EarningsDateFmt = t.Format("Jan 2, 2006")
+			event.DaysUntil = int(t.Sub(now).Hours() / 24)
+			event.HasDate = true
+			break
+		}
+	}
+
+	return event, nil
+}

@@ -8,7 +8,7 @@ import { StockLoader } from '@/components/ui/StockLoader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useStock, useStockHistory, useFilteredChain, useOptionAnalysis, useStockNews } from '@/hooks/useMarketData';
+import { useStock, useStockHistory, useFilteredChain, useOptionAnalysis, useStockNews, useEarnings } from '@/hooks/useMarketData';
 import type { OptionContract, OptionsFilter } from '@/lib/types';
 import { AlertCircle, TrendingUp, TrendingDown, Newspaper } from 'lucide-react';
 
@@ -31,6 +31,10 @@ const OptionCard = dynamic(
 const OptionAnalysisPanel = dynamic(
   () => import('@/components/options/OptionAnalysis').then((m) => ({ default: m.OptionAnalysisPanel })),
   { loading: () => <div className="flex justify-center py-10"><StockLoader size="md" message="Analyzing option…" /></div> }
+);
+const EarningsCard = dynamic(
+  () => import('@/components/options/EarningsCard').then((m) => ({ default: m.EarningsCard })),
+  { loading: () => <div className="h-24 animate-pulse rounded-2xl bg-white/[0.03]" /> }
 );
 const NewsFeed = dynamic(
   () => import('@/components/options/NewsFeed').then((m) => ({ default: m.NewsFeed })),
@@ -64,6 +68,7 @@ function OptionsPageInner() {
   const { data: histData, isLoading: histLoading } = useStockHistory(symbol);
   const { data: chain, isLoading: chainLoading } = useFilteredChain(symbol, filter);
   const { data: news, isLoading: newsLoading } = useStockNews(symbol);
+  const { data: earnings } = useEarnings(symbol);
 
   const { data: analysis, isLoading: analysisLoading } = useOptionAnalysis(
     selectedOption ? symbol : null,
@@ -155,6 +160,11 @@ function OptionsPageInner() {
               historical volatility and are for educational purposes only.
             </span>
           </div>
+        )}
+
+        {/* Earnings Card */}
+        {earnings?.hasDate && (
+          <EarningsCard earnings={earnings} className="animate-slide-up delay-75" />
         )}
 
         {/* Chart */}
