@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"sync"
 	"time"
 
 	bsmath "github.com/sohanpatel/options-analyzer/api/internal/math"
@@ -40,6 +41,11 @@ const (
 type OptionsService struct {
 	client *yahoo.Client
 	sp500  *SP500Service
+
+	// cached recommendations — refreshed lazily, TTL 5 min
+	recsMu    sync.RWMutex
+	recsCache []models.OptionRecommendation
+	recsAt    time.Time
 }
 
 // NewOptionsService creates a new OptionsService
@@ -277,24 +283,60 @@ func (s *OptionsService) enrichAndTag(chain *models.OptionsChain, stockPrice, hv
 //   - Score ≥ 50/100
 //
 // See scoreOption for the 4-component composite scoring formula.
+const recsTTL = 5 * time.Minute
+
 func (s *OptionsService) GetRecommendations(limit int) ([]models.OptionRecommendation, error) {
-	// Pick a subset of liquid stocks for speed
+	// Serve from cache when fresh — avoids re-running the expensive scan on
+	// every login. First cold-start after a deploy will populate the cache;
+	// all subsequent calls within the TTL return instantly.
+	s.recsMu.RLock()
+	if s.recsCache != nil && time.Since(s.recsAt) < recsTTL {
+		out := s.recsCache
+		s.recsMu.RUnlock()
+		if limit > 0 && len(out) > limit {
+			return out[:limit], nil
+		}
+		return out, nil
+	}
+	s.recsMu.RUnlock()
+
+	// Scan liquid stocks in parallel (max 4 concurrent) — same pattern as TodayService.
 	candidates := []string{"AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA", "JPM", "V", "UNH",
 		"HD", "MA", "AVGO", "LLY", "XOM", "JNJ", "PG", "BAC", "MRK", "ABBV"}
 
+	var mu sync.Mutex
 	var allRecs []models.OptionRecommendation
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 4)
+
 	for _, sym := range candidates {
-		recs, err := s.scoreOptionsForSymbol(sym)
-		if err != nil {
-			continue
-		}
-		allRecs = append(allRecs, recs...)
+		wg.Add(1)
+		go func(symbol string) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			recs, err := s.scoreOptionsForSymbol(symbol)
+			if err != nil {
+				return
+			}
+			mu.Lock()
+			allRecs = append(allRecs, recs...)
+			mu.Unlock()
+		}(sym)
 	}
+	wg.Wait()
 
 	// Sort by score descending
 	sort.Slice(allRecs, func(i, j int) bool {
 		return allRecs[i].Score > allRecs[j].Score
 	})
+
+	// Cache the full sorted list; callers slice it to their limit
+	s.recsMu.Lock()
+	s.recsCache = allRecs
+	s.recsAt = time.Now()
+	s.recsMu.Unlock()
 
 	if limit > 0 && len(allRecs) > limit {
 		allRecs = allRecs[:limit]
