@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMarketOverview } from '@/hooks/useMarketData';
 import { cn } from '@/lib/utils';
@@ -52,11 +53,14 @@ export function SectorHeatmap() {
             const { className, style } = heatStyle(s.changePercent);
             const isPos = s.changePercent >= 0;
             return (
-              <div
+              <Link
                 key={s.sector}
+                href={`/options?symbol=${s.etf}`}
                 className={cn(
                   'rounded-xl border p-3 text-center text-xs font-medium',
-                  'transition-all duration-200 hover:scale-[1.03] hover:brightness-110 cursor-default',
+                  'transition-all duration-200 hover:scale-[1.03] hover:brightness-110 cursor-pointer',
+                  'active:scale-95 active:brightness-90',
+                  'touch-manipulation select-none',
                   'animate-slide-up',
                   staggerDelays[i] ?? 'delay-500',
                   className,
@@ -68,7 +72,7 @@ export function SectorHeatmap() {
                 <div className="mt-1.5 font-bold font-mono tabular-nums text-[13px]">
                   {isPos ? '+' : ''}{s.changePercent.toFixed(2)}%
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
