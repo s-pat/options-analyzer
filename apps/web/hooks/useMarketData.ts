@@ -87,6 +87,10 @@ export function useRecommendations(limit = 20) {
     {
       refreshInterval: networkRefreshInterval(REFRESH_INTERVAL),
       dedupingInterval: DEDUP_INTERVAL,
+      // Show the previous scan's data immediately while a fresh one loads.
+      // Without this, every dashboard visit shows a 60-90 s spinner even
+      // when the cache already has perfectly good recent data.
+      keepPreviousData: true,
     },
   );
 }
