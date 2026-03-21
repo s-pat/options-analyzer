@@ -33,18 +33,19 @@ export default function AuthLoadingPage() {
     // Minimum display so the loading screen is always visible on fast connections
     const minDelay = new Promise<void>((resolve) => setTimeout(resolve, MIN_DISPLAY_MS));
 
-    // Warm the SWR cache; navigate once both data and min time are satisfied
-    Promise.all([
+    // Use allSettled so a failed preload/import never causes an early rejection
+    // that would bypass minDelay. Navigate only after BOTH the minimum display
+    // time AND all data/chunk requests have settled (succeeded or failed).
+    const dataReady = Promise.allSettled([
       preload('market/overview', getMarketOverview),
       preload('options/recommendations/20', () => getRecommendations(20)),
       // Kick off dashboard JS chunk downloads while the loader is visible
       import('@/components/dashboard/MarketOverview'),
       import('@/components/dashboard/SectorHeatmap'),
       import('@/components/dashboard/TopOptions'),
-      minDelay,
-    ])
-      .then(goToDashboard)
-      .catch(goToDashboard);
+    ]);
+
+    Promise.all([dataReady, minDelay]).then(goToDashboard);
 
     return () => clearTimeout(timeout);
   }, [router]);
