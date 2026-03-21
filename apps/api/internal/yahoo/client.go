@@ -337,6 +337,67 @@ func (c *Client) GetQuote(symbol string) (*models.Stock, error) {
 	}, nil
 }
 
+// newsSearchResponse is the Yahoo Finance /v1/finance/search news payload
+type newsSearchResponse struct {
+	News []struct {
+		UUID                string `json:"uuid"`
+		Title               string `json:"title"`
+		Publisher           string `json:"publisher"`
+		Link                string `json:"link"`
+		ProviderPublishTime int64  `json:"providerPublishTime"`
+		Type                string `json:"type"`
+		Thumbnail           *struct {
+			Resolutions []struct {
+				URL string `json:"url"`
+			} `json:"resolutions"`
+		} `json:"thumbnail"`
+	} `json:"news"`
+}
+
+// NewsArticle is a raw news article from Yahoo Finance
+type NewsArticle struct {
+	UUID        string
+	Title       string
+	Publisher   string
+	Link        string
+	PublishedAt int64
+}
+
+// GetNews fetches recent news articles for a symbol from Yahoo Finance
+func (c *Client) GetNews(symbol string, count int) ([]NewsArticle, error) {
+	if count <= 0 || count > 20 {
+		count = 10
+	}
+	rawURL := fmt.Sprintf(
+		"%s/v1/finance/search?q=%s&lang=en-US&region=US&quotesCount=0&newsCount=%d&enableFuzzyQuery=false&enableCb=false&enableNavLinks=false",
+		baseURL1, symbol, count,
+	)
+	body, err := c.get(rawURL)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp newsSearchResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return nil, fmt.Errorf("news parse: %w", err)
+	}
+
+	var articles []NewsArticle
+	for _, n := range resp.News {
+		if n.Type == "VIDEO" {
+			continue
+		}
+		articles = append(articles, NewsArticle{
+			UUID:        n.UUID,
+			Title:       n.Title,
+			Publisher:   n.Publisher,
+			Link:        n.Link,
+			PublishedAt: n.ProviderPublishTime,
+		})
+	}
+	return articles, nil
+}
+
 // GetHistory fetches historical OHLCV data for a symbol
 func (c *Client) GetHistory(symbol string, rangeStr string) ([]models.OHLCV, error) {
 	rawURL := fmt.Sprintf("%s/v8/finance/chart/%s?interval=1d&range=%s", baseURL1, symbol, rangeStr)

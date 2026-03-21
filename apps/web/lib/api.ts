@@ -9,6 +9,7 @@ import type {
   TodayOpportunities,
   OHLCV,
   Stock,
+  StockNews,
 } from './types';
 
 // NEXT_PUBLIC_API_URL defaults to a relative path so all API calls are proxied
@@ -90,6 +91,10 @@ export const analyzeOption = (
 // Today's Picks — allow up to 60 s: backend scans 30 stocks (4 concurrent)
 export const getTodayOpportunities = () =>
   fetchJSON<TodayOpportunities>('/options/today', { timeoutMs: 60_000 });
+
+// Stock news with sentiment classification
+export const getStockNews = (symbol: string) =>
+  fetchJSON<StockNews>(`/stocks/${symbol}/news`);
 
 // Backtest
 export const runBacktest = (req: BacktestRequest) =>
