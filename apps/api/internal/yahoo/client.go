@@ -17,22 +17,23 @@ import (
 )
 
 const (
-	baseURL1   = "https://query1.finance.yahoo.com"
-	baseURL2   = "https://query2.finance.yahoo.com"
-	rateDelay  = 100 * time.Millisecond
-	cacheTTL   = 5 * time.Minute
-	cacheClean = 10 * time.Minute
-	crumbTTL   = 55 * time.Minute // rotate crumb every 55 minutes
+	baseURL1          = "https://query1.finance.yahoo.com"
+	baseURL2          = "https://query2.finance.yahoo.com"
+	maxConcurrentReqs = 5 // max simultaneous outgoing Yahoo Finance HTTP calls
+	cacheTTL          = 5 * time.Minute
+	cacheClean        = 10 * time.Minute
+	crumbTTL          = 55 * time.Minute // rotate crumb every 55 minutes
 )
 
-// Client is a rate-limited Yahoo Finance HTTP client with crumb auth and caching
+// Client is a concurrency-limited Yahoo Finance HTTP client with crumb auth and caching.
+// Up to maxConcurrentReqs requests may be in-flight simultaneously; additional callers
+// block until a slot is free. This replaces the old time-based rate limiter which
+// serialised every request through a shared mutex even when goroutines were in use.
 type Client struct {
 	http        *http.Client
 	cache       *cache.Cache
-	mu          sync.Mutex // protects crumb state only
-	rateMu      sync.Mutex // protects rate-limit state; kept separate so crumb
-	// refreshes are never blocked while a goroutine sleeps in rateLimit().
-	lastCall    time.Time
+	mu          sync.Mutex   // protects crumb state only
+	sem         chan struct{} // concurrency limiter
 	crumb       string
 	crumbExpiry time.Time
 }
@@ -51,6 +52,7 @@ func NewClient() *Client {
 			},
 		},
 		cache: cache.New(cacheTTL, cacheClean),
+		sem:   make(chan struct{}, maxConcurrentReqs),
 	}
 	// Bootstrap crumb in the background so first real request is fast
 	go func() {
@@ -126,25 +128,14 @@ func (c *Client) setHeaders(req *http.Request) {
 	// and handles transparent decompression. Setting it manually bypasses that.
 }
 
-// rateLimit enforces minimum delay between requests.
-// Uses rateMu (not mu) so crumb operations are never blocked during the sleep.
-func (c *Client) rateLimit() {
-	c.rateMu.Lock()
-	defer c.rateMu.Unlock()
-	elapsed := time.Since(c.lastCall)
-	if elapsed < rateDelay {
-		time.Sleep(rateDelay - elapsed)
-	}
-	c.lastCall = time.Now()
-}
-
 // get performs a GET request with caching
 func (c *Client) get(rawURL string) ([]byte, error) {
 	if cached, found := c.cache.Get(rawURL); found {
 		return cached.([]byte), nil
 	}
 
-	c.rateLimit()
+	c.sem <- struct{}{}
+	defer func() { <-c.sem }()
 
 	req, err := http.NewRequest("GET", rawURL, nil)
 	if err != nil {
@@ -194,7 +185,8 @@ func (c *Client) getWithCrumb(rawURL string) ([]byte, error) {
 		return cached.([]byte), nil
 	}
 
-	c.rateLimit()
+	c.sem <- struct{}{}
+	defer func() { <-c.sem }()
 
 	req, err := http.NewRequest("GET", fullURL, nil)
 	if err != nil {

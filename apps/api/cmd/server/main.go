@@ -49,6 +49,18 @@ func main() {
 	backtestSvc := services.NewBacktestService(yahooClient)
 	todaySvc := services.NewTodayService(optionsSvc, sp500Svc)
 
+	// Pre-warm the recommendations cache so the first post-deploy login is
+	// instant rather than waiting for the full scan. TodayService already does
+	// this via its refreshLoop; recommendations need the same treatment.
+	go func() {
+		log.Println("pre-warming recommendations cache…")
+		if _, err := optionsSvc.GetRecommendations(20); err != nil {
+			log.Printf("recommendations warm-up failed: %v", err)
+		} else {
+			log.Println("recommendations cache ready")
+		}
+	}()
+
 	// Initialize handlers
 	marketH := handlers.NewMarketHandler(yahooClient)
 	stocksH := handlers.NewStocksHandler(sp500Svc, yahooClient)
