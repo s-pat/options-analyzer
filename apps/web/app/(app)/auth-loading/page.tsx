@@ -21,6 +21,9 @@ export default function AuthLoadingPage() {
     function goToDashboard() {
       if (navigated.current) return;
       navigated.current = true;
+      // Tell middleware this session has been through auth-loading so it won't
+      // redirect back here on the next full-page load of the dashboard.
+      document.cookie = '_al=1; path=/; max-age=86400; samesite=lax';
       router.replace('/');
     }
 
