@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sohanpatel/options-analyzer/api/internal/models"
@@ -45,45 +46,96 @@ var sectorETFs = []struct {
 	{"XLB", "Materials"},
 }
 
-// GetOverview returns market indices + sector performance
-func (h *MarketHandler) GetOverview(c *gin.Context) {
-	var mktIndices []models.MarketIndex
+// WarmCache pre-fetches all market quotes so the first real request is instant.
+// Called once on server startup as a background goroutine.
+func (h *MarketHandler) WarmCache() {
+	var wg sync.WaitGroup
 	for _, idx := range indices {
-		stock, err := h.client.GetQuote(idx.Symbol)
-		if err != nil {
-			continue
-		}
-		trend := "neutral"
-		if stock.ChangePercent > 0.3 {
-			trend = "bullish"
-		} else if stock.ChangePercent < -0.3 {
-			trend = "bearish"
-		}
-		mktIndices = append(mktIndices, models.MarketIndex{
-			Symbol:        idx.Symbol,
-			Name:          idx.Name,
-			Price:         stock.Price,
-			Change:        stock.Change,
-			ChangePercent: stock.ChangePercent,
-			Trend:         trend,
-		})
+		wg.Add(1)
+		go func(symbol string) {
+			defer wg.Done()
+			h.client.GetQuote(symbol) //nolint:errcheck — cache side-effect only
+		}(idx.Symbol)
 	}
-
-	var sectors []models.SectorPerformance
 	for _, sec := range sectorETFs {
-		stock, err := h.client.GetQuote(sec.ETF)
-		if err != nil {
-			continue
+		wg.Add(1)
+		go func(symbol string) {
+			defer wg.Done()
+			h.client.GetQuote(symbol) //nolint:errcheck — cache side-effect only
+		}(sec.ETF)
+	}
+	wg.Wait()
+}
+
+// GetOverview returns market indices + sector performance.
+// Fetches all 15 symbols concurrently; the Yahoo client's semaphore caps
+// simultaneous outgoing requests so we stay within its concurrency limit.
+func (h *MarketHandler) GetOverview(c *gin.Context) {
+	// Indices — fetch concurrently, preserve order
+	mktIndices := make([]models.MarketIndex, len(indices))
+	var idxWg sync.WaitGroup
+	for i, idx := range indices {
+		idxWg.Add(1)
+		go func(i int, symbol, name string) {
+			defer idxWg.Done()
+			stock, err := h.client.GetQuote(symbol)
+			if err != nil {
+				return
+			}
+			trend := "neutral"
+			if stock.ChangePercent > 0.3 {
+				trend = "bullish"
+			} else if stock.ChangePercent < -0.3 {
+				trend = "bearish"
+			}
+			mktIndices[i] = models.MarketIndex{
+				Symbol:        symbol,
+				Name:          name,
+				Price:         stock.Price,
+				Change:        stock.Change,
+				ChangePercent: stock.ChangePercent,
+				Trend:         trend,
+			}
+		}(i, idx.Symbol, idx.Name)
+	}
+	idxWg.Wait()
+
+	// Sectors — fetch concurrently, preserve order
+	sectors := make([]models.SectorPerformance, len(sectorETFs))
+	var secWg sync.WaitGroup
+	for i, sec := range sectorETFs {
+		secWg.Add(1)
+		go func(i int, etf, sector string) {
+			defer secWg.Done()
+			stock, err := h.client.GetQuote(etf)
+			if err != nil {
+				return
+			}
+			sectors[i] = models.SectorPerformance{
+				Sector:        sector,
+				ETF:           etf,
+				ChangePercent: stock.ChangePercent,
+			}
+		}(i, sec.ETF, sec.Sector)
+	}
+	secWg.Wait()
+
+	// Filter out zero-value entries from any failed fetches
+	var validIndices []models.MarketIndex
+	for _, idx := range mktIndices {
+		if idx.Symbol != "" {
+			validIndices = append(validIndices, idx)
 		}
-		sectors = append(sectors, models.SectorPerformance{
-			Sector:        sec.Sector,
-			ETF:           sec.ETF,
-			ChangePercent: stock.ChangePercent,
-		})
+	}
+	var validSectors []models.SectorPerformance
+	for _, sec := range sectors {
+		if sec.Sector != "" {
+			validSectors = append(validSectors, sec)
+		}
 	}
 
 	c.JSON(http.StatusOK, models.MarketOverview{
-		Indices: mktIndices,
-		Sectors: sectors,
+		Indices: validIndices,
+		Sectors: validSectors,
 	})
 }

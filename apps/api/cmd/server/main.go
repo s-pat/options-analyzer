@@ -56,6 +56,23 @@ func main() {
 	backtestH := handlers.NewBacktestHandler(backtestSvc)
 	todayH := handlers.NewTodayHandler(todaySvc)
 
+	// Pre-warm both hot endpoints on startup so the first user after a deploy
+	// hits warm caches. Google OAuth + Clerk callbacks take ~5s, giving the
+	// server enough time to finish both scans before anyone reaches the dashboard.
+	go func() {
+		log.Println("pre-warming market overview cache…")
+		marketH.WarmCache()
+		log.Println("market overview cache ready")
+	}()
+	go func() {
+		log.Println("pre-warming recommendations cache…")
+		if _, err := optionsSvc.GetRecommendations(20); err != nil {
+			log.Printf("recommendations warm-up failed: %v", err)
+		} else {
+			log.Println("recommendations cache ready")
+		}
+	}()
+
 	// Start gRPC server in background
 	grpcSrv := grpcserver.NewServer(":" + grpcPort)
 	go grpcSrv.Start()
