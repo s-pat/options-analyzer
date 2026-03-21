@@ -290,13 +290,13 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Right: chart + floating badges */}
-            <div className="relative" style={{ animation: 'fade-in-up 0.6s ease 0.15s both' }}>
+            {/* Right: chart + floating badges — desktop only; mobile renders below the ticker */}
+            <div className="relative hidden lg:block" style={{ animation: 'fade-in-up 0.6s ease 0.15s both' }}>
               <HeroChart />
 
               {/* Desktop floating badges */}
               <div
-                className="absolute -top-3 -right-3 bg-[#0d0d15] border border-white/[0.1] rounded-xl px-3 py-2 text-xs shadow-2xl hidden lg:block"
+                className="absolute -top-3 -right-3 bg-[#0d0d15] border border-white/[0.1] rounded-xl px-3 py-2 text-xs shadow-2xl"
                 style={{ animation: 'float-y 4s ease-in-out infinite' }}
               >
                 <div className="text-white/40 mb-0.5 text-[10px] uppercase tracking-wider font-medium">IV Rank</div>
@@ -304,7 +304,7 @@ export default function LandingPage() {
               </div>
 
               <div
-                className="absolute -bottom-3 -left-3 bg-[#0d0d15] border border-white/[0.1] rounded-xl px-3 py-2 text-xs shadow-2xl hidden lg:block"
+                className="absolute -bottom-3 -left-3 bg-[#0d0d15] border border-white/[0.1] rounded-xl px-3 py-2 text-xs shadow-2xl"
                 style={{ animation: 'float-y 4s ease-in-out 1.5s infinite' }}
               >
                 <div className="text-white/40 mb-0.5 text-[10px] uppercase tracking-wider font-medium">Contracts Scanned</div>
@@ -321,36 +321,41 @@ export default function LandingPage() {
                   +3 setups
                 </div>
               </div>
-
-              {/* Mobile stat chips */}
-              <div className="grid grid-cols-3 gap-2 mt-3 lg:hidden">
-                {[
-                  { label: 'IV Rank',  value: '78th %ile', color: 'text-violet-400', delay: '0.3s'  },
-                  { label: 'Scanned',  value: '2,847',     color: 'text-green-400',  delay: '0.45s' },
-                  { label: 'Edge',     value: '+3 setups', color: 'text-blue-400',   delay: '0.6s'  },
-                ].map((chip) => (
-                  <div
-                    key={chip.label}
-                    className="bg-[#0d0d15] border border-white/[0.1] rounded-xl px-2 py-2 text-center"
-                    style={{ animation: `fade-in-up 0.5s ease ${chip.delay} both` }}
-                  >
-                    <div className="text-[9px] text-white/35 uppercase tracking-wider font-medium mb-0.5">{chip.label}</div>
-                    <div
-                      className={`font-mono font-bold text-xs ${chip.color}`}
-                      style={{ animation: `float-y 4s ease-in-out ${chip.delay} infinite` }}
-                    >
-                      {chip.value}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Client island: live ticker marquee */}
+      {/* Ticker marquee — full width on all screen sizes */}
       <LandingTicker />
+
+      {/* Mobile SPY card — shown below ticker, hidden on desktop (desktop version is in the hero grid) */}
+      <div className="lg:hidden px-5 sm:px-8 pt-8 pb-4">
+        <div className="relative">
+          <HeroChart />
+          <div className="grid grid-cols-3 gap-2 mt-3">
+            {[
+              { label: 'IV Rank',  value: '78th %ile', color: 'text-violet-400', delay: '0.3s'  },
+              { label: 'Scanned',  value: '2,847',     color: 'text-green-400',  delay: '0.45s' },
+              { label: 'Edge',     value: '+3 setups', color: 'text-blue-400',   delay: '0.6s'  },
+            ].map((chip) => (
+              <div
+                key={chip.label}
+                className="bg-[#0d0d15] border border-white/[0.1] rounded-xl px-2 py-2 text-center"
+                style={{ animation: `fade-in-up 0.5s ease ${chip.delay} both` }}
+              >
+                <div className="text-[9px] text-white/35 uppercase tracking-wider font-medium mb-0.5">{chip.label}</div>
+                <div
+                  className={`font-mono font-bold text-xs ${chip.color}`}
+                  style={{ animation: `float-y 4s ease-in-out ${chip.delay} infinite`, willChange: 'transform' }}
+                >
+                  {chip.value}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* ── Features ─────────────────────────────────────────────────────── */}
       <section id="features" className="relative py-24 px-5 sm:px-8">

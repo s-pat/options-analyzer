@@ -15,9 +15,17 @@ const nextConfig: NextConfig = {
       ? `${process.env.API_BACKEND_URL}/api/v1`
       : "/api/v1",
   },
-  // Tree-shake lucide-react so only imported icons are bundled
+  // Tree-shake icon/component libraries so only imported members are bundled
   experimental: {
-    optimizePackageImports: ["lucide-react", "recharts"],
+    optimizePackageImports: [
+      "lucide-react",
+      "recharts",
+      "@radix-ui/react-tabs",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-select",
+      "@radix-ui/react-tooltip",
+    ],
   },
   async rewrites() {
     return [
