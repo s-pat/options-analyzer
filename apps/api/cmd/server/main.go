@@ -10,9 +10,12 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"github.com/sohanpatel/options-analyzer/api/internal/datasource"
 	grpcserver "github.com/sohanpatel/options-analyzer/api/internal/grpc"
 	"github.com/sohanpatel/options-analyzer/api/internal/handlers"
+	"github.com/sohanpatel/options-analyzer/api/internal/polygon"
 	"github.com/sohanpatel/options-analyzer/api/internal/services"
+	"github.com/sohanpatel/options-analyzer/api/internal/tradier"
 	"github.com/sohanpatel/options-analyzer/api/internal/yahoo"
 )
 
@@ -44,8 +47,16 @@ func main() {
 
 	// Initialize shared dependencies
 	yahooClient := yahoo.NewClient()
-	sp500Svc := services.NewSP500Service(yahooClient)
-	optionsSvc := services.NewOptionsService(yahooClient, sp500Svc)
+
+	// Optional premium data providers — activated via environment variables:
+	//   TRADIER_TOKEN    → options chains served by Tradier Brokerage API
+	//   POLYGON_API_KEY  → live stock quotes served by Polygon.io
+	tradierClient := tradier.NewClient()
+	polygonClient := polygon.NewClient()
+	dataRouter := datasource.New(yahooClient, tradierClient, polygonClient)
+
+	sp500Svc := services.NewSP500Service(dataRouter)
+	optionsSvc := services.NewOptionsService(dataRouter, sp500Svc)
 	backtestSvc := services.NewBacktestService(yahooClient)
 	todaySvc := services.NewTodayService(optionsSvc, sp500Svc)
 	newsSvc := services.NewNewsService(yahooClient)

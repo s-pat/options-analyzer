@@ -115,6 +115,11 @@ function OptionsPageInner() {
                   {positive ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
                   {positive ? '+' : ''}{stock.changePercent?.toFixed(2)}%
                 </span>
+                {stock.quoteSource && (
+                  <span className="text-[10px] text-white/25 font-normal mb-0.5 hidden sm:inline">
+                    via {stock.quoteSource}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -150,8 +155,8 @@ function OptionsPageInner() {
           <div className="flex items-center gap-2 rounded-xl border border-yellow-600/30 bg-yellow-950/[0.15] px-4 py-3 text-sm text-yellow-400 animate-slide-up">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>
-              <strong>Theoretical options data</strong> — Live Yahoo Finance options are unavailable right now
-              (market closed or rate limited). Prices are generated using Black-Scholes with current
+              <strong>Theoretical options data</strong> — Live market data is temporarily unavailable
+              (market closed or feeds rate-limited). Prices are generated using Black-Scholes with current
               historical volatility and are for educational purposes only.
             </span>
           </div>

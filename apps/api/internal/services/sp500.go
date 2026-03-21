@@ -7,7 +7,8 @@
 //   - BacktestService: simulates long call/put strategies over historical data
 //   - AnalyzeOption  : produces a full human-readable thesis for a single contract
 //
-// All services share a Yahoo Finance client for market data (see package yahoo).
+// Market data is fetched via the datasource.Router which dispatches to Polygon.io,
+// Tradier, or Yahoo Finance depending on which credentials are configured.
 package services
 
 import (
@@ -16,9 +17,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sohanpatel/options-analyzer/api/internal/datasource"
 	bsmath "github.com/sohanpatel/options-analyzer/api/internal/math"
 	"github.com/sohanpatel/options-analyzer/api/internal/models"
-	"github.com/sohanpatel/options-analyzer/api/internal/yahoo"
 )
 
 // SP500Symbols is a curated list of ~60 liquid S&P 500 constituents covering all
@@ -109,17 +110,21 @@ var SP500Symbols = []struct {
 //   - 14-period RSI (momentum)
 //   - IV approximation (HV × 1.15) plus a rolling IV Rank and IV Percentile
 //
+// Historical OHLCV data comes from Yahoo Finance (broadest free coverage).
+// Live intraday quotes are served by Polygon.io when configured, otherwise
+// derived from the most-recent close in the Yahoo history response.
+//
 // Results are cached in-memory with a 5-minute TTL to avoid redundant fetches.
 type SP500Service struct {
-	client *yahoo.Client
+	router *datasource.Router
 	cache  map[string]*models.Stock
 	mu     sync.RWMutex
 }
 
 // NewSP500Service creates a new SP500 service
-func NewSP500Service(client *yahoo.Client) *SP500Service {
+func NewSP500Service(router *datasource.Router) *SP500Service {
 	return &SP500Service{
-		client: client,
+		router: router,
 		cache:  make(map[string]*models.Stock),
 	}
 }
@@ -179,7 +184,7 @@ func (s *SP500Service) GetStock(symbol string) (*models.Stock, error) {
 	s.mu.RUnlock()
 
 	// Fetch 2-year history for full indicator computation
-	history, err := s.client.GetHistory(symbol, "2y")
+	history, err := s.router.GetHistory(symbol, "2y")
 	if err != nil {
 		return nil, fmt.Errorf("history fetch for %s: %w", symbol, err)
 	}
@@ -228,7 +233,20 @@ func (s *SP500Service) GetStock(symbol string) (*models.Stock, error) {
 		EMA20:         ema20,
 		EMA50:         ema50,
 		RSI:           rsi,
+		QuoteSource:   "Yahoo Finance",
 		UpdatedAt:     time.Now(),
+	}
+
+	// Try to overlay a fresher intraday quote from Polygon.io (optional — improves
+	// price accuracy during market hours, graceful no-op when Polygon is unavailable).
+	if liveQuote, err := s.router.GetQuote(symbol); err == nil && liveQuote.Price > 0 {
+		stock.Price = liveQuote.Price
+		stock.Change = liveQuote.Change
+		stock.ChangePercent = liveQuote.ChangePercent
+		if liveQuote.Volume > 0 {
+			stock.Volume = liveQuote.Volume
+		}
+		stock.QuoteSource = liveQuote.QuoteSource
 	}
 
 	// Update cache

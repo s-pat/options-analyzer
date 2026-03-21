@@ -38,6 +38,7 @@ export interface Stock {
   ema20: number;
   ema50: number;
   rsi: number;
+  quoteSource: string;  // provider for the real-time quote (e.g. "Polygon.io", "Yahoo Finance")
   updatedAt: string;
 }
 
@@ -116,6 +117,7 @@ export interface OptionsChain {
   calls: OptionContract[];
   puts: OptionContract[];
   isSynthetic: boolean;
+  dataSource: string;   // provider that served the chain (e.g. "Tradier", "Yahoo Finance")
   updatedAt: string;
 }
 

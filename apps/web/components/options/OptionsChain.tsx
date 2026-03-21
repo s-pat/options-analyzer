@@ -288,32 +288,67 @@ function OptionTable({
   );
 }
 
+/** Map data source names to short display labels and colour classes. */
+const SOURCE_CONFIG: Record<string, { label: string; color: string; dot: string }> = {
+  'Tradier':       { label: 'Tradier',    color: 'text-emerald-400 border-emerald-400/40', dot: 'bg-emerald-400' },
+  'Polygon.io':    { label: 'Polygon.io', color: 'text-violet-400 border-violet-400/40',   dot: 'bg-violet-400' },
+  'Yahoo Finance': { label: 'Yahoo Finance', color: 'text-sky-400 border-sky-400/40',      dot: 'bg-sky-400' },
+};
+
+function DataSourceBadge({ source }: { source?: string }) {
+  if (!source) return null;
+  const cfg = SOURCE_CONFIG[source] ?? { label: source, color: 'text-muted-foreground border-white/[0.08]', dot: 'bg-white/30' };
+  return (
+    <span className={cn('inline-flex items-center gap-1.5 text-[10px] font-medium px-1.5 py-0.5 rounded border', cfg.color)}>
+      <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', cfg.dot)} />
+      {cfg.label}
+    </span>
+  );
+}
+
 export function OptionsChain({ chain, stockPrice, onSelectOption, selectedContract }: OptionsChainProps) {
   const calls = chain.calls ?? [];
   const puts = chain.puts ?? [];
   const defaultTab = calls.length > 0 ? 'calls' : 'puts';
   return (
-    <Tabs defaultValue={defaultTab}>
-      <TabsList>
-        <TabsTrigger value="calls">Calls ({calls.length})</TabsTrigger>
-        <TabsTrigger value="puts">Puts ({puts.length})</TabsTrigger>
-      </TabsList>
-      <TabsContent value="calls" className="mt-4">
-        <OptionTable
-          options={calls}
-          stockPrice={stockPrice}
-          onSelect={onSelectOption}
-          selectedContract={selectedContract}
-        />
-      </TabsContent>
-      <TabsContent value="puts" className="mt-4">
-        <OptionTable
-          options={puts}
-          stockPrice={stockPrice}
-          onSelect={onSelectOption}
-          selectedContract={selectedContract}
-        />
-      </TabsContent>
-    </Tabs>
+    <div className="flex flex-col gap-3">
+      {/* Header row: tabs + data source badge */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <Tabs defaultValue={defaultTab} className="flex-1 min-w-0">
+          <TabsList>
+            <TabsTrigger value="calls">Calls ({calls.length})</TabsTrigger>
+            <TabsTrigger value="puts">Puts ({puts.length})</TabsTrigger>
+          </TabsList>
+          <TabsContent value="calls" className="mt-4">
+            <OptionTable
+              options={calls}
+              stockPrice={stockPrice}
+              onSelect={onSelectOption}
+              selectedContract={selectedContract}
+            />
+          </TabsContent>
+          <TabsContent value="puts" className="mt-4">
+            <OptionTable
+              options={puts}
+              stockPrice={stockPrice}
+              onSelect={onSelectOption}
+              selectedContract={selectedContract}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
+      {/* Data source footer */}
+      {chain.dataSource && (
+        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground pt-1 border-t border-white/[0.06]">
+          <span>Options data</span>
+          <DataSourceBadge source={chain.dataSource} />
+          {chain.isSynthetic && (
+            <Badge variant="outline" className="text-[10px] text-yellow-400 border-yellow-400/40">
+              Synthetic
+            </Badge>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sohanpatel/options-analyzer/api/internal/datasource"
 	bsmath "github.com/sohanpatel/options-analyzer/api/internal/math"
 	"github.com/sohanpatel/options-analyzer/api/internal/models"
 	"github.com/sohanpatel/options-analyzer/api/internal/yahoo"
@@ -21,7 +22,8 @@ const (
 // OptionsService is the primary domain service for options data and scoring.
 //
 // Responsibilities:
-//   - Fetching and merging multi-expiry options chains from Yahoo Finance
+//   - Fetching and merging multi-expiry options chains via the datasource router
+//     (Tradier primary, Yahoo Finance fallback)
 //   - Enriching each contract with Black-Scholes Greeks, fair value, and feasibility flags
 //   - Classifying contracts into Weekly / Monthly / Quarterly / LEAPS categories
 //   - Scoring and recommending the best long call/put candidates
@@ -39,7 +41,7 @@ const (
 // When live data is unavailable the service transparently falls back to a
 // synthetic Black-Scholes priced chain (see package yahoo/synthetic.go).
 type OptionsService struct {
-	client *yahoo.Client
+	router *datasource.Router
 	sp500  *SP500Service
 
 	// cached recommendations — refreshed lazily, TTL 5 min
@@ -49,16 +51,17 @@ type OptionsService struct {
 }
 
 // NewOptionsService creates a new OptionsService
-func NewOptionsService(client *yahoo.Client, sp500 *SP500Service) *OptionsService {
+func NewOptionsService(router *datasource.Router, sp500 *SP500Service) *OptionsService {
 	return &OptionsService{
-		client: client,
+		router: router,
 		sp500:  sp500,
 	}
 }
 
 // GetOptionsChain fetches all expiry categories (weekly / monthly / quarterly / LEAPS),
 // tags each contract, enriches Greeks, and applies feasibility flags.
-// Falls back to a synthetic BS-priced chain when live data is unavailable.
+// Uses the datasource router (Tradier primary, Yahoo Finance fallback).
+// Falls back to a synthetic BS-priced chain when all live sources are unavailable.
 func (s *OptionsService) GetOptionsChain(symbol string) (*models.OptionsChain, error) {
 	stock, err := s.sp500.GetStock(symbol)
 	if err != nil {
@@ -66,8 +69,9 @@ func (s *OptionsService) GetOptionsChain(symbol string) (*models.OptionsChain, e
 	}
 	hv := stock.HV30 / 100.0
 
-	// First call gets the expiration date list
-	raw0, _, rawErr := s.client.GetOptionsChain(symbol, 0)
+	// Get the full expiration list. Yahoo Finance is the authoritative source
+	// for the complete list of available expiration dates.
+	raw0, rawErr := s.router.GetOptionsChainYahoo(symbol, 0)
 	if rawErr != nil {
 		chain := yahoo.SyntheticOptionsChain(symbol, stock.Price, hv, riskFreeRate)
 		s.enrichAndTag(chain, stock.Price, hv)
@@ -85,7 +89,6 @@ func (s *OptionsService) GetOptionsChain(symbol string) (*models.OptionsChain, e
 	}
 
 	now := time.Now()
-	// Select up to maxPerCat expiries per category
 	byCategory := selectExpiriesByCategory(allExpirations, now)
 
 	merged := &models.OptionsChain{
@@ -94,17 +97,19 @@ func (s *OptionsService) GetOptionsChain(symbol string) (*models.OptionsChain, e
 		UpdatedAt:   now,
 	}
 
+	// Track which data source served the majority of contracts
+	sourceCounts := map[string]int{}
 	gotAny := false
+
 	// Fetch in category order so the chain is naturally sorted by DTE
 	for _, cat := range []string{
 		models.ExpiryWeekly, models.ExpiryMonthly, models.ExpiryQuarterly, models.ExpiryLEAPS,
 	} {
 		for _, exp := range byCategory[cat] {
-			rawExp, _, fetchErr := s.client.GetOptionsChain(symbol, exp)
+			parsed, fetchErr := s.router.GetOptionsForExpiry(symbol, exp)
 			if fetchErr != nil {
 				continue
 			}
-			parsed := yahoo.ParseOptionsChain(symbol, rawExp, stock.Price, riskFreeRate)
 			// Tag every contract with its category
 			expTime := time.Unix(exp, 0)
 			dte := int(expTime.Sub(now).Hours() / 24)
@@ -119,6 +124,7 @@ func (s *OptionsService) GetOptionsChain(symbol string) (*models.OptionsChain, e
 			merged.Puts = append(merged.Puts, parsed.Puts...)
 			if len(parsed.Calls) > 0 || len(parsed.Puts) > 0 {
 				gotAny = true
+				sourceCounts[parsed.DataSource] += len(parsed.Calls) + len(parsed.Puts)
 			}
 		}
 	}
@@ -129,8 +135,22 @@ func (s *OptionsService) GetOptionsChain(symbol string) (*models.OptionsChain, e
 		return chain, nil
 	}
 
+	// Attribute the chain to whichever source served the most contracts
+	merged.DataSource = dominantSource(sourceCounts)
+
 	s.enrichAndTag(merged, stock.Price, hv)
 	return merged, nil
+}
+
+// dominantSource returns the source key with the highest count.
+func dominantSource(counts map[string]int) string {
+	best, max := "", 0
+	for src, n := range counts {
+		if n > max {
+			best, max = src, n
+		}
+	}
+	return best
 }
 
 // GetFilteredChain returns an options chain with contracts filtered by capital and risk level.

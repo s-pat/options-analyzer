@@ -24,6 +24,7 @@ type Stock struct {
 	EMA20         float64   `json:"ema20"`
 	EMA50         float64   `json:"ema50"`
 	RSI           float64   `json:"rsi"`
+	QuoteSource   string    `json:"quoteSource"`   // provider for real-time quote data
 	UpdatedAt     time.Time `json:"updatedAt"`
 }
 
@@ -117,6 +118,7 @@ type OptionsChain struct {
 	Calls       []OptionContract `json:"calls"`
 	Puts        []OptionContract `json:"puts"`
 	IsSynthetic bool             `json:"isSynthetic"` // true when generated from BS, not live data
+	DataSource  string           `json:"dataSource"`  // provider that served the chain data
 	UpdatedAt   time.Time        `json:"updatedAt"`
 }
 
