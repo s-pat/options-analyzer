@@ -48,6 +48,7 @@ func main() {
 	optionsSvc := services.NewOptionsService(yahooClient, sp500Svc)
 	backtestSvc := services.NewBacktestService(yahooClient)
 	todaySvc := services.NewTodayService(optionsSvc, sp500Svc)
+	newsSvc := services.NewNewsService(yahooClient)
 
 	// Initialize handlers
 	marketH := handlers.NewMarketHandler(yahooClient)
@@ -55,6 +56,7 @@ func main() {
 	optionsH := handlers.NewOptionsHandler(optionsSvc)
 	backtestH := handlers.NewBacktestHandler(backtestSvc)
 	todayH := handlers.NewTodayHandler(todaySvc)
+	newsH := handlers.NewNewsHandler(newsSvc)
 
 	// Pre-warm both hot endpoints on startup so the first user after a deploy
 	// hits warm caches. Google OAuth + Clerk callbacks take ~5s, giving the
@@ -106,6 +108,7 @@ func main() {
 		v1.GET("/stocks", stocksH.ListStocks)
 		v1.GET("/stocks/:symbol", stocksH.GetStock)
 		v1.GET("/stocks/:symbol/history", stocksH.GetHistory)
+		v1.GET("/stocks/:symbol/news", newsH.GetStockNews)
 		v1.GET("/stocks/:symbol/options", optionsH.GetOptionsChain)
 		v1.GET("/stocks/:symbol/options/filtered", optionsH.GetFilteredChain)
 		v1.GET("/stocks/:symbol/options/analyze", optionsH.AnalyzeOption)

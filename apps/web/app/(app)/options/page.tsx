@@ -8,9 +8,9 @@ import { StockLoader } from '@/components/ui/StockLoader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useStock, useStockHistory, useFilteredChain, useOptionAnalysis } from '@/hooks/useMarketData';
+import { useStock, useStockHistory, useFilteredChain, useOptionAnalysis, useStockNews } from '@/hooks/useMarketData';
 import type { OptionContract, OptionsFilter } from '@/lib/types';
-import { AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { AlertCircle, TrendingUp, TrendingDown, Newspaper } from 'lucide-react';
 
 const StockChart = dynamic(
   () => import('@/components/charts/StockChart').then((m) => ({ default: m.StockChart })),
@@ -31,6 +31,10 @@ const OptionCard = dynamic(
 const OptionAnalysisPanel = dynamic(
   () => import('@/components/options/OptionAnalysis').then((m) => ({ default: m.OptionAnalysisPanel })),
   { loading: () => <div className="flex justify-center py-10"><StockLoader size="md" message="Analyzing option…" /></div> }
+);
+const NewsFeed = dynamic(
+  () => import('@/components/options/NewsFeed').then((m) => ({ default: m.NewsFeed })),
+  { loading: () => <div className="space-y-2">{[...Array(4)].map((_, i) => <div key={i} className="h-16 animate-pulse rounded-xl bg-white/[0.03]" />)}</div> }
 );
 import { cn } from '@/lib/utils';
 
@@ -59,6 +63,7 @@ function OptionsPageInner() {
   const { data: stock, isLoading: stockLoading } = useStock(symbol);
   const { data: histData, isLoading: histLoading } = useStockHistory(symbol);
   const { data: chain, isLoading: chainLoading } = useFilteredChain(symbol, filter);
+  const { data: news, isLoading: newsLoading } = useStockNews(symbol);
 
   const { data: analysis, isLoading: analysisLoading } = useOptionAnalysis(
     selectedOption ? symbol : null,
@@ -168,6 +173,61 @@ function OptionsPageInner() {
                 ema20={stock?.ema20}
                 ema50={stock?.ema50}
               />
+            )}
+          </CardContent>
+        </Card>
+
+        {/* News Feed */}
+        <Card className="rounded-2xl border-white/[0.08] bg-white/[0.03] animate-slide-up delay-150">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs text-white/40 uppercase tracking-wide font-medium flex items-center gap-2">
+              <Newspaper className="h-3.5 w-3.5" />
+              News &amp; Sentiment
+              {news && (
+                <span className={cn(
+                  'ml-auto text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-md border',
+                  news.overallSentiment === 'bullish'
+                    ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                    : news.overallSentiment === 'bearish'
+                    ? 'bg-red-500/10 border-red-500/20 text-red-400'
+                    : 'bg-white/[0.04] border-white/[0.08] text-white/40',
+                )}>
+                  {news.overallSentiment}
+                </span>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {newsLoading ? (
+              <div className="space-y-2">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 animate-pulse">
+                    <div className="flex gap-2">
+                      <div className="shimmer h-3.5 w-3.5 rounded-full mt-0.5 shrink-0" />
+                      <div className="flex-1 space-y-1.5">
+                        <div className="shimmer h-3 w-full rounded" />
+                        <div className="shimmer h-3 w-3/4 rounded" />
+                        <div className="flex gap-1.5 mt-2">
+                          <div className="shimmer h-4 w-16 rounded" />
+                          <div className="shimmer h-4 w-12 rounded" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : news ? (
+              /* On mobile: show 4 items; on larger screens: show all 10 in a 2-col grid */
+              <div className="block md:hidden">
+                <NewsFeed news={news} limit={4} />
+              </div>
+            ) : (
+              <p className="text-sm text-white/30 py-2">Could not load news.</p>
+            )}
+            {!newsLoading && news && (
+              <div className="hidden md:block">
+                <NewsFeed news={news} />
+              </div>
             )}
           </CardContent>
         </Card>

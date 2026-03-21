@@ -150,6 +150,31 @@ export interface MarketOverview {
   sectors: SectorPerformance[];
 }
 
+export type NewsSentiment = 'bullish' | 'bearish' | 'neutral';
+export type NewsCatalyst = 'earnings' | 'fda' | 'm&a' | 'upgrade' | 'downgrade' | 'macro' | '';
+
+export interface NewsItem {
+  uuid: string;
+  title: string;
+  publisher: string;
+  link: string;
+  publishedAt: number; // unix timestamp
+  sentiment: NewsSentiment;
+  catalyst: NewsCatalyst;
+  catalystLabel?: string;
+  summary?: string;
+}
+
+export interface StockNews {
+  symbol: string;
+  items: NewsItem[];
+  overallSentiment: NewsSentiment;
+  bullishCount: number;
+  bearishCount: number;
+  neutralCount: number;
+  updatedAt: string;
+}
+
 export interface BacktestRequest {
   symbol: string;
   type: 'call' | 'put';

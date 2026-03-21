@@ -9,6 +9,7 @@ import {
   getRecommendations,
   analyzeOption,
   getTodayOpportunities,
+  getStockNews,
 } from '@/lib/api';
 import type { OptionsFilter } from '@/lib/types';
 
@@ -91,6 +92,17 @@ export function useRecommendations(limit = 20) {
       // Without this, every dashboard visit shows a 60-90 s spinner even
       // when the cache already has perfectly good recent data.
       keepPreviousData: true,
+    },
+  );
+}
+
+export function useStockNews(symbol: string | null) {
+  return useSWR(
+    symbol ? `stocks/${symbol}/news` : null,
+    () => getStockNews(symbol!),
+    {
+      refreshInterval: networkRefreshInterval(5 * 60_000), // 5 min — news is cached 10 min on backend
+      dedupingInterval: 4 * 60_000,
     },
   );
 }

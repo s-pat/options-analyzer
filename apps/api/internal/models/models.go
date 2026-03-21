@@ -241,3 +241,49 @@ type Greeks struct {
 	Theta float64
 	Vega  float64
 }
+
+// NewsSentiment classifies the market sentiment of a news item
+type NewsSentiment = string
+
+const (
+	SentimentBullish NewsSentiment = "bullish"
+	SentimentBearish NewsSentiment = "bearish"
+	SentimentNeutral NewsSentiment = "neutral"
+)
+
+// NewsCatalyst identifies a specific event type in a news item
+type NewsCatalyst = string
+
+const (
+	CatalystEarnings   NewsCatalyst = "earnings"
+	CatalystFDA        NewsCatalyst = "fda"
+	CatalystMA         NewsCatalyst = "m&a"
+	CatalystUpgrade    NewsCatalyst = "upgrade"
+	CatalystDowngrade  NewsCatalyst = "downgrade"
+	CatalystMacro      NewsCatalyst = "macro"
+	CatalystNone       NewsCatalyst = ""
+)
+
+// NewsItem is a single news article with sentiment classification
+type NewsItem struct {
+	UUID         string       `json:"uuid"`
+	Title        string       `json:"title"`
+	Publisher    string       `json:"publisher"`
+	Link         string       `json:"link"`
+	PublishedAt  int64        `json:"publishedAt"` // unix timestamp
+	Sentiment    NewsSentiment `json:"sentiment"`
+	Catalyst     NewsCatalyst  `json:"catalyst"`
+	CatalystLabel string       `json:"catalystLabel,omitempty"`
+	Summary      string       `json:"summary,omitempty"` // first ~120 chars of snippet if available
+}
+
+// StockNews is the full news response for a symbol
+type StockNews struct {
+	Symbol          string     `json:"symbol"`
+	Items           []NewsItem `json:"items"`
+	OverallSentiment NewsSentiment `json:"overallSentiment"`
+	BullishCount    int        `json:"bullishCount"`
+	BearishCount    int        `json:"bearishCount"`
+	NeutralCount    int        `json:"neutralCount"`
+	UpdatedAt       time.Time  `json:"updatedAt"`
+}
