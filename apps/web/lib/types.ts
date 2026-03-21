@@ -175,6 +175,36 @@ export interface StockNews {
   updatedAt: string;
 }
 
+export type PositionStatus = 'open' | 'closed';
+
+export interface PortfolioPosition {
+  id: string;
+  symbol: string;
+  optionType: 'call' | 'put';
+  strike: number;
+  expiration: number;      // unix timestamp
+  expirationFmt: string;   // "Mar 28, 2026"
+  contracts: number;       // positive = long, negative = short
+  entryPrice: number;      // price paid per share
+  entryDate: string;       // ISO date string "2026-03-21"
+  notes?: string;
+  status: PositionStatus;
+  closedPrice?: number;
+  closedDate?: string;
+}
+
+export interface PortfolioSummary {
+  totalPositions: number;
+  openPositions: number;
+  totalCost: number;
+  totalCurrentValue: number;
+  totalPnLDollar: number;
+  totalPnLPct: number;
+  dayPnLDollar: number;
+  winners: number;
+  losers: number;
+}
+
 export interface BacktestRequest {
   symbol: string;
   type: 'call' | 'put';
@@ -220,3 +250,4 @@ export interface BacktestResult {
   totalTrades: number;
   profitFactor: number;
 }
+
