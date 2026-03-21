@@ -24,7 +24,7 @@ export default function DashboardPage() {
   return (
     <>
       <Header title="Dashboard" />
-      <div className="flex-1 p-6 space-y-6">
+      <div className="flex-1 p-4 sm:p-6 space-y-6 overflow-x-hidden min-w-0">
         <MarketOverview />
         <SectorHeatmap />
         <TopOptions />
