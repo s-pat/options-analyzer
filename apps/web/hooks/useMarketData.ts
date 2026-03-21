@@ -10,6 +10,7 @@ import {
   analyzeOption,
   getTodayOpportunities,
   getStockNews,
+  getIVCrush,
 } from '@/lib/api';
 import type { OptionsFilter } from '@/lib/types';
 
@@ -122,4 +123,18 @@ export function useOptionAnalysis(
     () => analyzeOption(symbol!, type!, strike!, expiration!),
     { revalidateOnFocus: false },
   );
+}
+
+export function useIVCrush(
+  symbol: string | null,
+  type: 'call' | 'put' | null,
+  strike: number | null,
+  expiration: number | null,
+) {
+  const key = symbol && type && strike && expiration
+    ? `stocks/${symbol}/iv-crush/${type}/${strike}/${expiration}`
+    : null;
+  return useSWR(key, () => getIVCrush(symbol!, type!, strike!, expiration!), {
+    revalidateOnFocus: false,
+  });
 }

@@ -1,6 +1,7 @@
 import type {
   BacktestRequest,
   BacktestResult,
+  IVCrushEstimate,
   MarketOverview,
   OptionsChain,
   OptionsFilter,
@@ -95,6 +96,10 @@ export const getTodayOpportunities = () =>
 // Stock news with sentiment classification
 export const getStockNews = (symbol: string) =>
   fetchJSON<StockNews>(`/stocks/${symbol}/news`);
+
+// IV Crush simulator
+export const getIVCrush = (symbol: string, type: 'call' | 'put', strike: number, expiration: number) =>
+  fetchJSON<IVCrushEstimate>(`/stocks/${symbol}/iv-crush?type=${type}&strike=${strike}&expiration=${expiration}`);
 
 // Backtest
 export const runBacktest = (req: BacktestRequest) =>
