@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { SignUp } from '@clerk/nextjs';
 import { Activity, ArrowLeft } from 'lucide-react';
+import { ApiWarmup } from '@/components/ApiWarmup';
 
 const GRID_BG = {
   backgroundImage:
@@ -12,6 +13,7 @@ const GRID_BG = {
 export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-[#060608] text-white flex items-center justify-center p-5">
+      <ApiWarmup />
       {/* Grid background */}
       <div className="fixed inset-0 pointer-events-none" style={GRID_BG} />
 
